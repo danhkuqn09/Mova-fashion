@@ -143,7 +143,7 @@
 
 .auth-page {
   min-height: 100vh;
-  background: url("https://i.pinimg.com/1200x/df/88/1c/df881ce6e9e02b1b3ca91b726dd8cc54.jpg") center/cover no-repeat;
+  background: url("../image/banner.jpg") center/cover no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -6,7 +6,7 @@
   align-items: center;
   height: 55vh;
   background-image: url(https://i.pinimg.com/736x/36/53/d7/3653d7af12f42a515733bdfd6c31b830.jpg);
-  font-family: "Poppins", sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   overflow: hidden;
 }
 
@@ -45,16 +45,17 @@
 }
 
 .auth-box button {
-  width: 100%;
+  width: 50%;
   padding: 12px;
-  margin-top: 10px;
-  background: linear-gradient(135deg, #4158d0, #c850c0);
+  margin-top: 15px;
+  background: #bac138;
   border: none;
   border-radius: 10px;
   color: white;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   transition: 0.3s;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .auth-box button:hover {

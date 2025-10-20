@@ -19,6 +19,10 @@
     background: #f9f5ef;
     font-weight: 600;
 }
+.cart-table thead tr {
+    background-color: #f9f5ef; /* Màu nền full hàng */
+    color: #2e2e2e; /* Màu chữ */
+}
 
 .cart-table td {
     padding: 15px;

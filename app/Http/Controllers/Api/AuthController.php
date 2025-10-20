@@ -102,18 +102,7 @@ class AuthController extends Controller
             ], 500);
             
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
-            // Handle SMTP/Mail transport errors
-            $errorMessage = $e->getMessage();
-            
-            // Check if it's a rate limiting error from Gmail
-            if (str_contains($errorMessage, '450') || str_contains($errorMessage, 'rate')) {
-                return response()->json([
-                    'message' => 'Không thể gửi email ngay lúc này do giới hạn tốc độ. Vui lòng thử lại sau.',
-                    'error' => 'mail_rate_limit_exceeded'
-                ], 429);
-            }
-            
-            // Generic mail error
+            // Lỗi gửi mail (SMTP/transport) - không áp dụng bất kỳ giới hạn nào
             return response()->json([
                 'message' => 'Không thể gửi email. Vui lòng thử lại sau.',
                 'error' => 'mail_send_failed'

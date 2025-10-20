@@ -4,19 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Review extends Model
+class News extends Model
 {
     protected $fillable = [
         'user_id',
-        'order_item_id',
-        'rating',
-        'content',
-        'image',
+        'title',
+        'thumbnail',
+        'summary',
+        'status',
     ];
 
     protected $casts = [
-        'rating' => 'integer',
+        'status' => 'string',
     ];
 
     public function user(): BelongsTo
@@ -24,8 +25,8 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function orderItem(): BelongsTo
+    public function details(): HasMany
     {
-        return $this->belongsTo(OrderItem::class);
+        return $this->hasMany(NewsDetail::class);
     }
 }

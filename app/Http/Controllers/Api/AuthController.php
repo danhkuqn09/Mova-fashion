@@ -85,13 +85,46 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
 
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Email đặt lại mật khẩu đã được gửi.'])
-            : response()->json(['message' => 'Gửi email thất bại.'], 500);
+            if ($status === Password::RESET_LINK_SENT) {
+                return response()->json([
+                    'message' => 'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.'
+                ]);
+            }
+            
+            return response()->json([
+                'message' => 'Gửi email thất bại. Vui lòng thử lại.',
+                'error' => 'send_failed'
+            ], 500);
+            
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle SMTP/Mail transport errors
+            $errorMessage = $e->getMessage();
+            
+            // Check if it's a rate limiting error from Gmail
+            if (str_contains($errorMessage, '450') || str_contains($errorMessage, 'rate')) {
+                return response()->json([
+                    'message' => 'Không thể gửi email ngay lúc này do giới hạn tốc độ. Vui lòng thử lại sau.',
+                    'error' => 'mail_rate_limit_exceeded'
+                ], 429);
+            }
+            
+            // Generic mail error
+            return response()->json([
+                'message' => 'Không thể gửi email. Vui lòng thử lại sau.',
+                'error' => 'mail_send_failed'
+            ], 500);
+        } catch (\Exception $e) {
+            // Catch any other unexpected errors
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.',
+                'error' => 'unexpected_error'
+            ], 500);
+        }
     }
 
     // Đặt lại mật khẩu

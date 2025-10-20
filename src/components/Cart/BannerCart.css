@@ -1,0 +1,53 @@
+.banner-cart {
+  margin-top: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.top-images-cart {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.top-images-cart img {
+  border-radius: 20px;
+  width: 1280px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.banner-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #000;
+}
+
+.shop-title {
+  font-size: 48px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.shop-path {
+  font-size: 16px;
+}
+
+.breadcrumb-link {
+  color: #000 ;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: #f3c623; /* Màu vàng nhẹ khi hover */
+}
+
+.breadcrumb-current {
+  color: #f0f0f0;
+  font-weight: 400;
+}

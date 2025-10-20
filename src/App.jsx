@@ -6,6 +6,7 @@ import Product from "./components/Product";
 import Footer from "./components/Footer";
 import Shop from "./components/Shop/shop";
 import ProductDetail from "./components/ProductDetail/ProductDetail";
+import Cart from "./components/Cart/Cart";
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -27,6 +28,7 @@ function App() {
       />
       <Route path="/shop" element={<Shop />} />
       <Route path="/productdetail" element={<ProductDetail />} />
+      <Route path="/cart" element={<Cart />} />
     </Routes>
   );
 }

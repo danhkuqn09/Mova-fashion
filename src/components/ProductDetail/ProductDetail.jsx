@@ -1,24 +1,29 @@
 import React, { useState } from "react";
-
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // 🟢 import thêm useLocation
 import Header from "../Header";
 import Banner from "./Banner";
 import Footer from "../Footer";
 import "./ProductDetail.css";
-import VestNauDetail1 from "./Image/VestNauDetail1.jpg";
-import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
-import VestNauMain from "/Image/vestNuNau.jpg"; 
+// import VestNauDetail1 from "./Image/VestNauDetail1.jpg";
+// import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
 
 function ProductDetail() {
-  
+  const location = useLocation();
+  const product = location.state; // 🟢 Nhận dữ liệu từ trang trước
+
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("L");
   const [selectedColor, setSelectedColor] = useState("#c98d48");
+  // const [mainImage, setMainImage] = useState(product?.img || "");
+  const { name, price, images } = location.state;
+  const [mainImg, setMainImg] = useState(images[0]);
+  //   const thumbnails = [
 
-  // ✅ State để lưu ảnh chính đang hiển thị
-  const [mainImage, setMainImage] = useState(VestNauMain);
+  //   // VestNauDetail1,
+  //   // VestNauDetail2
 
-  const thumbnails = [VestNauDetail1, VestNauDetail2, VestNauMain];
+  // ];
+  // hoặc thêm ảnh phụ nếu có
 
   const handleQuantity = (type) => {
     setQuantity((prev) =>
@@ -31,29 +36,28 @@ function ProductDetail() {
       <Header />
       <Banner />
 
-      {/* 🔽 --- CHI TIẾT SẢN PHẨM --- 🔽 */}
       <div className="product-detail">
         <div className="product-gallery">
           <div className="thumbnails">
-            {thumbnails.map((img, index) => (
+            {images.map((img, index) => (
               <img
                 key={index}
                 src={img}
-                alt={`thumb${index}`}
-                className={mainImage === img ? "active" : ""}
-                onClick={() => setMainImage(img)} // ✅ click đổi hình chính
+                alt={name}
+                onClick={() => setMainImg(img)}
+                className={mainImg === img ? "active" : ""}
               />
             ))}
           </div>
-
+            {/* Ảnh Chính */}
           <div className="main-image">
-            <img src={mainImage} alt="main product" />
+            <img src={mainImg} alt="main product" />
           </div>
         </div>
-
+            {/* Thông tin */}
         <div className="product-info">
-          <h2>Áo Thun T-Shirts</h2>
-          <p className="price">365.000 VND</p>
+          <h2>{name}</h2>
+          <p>{price}</p>
 
           <div className="rating">
             <span>⭐ ⭐ ⭐ ⭐ ⭐</span>
@@ -106,25 +110,12 @@ function ProductDetail() {
           </div>
 
           <div className="details">
-            <p>
-              <strong>SKU:</strong> SS001
-            </p>
-            <p>
-              <strong>Danh mục:</strong> T-Shirts
-            </p>
-            <p>
-              <strong>Tags:</strong> T-shirts, Shirts
-            </p>
-            <p className="share">
-              <strong>Share:</strong>
-              <i className="fa-brands fa-facebook"></i>
-              <i className="fa-brands fa-instagram"></i>
-              <i className="fa-brands fa-linkedin"></i>
-            </p>
+            <p><strong>SKU:</strong> SP{product?.id || "000"}</p>
+            <p><strong>Danh mục:</strong> Thời trang</p>
+            <p><strong>Tags:</strong> {product?.name || ""}</p>
           </div>
         </div>
       </div>
-      {/* 🔼 --- HẾT PHẦN CHI TIẾT --- 🔼 */}
 
       <Footer />
     </div>

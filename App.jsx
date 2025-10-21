@@ -9,7 +9,6 @@ import LoginForm from './components/LoginForm';
 import './index.css';
 import RegisterForm from './components/RegisterForm';
 
-// Component giả lập trang chủ (để / hoạt động)
 const HomePage = () => (
   <>
     <Header />
@@ -54,4 +53,4 @@ function App() {
   );
 }
 
-export default App; // RẤT QUAN TRỌNG
+export default App;

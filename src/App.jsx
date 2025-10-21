@@ -10,7 +10,8 @@ import Shop from "./components/Shop/shop";
 import ProductDetail from "./components/ProductDetail/ProductDetail";
 import Cart from "./components/Cart/Cart";
 import CartSlide from "./components/CartSlide/CartSlide"; // 2. Import CartSlide (sửa lại đường dẫn nếu cần)
-
+import Register from "./components/RegisterForm";
+import Login from "./components/LoginForm";
 // CSS
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -38,6 +39,8 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/productdetail" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
 
       {/* 8. Đặt CartSlide ở đây, bên ngoài Routes */}

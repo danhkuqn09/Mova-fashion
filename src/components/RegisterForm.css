@@ -1,0 +1,141 @@
+/* 1. CSS cho layout TỔNG của trang */
+.register-page-layout {
+  display: flex;
+  flex-direction: column; /* Xếp Header, Main, Footer theo chiều dọc */
+  min-height: 100vh; /* Chiếm ít nhất toàn bộ chiều cao màn hình */
+}
+
+/* 2. CSS cho phần nội dung (có ảnh nền và căn giữa) */
+.main-content-wrapper {
+  /* Di chuyển file Banner.jpg vào thư mục public/assets/ */
+  background: url('/assets/Banner.jpg'); 
+  background-size: cover;
+  background-position: center;
+  
+  padding: 50px 20px;
+  
+  /* Quan trọng: Tự động chiếm hết không gian còn lại (giữa Header và Footer) */
+  flex-grow: 1; 
+
+  /* Căn giữa form */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* 3. CSS cho Form (Giữ nguyên) */
+.registration-container {
+  display: flex;
+  width: 100%; /* Sửa lại để linh hoạt hơn */
+  max-width: 400px;
+  background: transparent;
+}
+
+.register-form-box {
+  background-color: white;
+
+  padding: 40px 30px 20px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.659);
+  border-radius: 10px;
+  width: 100%; /* Đảm bảo form chiếm hết .registration-container */
+}
+
+.register-form-box h2 {
+  font-size: 38px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.register-form-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  Border-radius: 7px;
+  background-color: #ffe8d2;
+  outline: none;
+  color: #000;
+}
+
+.register-button {
+  width: 50%;
+  padding: 12px;
+  background-color: #d1b473;
+  color: rgb(0, 0, 0);
+  border: none;
+  Border-radius: 7px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: 0.5s;
+}
+
+.register-button:hover {
+    width: 70%;
+  transition: 0.5s;
+  background-color: #52472d;
+  color: rgb(255, 255, 255);
+}
+
+.login-prompt {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.login-prompt a {
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.login-prompt:hover a {
+  transition: 0.3s;
+  color: #0015ff;
+  text-decoration: underline;
+  font-size: medium;
+}
+
+.social-login-separator {
+  margin: 20px 0 10px;
+  font-size: 14px;
+  color: #999;
+}
+
+.social-login-button {
+  height: 40px;
+  border-radius: 7px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  padding: 10px 50px;
+  transition: 0.5s;
+}
+
+.social-login-button:hover {
+  padding: 10px 70px;
+  transition: 0.5s;
+}
+
+.social-login-button.google {
+  background-color: white;
+  color: #f44242;
+  border-color: #ff0000;
+  transition: 0.5s;
+}
+
+.social-login-button.google:hover {
+  background-color: rgb(255, 0, 0);
+  color: #ffffff;
+  border-color: #ffffff;
+  transition: 0.5s;
+}

@@ -145,4 +145,49 @@ class AuthController extends Controller
             ? response()->json(['message' => 'Đặt lại mật khẩu thành công.'])
             : response()->json(['message' => 'Token không hợp lệ hoặc đã hết hạn.'], 400);
     }
+
+    // Đăng xuất: thu hồi token hiện tại
+    public function logout(Request $request)
+    {
+        // Nếu dùng Sanctum token-based, revoke only current access token
+        $user = $request->user();
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
+
+        return response()->json([
+            'message' => 'Đăng xuất thành công.'
+        ]);
+    }
+
+    // Đổi mật khẩu cho user đang đăng nhập
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'Mật khẩu hiện tại không chính xác.'
+            ], 422);
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->password = Hash::make($request->password);
+        $user->setRememberToken(Str::random(60));
+        $user->save();
+
+        // Thu hồi token cũ và phát hành token mới để đảm bảo an toàn
+        $user->tokens()->delete();
+        $newToken = $user->createToken('api_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Đổi mật khẩu thành công.',
+            'token' => $newToken,
+        ]);
+    }
 }

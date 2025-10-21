@@ -34,14 +34,15 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $frontendUrl = config('app.frontend_url', 'http://localhost:5173'); // URL FE của bạn
-        $resetUrl = "{$frontendUrl}/reset-password/{$this->token}?email={$notifiable->getEmailForPasswordReset()}";
+        $frontendUrl = config('app.frontend_url', 'http://localhost:3000'); // URL FE của bạn
+        $resetUrl = "{$frontendUrl}/reset-password?token={$this->token}&email={$notifiable->getEmailForPasswordReset()}";
 
         return (new MailMessage)
             ->subject('Đặt lại mật khẩu tài khoản của bạn')
             ->greeting('Xin chào ' . $notifiable->name . '!')
             ->line('Bạn nhận được email này vì chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.')
             ->action('Đặt lại mật khẩu', $resetUrl)
+            ->line('Link này sẽ hết hạn sau 60 phút.')
             ->line('Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.')
             ->salutation('Trân trọng, đội ngũ MOVA Fashion');
     }

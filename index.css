@@ -1,0 +1,289 @@
+/* src/index.css */
+
+/* ========================================================= */
+/* 1. RESET VÀ CẤU TRÚC LAYOUT CHUNG */
+/* ========================================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* Thay thế bằng font chữ bạn muốn, ví dụ: 'Playfair Display', serif; */
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Đảm bảo toàn bộ trang chiếm hết chiều cao màn hình */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* ========================================================= */
+/* 2. HEADER STYLING */
+/* ========================================================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: white;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #333;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+}
+
+.user-actions .icon {
+  margin-left: 20px;
+  cursor: pointer;
+  font-size: 0;
+  /* Đặt về 0 để React Icon kiểm soát kích thước */
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.user-actions .icon:hover {
+  color: #a0a0a0;
+}
+
+
+/* ========================================================= */
+/* 3. MAIN CONTENT VÀ FORM LAYOUT */
+/* ========================================================= */
+.main-content-wrapper {
+  /* Nền màu xám nhạt với hiệu ứng vân (bạn có thể thêm background-image ở đây) */
+  background: url('assets/Banner.jpg');
+  padding: 50px 0;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  /* Quan trọng cho vị trí của các khối ảnh */
+}
+
+.registration-container {
+  display: flex;
+  width: 50%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: transparent;
+}
+
+/* Khối Form (Đăng Nhập/Đăng Ký) */
+.register-form-box {
+  background-color: white;
+  padding: 40px 30px 20px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.659);
+  border-radius: 10px;
+}
+
+.register-form-box h2 {
+  font-size: 38px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.register-form-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  Border-radius: 7px;
+  background-color: #ffe8d2;
+  /* Màu vàng nhạt giống ảnh */
+  outline: none;
+}
+
+.register-button {
+  width: 50%;
+  padding: 12px;
+  background-color: #d1b473;
+  /* Màu vàng nâu của nút */
+  color: rgb(0, 0, 0);
+  border: none;
+  Border-radius: 7px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: 0.5s;
+}
+
+.register-button:hover {
+    width: 70%;
+  transition: 0.5s;
+  background-color: #52472d;
+  /* Màu vàng nâu của nút */
+  color: rgb(255, 255, 255);
+}
+
+.login-prompt {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.login-prompt a {
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.login-prompt:hover a {
+  transition: 0.3s;
+  color: #0015ff;
+  font-weight: bold;
+  text-decoration: underline;
+  font-size: medium;
+}
+
+.social-login-separator {
+  margin: 20px 0 10px;
+  font-size: 14px;
+  color: #999;
+}
+
+.social-login-button {
+  height: 40px;
+  border-radius: 7px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  padding: 10px 50px;
+  transition: 0.5s;
+}
+
+.social-login-button:hover {
+  padding: 10px 70px;
+  transition: 0.5s;
+}
+
+.social-login-button.google {
+  background-color: white;
+  color: #f44242;
+  border-color: #ff0000;
+  transition: 0.5s;
+}
+
+.social-login-button.google:hover {
+  background-color: rgb(255, 0, 0);
+  color: #ffffff;
+  border-color: #ffffff;
+  transition: 0.5s;
+}
+
+/* ========================================================= */
+/* 4. STYLING CÁC KHỐI ẢNH (Gây lỗi nhiều nhất) */
+/* ========================================================= */
+.model-image-container {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  /* Nền trắng cho khung vòm */
+  /* Thay thế URL ảnh thật vào đây */
+}
+
+/* ========================================================= */
+/* 5. FOOTER STYLING */
+/* ========================================================= */
+.footer {
+  background-color: white;
+  padding: 30px 50px 10px;
+  border-top: 1px solid #eee;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #433d3d;
+}
+
+.footer-logo {
+  font-size: 20px;
+  font-weight: bold;
+  width: 25%;
+}
+
+.footer-section {
+  width: 20%;
+}
+
+.footer-section h4 {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section li a {
+  text-decoration: none;
+  color: #666;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.newsletter-form input {
+  padding: 8px;
+  border: none;
+  border-bottom: 1px solid #333;
+  width: 70%;
+}
+
+.newsletter-form button {
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: -5px;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 10px;
+  font-size: 12px;
+  color: #666;
+}

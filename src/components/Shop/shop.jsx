@@ -1,37 +1,28 @@
-import React from "react";
+
 import Header from "../Header";
 import Banner from "./Banner";
 import Footer from "../Footer";
 import "./shop.css";
 import { Link } from "react-router-dom";
-const products = [
-  { id: 1, name: "Vest Nữ", price: "530.000 VNĐ", img: "/Image/vestNuNau.jpg" },
-  { id: 2, name: "Áo Khoác Da", price: "420.000 VNĐ", img: "/Image/aoKhoacDaNu.jpg" },
-  { id: 3, name: "Áo Sơ Mi Phối Nơ", price: "250.000 VNĐ", img: "/Image/aoSoMiNu.webp" },
-  { id: 4, name: "Quần Jeans Ống Suông", price: "690.000 VNĐ", img: "/Image/quanJeansNu.webp" },
-  { id: 5, name: "Áo Thun Nam", price: "550.000 VNĐ", img: "/Image/aoThunNam.jpg" },
-  { id: 6, name: "Áo Sơ Mi", price: "320.000 VNĐ", img: "/Image/aoSoMiNam.jpg" },
-  { id: 7, name: "Áo Khoác", price: "590.000 VNĐ", img: "/Image/aoKhoacNam.jpg" },
-  { id: 8, name: "Quần jeans", price: "460.000 VNĐ", img: "/Image/quanJeansNam.jpg" },
-  { id: 9, name: "Vest Nữ", price: "530.000 VNĐ", img: "/Image/vestNuNau.jpg" },
-  { id: 10, name: "Áo Khoác Da", price: "420.000 VNĐ", img: "/Image/aoKhoacDaNu.jpg" },
-  { id: 11, name: "Áo Sơ Mi Phối Nơ", price: "250.000 VNĐ", img: "/Image/aoSoMiNu.webp" },
-  { id: 12, name: "Quần Jeans Ống Suông", price: "690.000 VNĐ", img: "/Image/quanJeansNu.webp" },
-  { id: 13, name: "Áo Thun Nam", price: "550.000 VNĐ", img: "/Image/aoThunNam.jpg" },
-  { id: 14, name: "Áo Sơ Mi", price: "320.000 VNĐ", img: "/Image/aoSoMiNam.jpg" },
-  { id: 15, name: "Áo Khoác", price: "590.000 VNĐ", img: "/Image/aoKhoacNam.jpg" },
-  { id: 16, name: "Quần jeans", price: "460.000 VNĐ", img: "/Image/quanJeansNam.jpg" },
-  { id: 17, name: "Vest Nữ", price: "530.000 VNĐ", img: "/Image/vestNuNau.jpg" },
-  { id: 18, name: "Áo Khoác Da", price: "420.000 VNĐ", img: "/Image/aoKhoacDaNu.jpg" },
-  { id: 19, name: "Áo Sơ Mi Phối Nơ", price: "250.000 VNĐ", img: "/Image/aoSoMiNu.webp" },
-  { id: 20, name: "Quần Jeans Ống Suông", price: "690.000 VNĐ", img: "/Image/quanJeansNu.webp" },
-  { id: 21, name: "Áo Thun Nam", price: "550.000 VNĐ", img: "/Image/aoThunNam.jpg" },
-  { id: 22, name: "Áo Sơ Mi", price: "320.000 VNĐ", img: "/Image/aoSoMiNam.jpg" },
-  { id: 23, name: "Áo Khoác", price: "590.000 VNĐ", img: "/Image/aoKhoacNam.jpg" },
-  { id: 24, name: "Quần jeans", price: "460.000 VNĐ", img: "/Image/quanJeansNam.jpg" },
-];
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+
 
 function Shop() {
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/products")
+      .then((res) => {
+        setProducts(res.data);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi gọi API:", err);
+      });
+  }, []);
+
+
+
+
   return (
 
     <div className="shop">
@@ -41,12 +32,23 @@ function Shop() {
       <section className="products">
         <h2>Sản phẩm của chúng tôi</h2>
         <div className="product-grid">
-          {products.map((p) => (
+          {products.slice(0,).map((p) => (
             <div className="product-card" key={p.id}>
-              <img src={p.img} alt={p.name} />
+              <img src={`http://127.0.0.1:8000${p.images[0]}`} alt={p.name} />
               <h3>{p.name}</h3>
               <p>{p.price}</p>
-              <Link to="/productdetail" className="buy-btn"><button>Mua Ngay</button></Link>
+              <Link
+                to="/productdetail"
+                state={{
+                  name: p.name,
+                  price: p.price,
+                  images: p.images,
+                }}
+                className="buy-btn"
+              >
+                <button>Mua Ngay</button>
+              </Link>
+
             </div>
           ))}
         </div>

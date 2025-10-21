@@ -1,9 +1,9 @@
 import React from "react";
 import "./Header.css";
 import { Link } from "react-router-dom";
-// import logo from "/public/Image/LogoHome.png";  
 
-function Header() {
+// 1. Nhận 'onCartClick' từ props
+function Header({ onCartClick }) { 
   return (
     <header className="header">
       <div className="logo">
@@ -22,7 +22,15 @@ function Header() {
         <i className="fas fa-user"></i>
         <i className="fas fa-search"></i>
         <i className="fas fa-heart"></i>
-        <i className="fas fa-shopping-cart"></i>
+
+        {/* 2. Thêm sự kiện onClick vào icon giỏ hàng.
+             Khi click, nó sẽ gọi hàm 'onCartClick' (chính là hàm 'handleOpenCart' ở App.jsx)
+        */}
+        <i 
+          className="fas fa-shopping-cart" 
+          onClick={onCartClick} 
+          style={{ cursor: "pointer" }} // Thêm style để thấy đây là nút bấm
+        ></i>
       </div>
     </header>
   );

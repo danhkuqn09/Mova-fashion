@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // 🟢 import thêm useLocation
+import { Link, useLocation } from "react-router-dom"; //  import thêm useLocation
 import Header from "../Header";
 import Banner from "./Banner";
 import Footer from "../Footer";
 import "./ProductDetail.css";
 // import VestNauDetail1 from "./Image/VestNauDetail1.jpg";
-// import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
 
+// import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
 function ProductDetail() {
   const location = useLocation();
-  const product = location.state; // 🟢 Nhận dữ liệu từ trang trước
-
+  const product = location.state; //  Nhận dữ liệu từ trang trước
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("L");
   const [selectedColor, setSelectedColor] = useState("#c98d48");
@@ -19,12 +18,17 @@ function ProductDetail() {
   const [mainImg, setMainImg] = useState(images[0]);
   //   const thumbnails = [
 
+
+
   //   // VestNauDetail1,
+
   //   // VestNauDetail2
 
-  // ];
-  // hoặc thêm ảnh phụ nếu có
 
+
+  // ];
+
+  // hoặc thêm ảnh phụ nếu có
   const handleQuantity = (type) => {
     setQuantity((prev) =>
       type === "increase" ? prev + 1 : prev > 1 ? prev - 1 : 1
@@ -35,7 +39,6 @@ function ProductDetail() {
     <div className="ProductDetail">
       <Header />
       <Banner />
-
       <div className="product-detail">
         <div className="product-gallery">
           <div className="thumbnails">
@@ -49,35 +52,40 @@ function ProductDetail() {
               />
             ))}
           </div>
-            {/* Ảnh Chính */}
+          {/* Ảnh Chính */}
           <div className="main-image">
             <img src={mainImg} alt="main product" />
           </div>
         </div>
-            {/* Thông tin */}
+        {/* Thông tin */}
         <div className="product-info">
           <h2>{name}</h2>
           <p>{price}</p>
-
           <div className="rating">
             <span>⭐ ⭐ ⭐ ⭐ ⭐</span>
             <p>5 Customer Review</p>
           </div>
-
           <p className="product-description">
             Thoải mái, trẻ trung, năng động phù hợp với mọi thời tiết.
           </p>
 
+
+
           <div className="options">
+
             <div className="size">
+
               <p>Kích thước</p>
+
               <div className="size-options">
+
                 {["L", "XL", "XS"].map((size) => (
+
                   <button
                     key={size}
                     className={selectedSize === size ? "active" : ""}
                     onClick={() => setSelectedSize(size)}
-                  >
+                    >
                     {size}
                   </button>
                 ))}
@@ -109,6 +117,7 @@ function ProductDetail() {
             <button className="product-buy">Mua Ngay</button>
           </div>
 
+
           <div className="details">
             <p><strong>SKU:</strong> SP{product?.id || "000"}</p>
             <p><strong>Danh mục:</strong> Thời trang</p>
@@ -117,9 +126,16 @@ function ProductDetail() {
         </div>
       </div>
 
+
+
       <Footer />
+
     </div>
+
   );
+
 }
+
+
 
 export default ProductDetail;

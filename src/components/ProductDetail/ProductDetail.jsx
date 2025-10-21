@@ -5,7 +5,6 @@ import Banner from "./Banner";
 import Footer from "../Footer";
 import "./ProductDetail.css";
 // import VestNauDetail1 from "./Image/VestNauDetail1.jpg";
-
 // import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
 function ProductDetail() {
   const location = useLocation();
@@ -13,21 +12,12 @@ function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("L");
   const [selectedColor, setSelectedColor] = useState("#c98d48");
-  // const [mainImage, setMainImage] = useState(product?.img || "");
   const { name, price, images } = location.state;
   const [mainImg, setMainImg] = useState(images[0]);
   //   const thumbnails = [
-
-
-
-  //   // VestNauDetail1,
-
-  //   // VestNauDetail2
-
-
-
+  // VestNauDetail1,
+  // VestNauDetail2
   // ];
-
   // hoặc thêm ảnh phụ nếu có
   const handleQuantity = (type) => {
     setQuantity((prev) =>
@@ -68,24 +58,17 @@ function ProductDetail() {
           <p className="product-description">
             Thoải mái, trẻ trung, năng động phù hợp với mọi thời tiết.
           </p>
-
-
-
+            {/* Chọn Size */}
           <div className="options">
-
             <div className="size">
-
               <p>Kích thước</p>
-
               <div className="size-options">
-
                 {["L", "XL", "XS"].map((size) => (
-
                   <button
                     key={size}
                     className={selectedSize === size ? "active" : ""}
                     onClick={() => setSelectedSize(size)}
-                    >
+                  >
                     {size}
                   </button>
                 ))}

@@ -2,47 +2,37 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Comment;
-use App\Models\User;
-use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class CommentSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $users = User::all();
-        $products = Product::all();
-
-        if ($users->isEmpty() || $products->isEmpty()) {
-            $this->command->warn('No users or products found.');
-            return;
-        }
-
-        $commentTexts = [
-            'Sản phẩm có size nào phù hợp với người cao 1m65 không shop?',
-            'Cho em hỏi còn màu xanh navy không ạ?',
-            'Vải có dày không shop?',
-            'Sản phẩm này có co giãn không ạ?',
-            'Giặt nhiều có phai màu không shop?',
-            'Khi nào có hàng về ạ?',
-            'Cho em xin bảng size chi tiết được không?',
-            'Đặt hàng bao lâu thì nhận được ạ?',
-            'Sản phẩm có giống ảnh không shop?',
-            'Có chương trình giảm giá không ạ?',
+        $comments = [
+            // Comments cho sản phẩm 1 (Áo Thun Nam)
+            ['user_id' => 5, 'product_id' => 1, 'content' => 'Cho mình hỏi áo này có co giãn không ạ?', 'image' => null, 'created_at' => now()->subDays(5), 'updated_at' => now()->subDays(5)],
+            ['user_id' => 7, 'product_id' => 1, 'content' => 'Áo đẹp quá! Mình cao 1m70 nặng 65kg nên mặc size nào vừa ạ?', 'image' => null, 'created_at' => now()->subDays(4), 'updated_at' => now()->subDays(4)],
+            
+            // Comments cho sản phẩm 4 (Quần Jean Nam)
+            ['user_id' => 8, 'product_id' => 4, 'content' => 'Shop cho hỏi quần này có bị phai màu khi giặt không?', 'image' => null, 'created_at' => now()->subDays(6), 'updated_at' => now()->subDays(6)],
+            
+            // Comments cho sản phẩm 6 (Áo Kiểu Nữ)
+            ['user_id' => 9, 'product_id' => 6, 'content' => 'Áo này có thêm màu xanh không shop?', 'image' => null, 'created_at' => now()->subDays(3), 'updated_at' => now()->subDays(3)],
+            ['user_id' => 10, 'product_id' => 6, 'content' => 'Chất vải có mỏng không ạ? Mình sợ mặc xuyên thấu', 'image' => null, 'created_at' => now()->subDays(2), 'updated_at' => now()->subDays(2)],
+            
+            // Comments cho sản phẩm 8 (Quần Jean Nữ)
+            ['user_id' => 11, 'product_id' => 8, 'content' => 'Quần này mặc có thoải mái không shop? Có co giãn không?', 'image' => null, 'created_at' => now()->subDays(7), 'updated_at' => now()->subDays(7)],
+            
+            // Comments cho sản phẩm 10 (Túi Xách)
+            ['user_id' => 5, 'product_id' => 10, 'content' => 'Túi có chống nước không ạ?', 'image' => null, 'created_at' => now()->subDays(4), 'updated_at' => now()->subDays(4)],
+            ['user_id' => 6, 'product_id' => 10, 'content' => 'Túi có mấy ngăn vậy shop?', 'image' => null, 'created_at' => now()->subDays(3), 'updated_at' => now()->subDays(3)],
         ];
 
-        // Tạo 50 comments ngẫu nhiên
-        for ($i = 0; $i < 50; $i++) {
-            Comment::create([
-                'user_id' => $users->random()->id,
-                'product_id' => $products->random()->id,
-                'content' => fake()->randomElement($commentTexts),
-                'image' => fake()->boolean(20) ? 'uploads/comments/comment-' . rand(1, 5) . '.jpg' : null,
-                'created_at' => fake()->dateTimeBetween('-2 months', 'now'),
-            ]);
-        }
-
-        $this->command->info('Created ' . Comment::count() . ' comments.');
+        DB::table('comments')->insert($comments);
     }
 }

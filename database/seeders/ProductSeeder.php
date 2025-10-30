@@ -2,185 +2,161 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Product;
-use App\Models\ProductColor;
-use App\Models\ProductColorSize;
-use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class ProductSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $categories = Category::all();
-        
-        if ($categories->isEmpty()) {
-            $this->command->warn('No categories found. Please run CategorySeeder first.');
-            return;
-        }
-
         $products = [
+            // Áo Nam (category_id = 4)
             [
-                'name' => 'Áo Thun Nam Basic',
-                'price' => 150000,
-                'sale_price' => 120000,
-                'tag' => 'hot-sales',
-                'description' => 'Áo thun nam basic chất liệu cotton 100%, thoáng mát, form regular fit phù hợp mọi dáng người.',
-                'image' => 'uploads/products/ao-thun-nam-basic.jpg'
+                'name' => 'Áo Thun Nam Basic Trắng',
+                'image' => 'products/ao-thun-trang.jpg',
+                'price' => 199000,
+                'sale_price' => 149000,
+                'tag' => 'HOT',
+                'description' => 'Áo thun nam basic chất liệu cotton 100% thoáng mát, form dáng regular fit phù hợp mọi vóc dáng.',
+                'view_count' => 125,
+                'category_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Áo Sơ Mi Nam Công Sở',
-                'price' => 280000,
-                'sale_price' => 250000,
-                'tag' => null,
-                'description' => 'Áo sơ mi nam công sở, chất liệu kate mềm mại, không nhăn, phù hợp đi làm và dự tiệc.',
-                'image' => 'uploads/products/ao-so-mi-nam.jpg'
-            ],
-            [
-                'name' => 'Quần Jean Nam Slim Fit',
-                'price' => 450000,
-                'sale_price' => 399000,
-                'tag' => 'new-arrivals',
-                'description' => 'Quần jean nam slim fit co giãn nhẹ, tôn dáng, phong cách trẻ trung năng động.',
-                'image' => 'uploads/products/quan-jean-nam.jpg'
-            ],
-            [
-                'name' => 'Áo Polo Nam',
-                'price' => 200000,
-                'sale_price' => null,
-                'tag' => 'hot-sales',
-                'description' => 'Áo polo nam chất liệu cá sấu cao cấp, thấm hút mồ hôi tốt, phù hợp mọi hoàn cảnh.',
-                'image' => 'uploads/products/ao-polo-nam.jpg'
-            ],
-            [
-                'name' => 'Áo Khoác Hoodie Unisex',
+                'image' => 'products/ao-somi-nam.jpg',
                 'price' => 350000,
                 'sale_price' => 299000,
-                'tag' => 'new-arrivals',
-                'description' => 'Áo khoác hoodie unisex, chất nỉ bông dày dặn, giữ ấm tốt, phong cách streetwear.',
-                'image' => 'uploads/products/hoodie.jpg'
+                'tag' => 'NEW',
+                'description' => 'Áo sơ mi nam công sở cao cấp, chất liệu kate mềm mại, không nhăn.',
+                'view_count' => 89,
+                'category_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Váy Midi Nữ',
-                'price' => 320000,
-                'sale_price' => 280000,
-                'tag' => null,
-                'description' => 'Váy midi nữ thiết kế thanh lịch, chất vải lụa cao cấp, phù hợp đi làm và dạo phố.',
-                'image' => 'uploads/products/vay-midi.jpg'
-            ],
-            [
-                'name' => 'Đầm Dạ Hội',
-                'price' => 650000,
-                'sale_price' => 550000,
-                'tag' => 'hot-sales',
-                'description' => 'Đầm dạ hội sang trọng, thiết kế tôn dáng, phù hợp cho các buổi tiệc và sự kiện.',
-                'image' => 'uploads/products/dam-da-hoi.jpg'
-            ],
-            [
-                'name' => 'Quần Short Kaki Nam',
-                'price' => 180000,
+                'name' => 'Áo Polo Nam Cao Cấp',
+                'image' => 'products/ao-polo-nam.jpg',
+                'price' => 280000,
                 'sale_price' => null,
                 'tag' => null,
-                'description' => 'Quần short kaki nam, chất liệu thoáng mát, form suông thoải mái cho mùa hè.',
-                'image' => 'uploads/products/quan-short-kaki.jpg'
+                'description' => 'Áo polo nam chất liệu pique cao cấp, thấm hút mồ hôi tốt.',
+                'view_count' => 67,
+                'category_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            
+            // Quần Nam (category_id = 5)
+            [
+                'name' => 'Quần Jean Nam Slim Fit',
+                'image' => 'products/quan-jean-nam.jpg',
+                'price' => 450000,
+                'sale_price' => 399000,
+                'tag' => 'SALE',
+                'description' => 'Quần jean nam dáng slim fit ôm vừa vặn, chất liệu denim co giãn nhẹ.',
+                'view_count' => 156,
+                'category_id' => 5,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Quần Kaki Nam Công Sở',
+                'image' => 'products/quan-kaki-nam.jpg',
+                'price' => 380000,
+                'sale_price' => 320000,
+                'tag' => null,
+                'description' => 'Quần kaki nam form slim, chất liệu co giãn 4 chiều thoải mái.',
+                'view_count' => 93,
+                'category_id' => 5,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            
+            // Áo Nữ (category_id = 6)
+            [
+                'name' => 'Áo Kiểu Nữ Tay Bồng',
+                'image' => 'products/ao-kieu-nu.jpg',
+                'price' => 280000,
+                'sale_price' => 220000,
+                'tag' => 'HOT',
+                'description' => 'Áo kiểu nữ tay bồng thời trang, chất liệu voan mềm mại.',
+                'view_count' => 234,
+                'category_id' => 6,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Áo Thun Nữ Croptop',
-                'price' => 120000,
-                'sale_price' => 99000,
-                'tag' => 'new-arrivals',
-                'description' => 'Áo thun nữ croptop form ôm, chất liệu cotton co giãn 4 chiều, trẻ trung năng động.',
-                'image' => 'uploads/products/ao-croptop.jpg'
+                'image' => 'products/ao-croptop.jpg',
+                'price' => 150000,
+                'sale_price' => null,
+                'tag' => 'NEW',
+                'description' => 'Áo thun nữ croptop trẻ trung, chất liệu cotton co giãn.',
+                'view_count' => 178,
+                'category_id' => 6,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            
+            // Quần Nữ (category_id = 7)
+            [
+                'name' => 'Quần Jean Nữ Ống Rộng',
+                'image' => 'products/quan-jean-nu.jpg',
+                'price' => 420000,
+                'sale_price' => 350000,
+                'tag' => 'SALE',
+                'description' => 'Quần jean nữ ống rộng trendy, chất liệu denim cao cấp.',
+                'view_count' => 201,
+                'category_id' => 7,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
-                'name' => 'Blazer Nữ Công Sở',
-                'price' => 480000,
-                'sale_price' => 420000,
+                'name' => 'Váy Chữ A Nữ Công Sở',
+                'image' => 'products/vay-chu-a.jpg',
+                'price' => 320000,
+                'sale_price' => null,
                 'tag' => null,
-                'description' => 'Blazer nữ công sở thiết kế lịch sự, chất liệu cao cấp, form chuẩn tôn dáng.',
-                'image' => 'uploads/products/blazer-nu.jpg'
+                'description' => 'Váy chữ A nữ lịch sự, phù hợp môi trường công sở.',
+                'view_count' => 142,
+                'category_id' => 7,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            
+            // Túi Xách (category_id = 8)
+            [
+                'name' => 'Túi Xách Nữ Da PU',
+                'image' => 'products/tui-xach-nu.jpg',
+                'price' => 450000,
+                'sale_price' => 399000,
+                'tag' => 'HOT',
+                'description' => 'Túi xách nữ da PU cao cấp, thiết kế sang trọng.',
+                'view_count' => 187,
+                'category_id' => 8,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Thắt Lưng Nam Da Thật',
+                'image' => 'products/that-lung-nam.jpg',
+                'price' => 280000,
+                'sale_price' => null,
+                'tag' => null,
+                'description' => 'Thắt lưng nam da thật 100%, khóa inox cao cấp.',
+                'view_count' => 76,
+                'category_id' => 8,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ];
 
-        $colors = ['Đen', 'Trắng', 'Xám', 'Xanh Navy', 'Đỏ', 'Hồng', 'Vàng', 'Nâu', 'Xanh Lá'];
-        $sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-
-        foreach ($products as $productData) {
-            $product = Product::create([
-                'name' => $productData['name'],
-                'description' => $productData['description'],
-                'price' => $productData['price'],
-                'sale_price' => $productData['sale_price'],
-                'category_id' => $categories->random()->id,
-                'tag' => $productData['tag'],
-                'image' => $productData['image'],
-            ]);
-
-            // Tạo 2-3 màu cho mỗi sản phẩm
-            $productColors = fake()->randomElements($colors, rand(2, 3));
-            
-            foreach ($productColors as $colorName) {
-                $productColor = ProductColor::create([
-                    'product_id' => $product->id,
-                    'color' => $colorName,
-                    'image' => 'uploads/colors/' . strtolower($colorName) . '.jpg',
-                ]);
-
-                // Tạo sizes cho mỗi màu
-                $productSizes = fake()->randomElements($sizes, rand(3, 5));
-                
-                foreach ($productSizes as $size) {
-                    ProductColorSize::create([
-                        'product_color_id' => $productColor->id,
-                        'size' => $size,
-                        'quantity' => rand(5, 50),
-                    ]);
-                }
-            }
-        }
-
-        // Tạo thêm 40 sản phẩm random
-        $productNames = [
-            'Áo Thun', 'Áo Polo', 'Áo Sơ Mi', 'Quần Jean', 'Quần Kaki', 'Quần Short',
-            'Váy', 'Đầm', 'Áo Khoác', 'Áo Len', 'Quần Jogger', 'Áo Hoodie'
-        ];
-
-        for ($i = 0; $i < 40; $i++) {
-            $productName = fake()->randomElement($productNames) . ' ' . fake()->randomElement(['Nam', 'Nữ', 'Unisex']);
-            $price = fake()->numberBetween(10, 100) * 10000;
-            $hasSale = fake()->boolean(60);
-            
-            $product = Product::create([
-                'name' => $productName . ' #' . ($i + 1),
-                'description' => fake()->paragraph(),
-                'price' => $price,
-                'sale_price' => $hasSale ? $price * 0.8 : null,
-                'category_id' => $categories->random()->id,
-                'tag' => fake()->optional(0.4)->randomElement(['hot-sales', 'new-arrivals']),
-                'image' => 'uploads/products/placeholder.jpg',
-            ]);
-
-            $productColors = fake()->randomElements($colors, rand(1, 3));
-            
-            foreach ($productColors as $colorName) {
-                $productColor = ProductColor::create([
-                    'product_id' => $product->id,
-                    'color' => $colorName,
-                    'image' => 'uploads/colors/placeholder.jpg',
-                ]);
-
-                $productSizes = fake()->randomElements($sizes, rand(2, 5));
-                
-                foreach ($productSizes as $size) {
-                    ProductColorSize::create([
-                        'product_color_id' => $productColor->id,
-                        'size' => $size,
-                        'quantity' => rand(0, 100),
-                    ]);
-                }
-            }
-        }
-
-        $this->command->info('Created ' . Product::count() . ' products with colors and sizes.');
+        DB::table('products')->insert($products);
     }
 }

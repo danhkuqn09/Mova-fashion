@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OrderItem extends Model
 {
     protected $fillable = [
         'order_id',
-        'product_id',
-        'color_id',
-        'size',
+        'product_variant_id',
         'quantity',
         'price',
     ];
@@ -26,13 +25,13 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function product(): BelongsTo
+    public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 
-    public function color(): BelongsTo
+    public function reviews(): HasMany
     {
-        return $this->belongsTo(ProductColor::class, 'color_id');
+        return $this->hasMany(Review::class, 'order_item_id');
     }
 }

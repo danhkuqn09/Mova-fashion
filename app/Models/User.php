@@ -27,7 +27,6 @@ class User extends Authenticatable
         'image',
         'role',
         'phone',
-        'is_blocked'
     ];
 
     /**
@@ -52,16 +51,34 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
-    public function comments() {
+
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
+    public function news()
+    {
+        return $this->hasMany(News::class);
+    }
+
     public function sendPasswordResetNotification($token)
-{
-    $this->notify(new ResetPasswordNotification($token));
-}
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 }

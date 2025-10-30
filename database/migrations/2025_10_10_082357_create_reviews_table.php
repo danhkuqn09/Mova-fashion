@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');   
-            $table->unsignedBigInteger('order_item_id'); 
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('order_item_id');
 
-            $table->unsignedTinyInteger('rating');     
-            $table->text('content')->nullable();      
-            $table->string('image')->nullable();      
+            $table->unsignedTinyInteger('rating');
+            $table->text('content')->nullable();
+            $table->string('image')->nullable();
+            $table->boolean('is_verified_purchase')->default(false); // Đã mua hàng thật chưa     
 
             $table->timestamps();
 

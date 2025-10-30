@@ -27,6 +27,6 @@ class News extends Model
 
     public function details(): HasMany
     {
-        return $this->hasMany(NewsDetail::class);
+        return $this->hasMany(NewDetail::class);
     }
 }

@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_colors', function (Blueprint $table) {
+        Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('color_name'); // hoặc color_code
-            $table->string('color_code')->nullable(); // Mã màu HEX: #FF0000
+            $table->foreignId('color_id')->constrained('product_colors')->onDelete('cascade');
+            $table->string('size');
+            $table->integer('quantity');
             $table->string('image')->nullable();
+            $table->string('sku')->unique()->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_colors');
+        Schema::dropIfExists('product_variants');
     }
 };

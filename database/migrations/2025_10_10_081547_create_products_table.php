@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('sale_price', 10, 2)->nullable();
             $table->string('tag')->nullable();
             $table->text('description')->nullable();
+            $table->integer('view_count')->default(0);
             $table->timestamps();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')

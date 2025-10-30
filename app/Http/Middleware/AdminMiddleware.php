@@ -14,6 +14,6 @@ class AdminMiddleware
             return $next($request);
         }
 
-        return response()->json(['message' => 'Unauthorized. Admins only.'], 403);
+        return response()->json(['message' => 'Không có quyền truy cập, chỉ admin.'], 403);
     }
 }

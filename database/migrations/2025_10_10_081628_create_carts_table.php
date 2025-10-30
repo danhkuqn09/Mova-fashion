@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
+            $table->unique(['user_id', 'product_variant_id']); // Tránh trùng lặp
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('color_id')->nullable();
-            $table->string('size')->nullable();
+            $table->foreignId('product_variant_id')->constrained('product_variants')->onDelete('cascade');
             $table->integer('quantity')->default(1);
             $table->timestamps();
         });

@@ -2,46 +2,39 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Cart;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\ProductColor;
+use Illuminate\Support\Facades\DB;
 
 class CartSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $users = User::where('role', 'user')->get();
-        $products = Product::with('colors.sizes')->get();
+        $carts = [
+            // Giỏ hàng của user 5 (Lê Thị Bích)
+            ['user_id' => 5, 'product_variant_id' => 2, 'quantity' => 1, 'created_at' => now()->subDays(2), 'updated_at' => now()->subDays(2)],
+            ['user_id' => 5, 'product_variant_id' => 58, 'quantity' => 2, 'created_at' => now()->subDays(1), 'updated_at' => now()->subDays(1)],
+            
+            // Giỏ hàng của user 7 (Hoàng Thị D)
+            ['user_id' => 7, 'product_variant_id' => 15, 'quantity' => 1, 'created_at' => now()->subHours(12), 'updated_at' => now()->subHours(12)],
+            ['user_id' => 7, 'product_variant_id' => 42, 'quantity' => 1, 'created_at' => now()->subHours(6), 'updated_at' => now()->subHours(6)],
+            
+            // Giỏ hàng của user 9 (Đỗ Thị F)
+            ['user_id' => 9, 'product_variant_id' => 28, 'quantity' => 1, 'created_at' => now()->subDays(3), 'updated_at' => now()->subDays(3)],
+            ['user_id' => 9, 'product_variant_id' => 75, 'quantity' => 1, 'created_at' => now()->subDays(1), 'updated_at' => now()->subDays(1)],
+            ['user_id' => 9, 'product_variant_id' => 85, 'quantity' => 1, 'created_at' => now()->subHours(8), 'updated_at' => now()->subHours(8)],
+            
+            // Giỏ hàng của user 10 (Bùi Văn G)
+            ['user_id' => 10, 'product_variant_id' => 6, 'quantity' => 3, 'created_at' => now()->subDays(1), 'updated_at' => now()->subHours(2)],
+            
+            // Giỏ hàng của user 11 (Đặng Thị H)
+            ['user_id' => 11, 'product_variant_id' => 52, 'quantity' => 1, 'created_at' => now()->subHours(4), 'updated_at' => now()->subHours(4)],
+            ['user_id' => 11, 'product_variant_id' => 64, 'quantity' => 1, 'created_at' => now()->subHours(3), 'updated_at' => now()->subHours(3)],
+        ];
 
-        if ($users->isEmpty() || $products->isEmpty()) {
-            $this->command->warn('No users or products found.');
-            return;
-        }
-
-        // Tạo giỏ hàng cho 50% users
-        $usersWithCart = $users->random((int)($users->count() * 0.5));
-
-        foreach ($usersWithCart as $user) {
-            $itemCount = rand(1, 5);
-            $cartProducts = $products->random(min($itemCount, $products->count()));
-
-            foreach ($cartProducts as $product) {
-                $color = $product->colors->isNotEmpty() ? $product->colors->random() : null;
-                $sizes = $color ? $color->sizes : collect();
-                $size = $sizes->isNotEmpty() ? $sizes->random()->size : null;
-
-                Cart::create([
-                    'user_id' => $user->id,
-                    'product_id' => $product->id,
-                    'color_id' => $color?->id,
-                    'size' => $size,
-                    'quantity' => rand(1, 3),
-                ]);
-            }
-        }
-
-        $this->command->info('Created ' . Cart::count() . ' cart items.');
+        DB::table('carts')->insert($carts);
     }
 }

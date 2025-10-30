@@ -2,79 +2,124 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\News;
-use App\Models\NewsDetail;
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class NewsSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $admins = User::where('role', 'admin')->get();
-
-        if ($admins->isEmpty()) {
-            $this->command->warn('No admin users found.');
-            return;
-        }
-
-        $newsData = [
+        // Tạo tin tức
+        $newsItems = [
             [
-                'title' => 'Xu hướng thời trang mùa hè 2025',
-                'summary' => 'Khám phá những xu hướng thời trang hot nhất mùa hè năm nay với các gam màu pastel dịu dàng và chất liệu thoáng mát.',
+                'id' => 1,
+                'user_id' => 1, // Admin user
+                'title' => 'Xu hướng thời trang Thu Đông 2025',
+                'thumbnail' => 'news/thu-dong-2025.jpg',
+                'summary' => 'Khám phá những xu hướng thời trang nổi bật cho mùa Thu Đông năm nay với những gam màu ấm áp và chất liệu cao cấp.',
                 'status' => 'published',
-                'content' => 'Mùa hè 2025 đánh dấu sự trở lại mạnh mẽ của phong cách tối giản với các gam màu pastel nhẹ nhàng. Các thiết kế tập trung vào sự thoải mái và bền vững...',
+                'created_at' => now()->subDays(10),
+                'updated_at' => now()->subDays(10),
             ],
             [
-                'title' => 'Bí quyết phối đồ công sở thanh lịch',
-                'summary' => 'Hướng dẫn phối đồ công sở chuyên nghiệp nhưng không kém phần thời trang cho phái nữ hiện đại.',
+                'id' => 2,
+                'user_id' => 1,
+                'title' => 'Cách phối đồ công sở lịch sự cho phái đẹp',
+                'thumbnail' => 'news/phoi-do-cong-so.jpg',
+                'summary' => 'Hướng dẫn chi tiết cách phối đồ công sở lịch sự nhưng vẫn thời trang và năng động cho các nàng công sở.',
                 'status' => 'published',
-                'content' => 'Trang phục công sở không nhất thiết phải nhàm chán. Với một vài bí quyết phối đồ thông minh, bạn có thể tạo nên phong cách chuyên nghiệp mà vẫn nổi bật...',
+                'created_at' => now()->subDays(7),
+                'updated_at' => now()->subDays(7),
             ],
             [
-                'title' => 'Chất liệu vải thân thiện với môi trường',
-                'summary' => 'Tìm hiểu về các loại vải thân thiện với môi trường đang được ưa chuộng trong ngành thời trang.',
+                'id' => 3,
+                'user_id' => 1,
+                'title' => 'Top 10 item thời trang nam must-have 2025',
+                'thumbnail' => 'news/top-10-nam.jpg',
+                'summary' => 'Điểm danh 10 món đồ thời trang nam không thể thiếu trong tủ đồ của các chàng trai hiện đại.',
                 'status' => 'published',
-                'content' => 'Xu hướng thời trang bền vững ngày càng được quan tâm. Các chất liệu như cotton hữu cơ, vải tái chế từ nhựa đại dương đang trở thành lựa chọn hàng đầu...',
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(5),
             ],
             [
-                'title' => 'Cách bảo quản quần áo đúng cách',
-                'summary' => 'Những mẹo nhỏ giúp quần áo của bạn luôn bền đẹp và giữ được màu sắc lâu hơn.',
+                'id' => 4,
+                'user_id' => 1,
+                'title' => 'Bí quyết chọn size quần áo chuẩn không cần chỉnh sửa',
+                'thumbnail' => 'news/chon-size.jpg',
+                'summary' => 'Hướng dẫn cách đo và chọn size quần áo phù hợp với từng vóc dáng để có được bộ trang phục ưng ý nhất.',
                 'status' => 'published',
-                'content' => 'Bảo quản quần áo đúng cách không chỉ giúp chúng bền hơn mà còn tiết kiệm chi phí. Hãy luôn đọc nhãn hướng dẫn giặt, phân loại màu sắc trước khi giặt...',
+                'created_at' => now()->subDays(3),
+                'updated_at' => now()->subDays(3),
             ],
             [
-                'title' => 'Thời trang streetwear - Phong cách của giới trẻ',
-                'summary' => 'Phong cách streetwear đang làm mưa làm gió trong giới trẻ với sự kết hợp độc đáo giữa thoải mái và cá tính.',
-                'status' => 'published',
-                'content' => 'Streetwear không chỉ là cách ăn mặc mà còn là thái độ sống. Từ hoodie oversize, sneakers đến accessories statement, mọi thứ đều thể hiện cá tính...',
-            ],
-            [
-                'title' => 'Bộ sưu tập thu đông sắp ra mắt',
-                'summary' => 'Sneak peek vào bộ sưu tập thu đông mới nhất của Mova Fashion với những thiết kế ấm áp và sang trọng.',
+                'id' => 5,
+                'user_id' => 1,
+                'title' => 'Chăm sóc và bảo quản quần áo đúng cách',
+                'thumbnail' => 'news/bao-quan-do.jpg',
+                'summary' => 'Những mẹo nhỏ giúp bạn chăm sóc và bảo quản quần áo luôn như mới, kéo dài tuổi thọ cho trang phục yêu thích.',
                 'status' => 'draft',
-                'content' => 'Bộ sưu tập thu đông năm nay của chúng tôi lấy cảm hứng từ thiên nhiên với các tông màu đất ấm áp. Chất liệu len cao cấp kết hợp cùng thiết kế hiện đại...',
+                'created_at' => now()->subDays(1),
+                'updated_at' => now()->subDays(1),
             ],
         ];
 
-        foreach ($newsData as $data) {
-            $news = News::create([
-                'user_id' => $admins->random()->id,
-                'title' => $data['title'],
-                'summary' => $data['summary'],
-                'status' => $data['status'],
-                'thumbnail' => 'uploads/news/thumbnail-' . fake()->numberBetween(1, 10) . '.jpg',
-                'created_at' => fake()->dateTimeBetween('-1 month', 'now'),
-            ]);
+        DB::table('news')->insert($newsItems);
 
-            // Tạo news detail
-            NewsDetail::create([
-                'news_id' => $news->id,
-                'content' => $data['content'],
-                'image' => 'uploads/news/detail-' . fake()->numberBetween(1, 10) . '.jpg',
-            ]);
-        }
+        // Tạo chi tiết tin tức
+        $newsDetails = [
+            // Chi tiết cho tin tức 1
+            [
+                'news_id' => 1,
+                'content' => '<h2>Gam màu chủ đạo</h2><p>Mùa Thu Đông năm nay, các gam màu ấm áp như nâu, be, cam đất... đang rất được ưa chuộng. Đặc biệt là tone màu trung tính giúp bạn dễ dàng mix-match.</p>',
+                'image' => 'news/details/thu-dong-gam-mau.jpg',
+                'created_at' => now()->subDays(10),
+                'updated_at' => now()->subDays(10),
+            ],
+            [
+                'news_id' => 1,
+                'content' => '<h2>Chất liệu nổi bật</h2><p>Len, nỉ, tweed và các chất liệu dày dặn, giữ ấm tốt đang là lựa chọn hàng đầu. Đặc biệt là những thiết kế oversize tạo cảm giác thoải mái.</p>',
+                'image' => 'news/details/thu-dong-chat-lieu.jpg',
+                'created_at' => now()->subDays(10),
+                'updated_at' => now()->subDays(10),
+            ],
+            
+            // Chi tiết cho tin tức 2
+            [
+                'news_id' => 2,
+                'content' => '<h2>Set đồ công sở cơ bản</h2><p>Một bộ vest form chuẩn, áo sơ mi trắng và quần tây là combo không bao giờ lỗi thời cho môi trường công sở.</p>',
+                'image' => 'news/details/cong-so-co-ban.jpg',
+                'created_at' => now()->subDays(7),
+                'updated_at' => now()->subDays(7),
+            ],
+            [
+                'news_id' => 2,
+                'content' => '<h2>Phụ kiện điểm nhấn</h2><p>Một chiếc túi xách cao cấp, giày cao gót thanh lịch hoặc khăn lụa sẽ giúp tổng thể trang phục thêm phần sang trọng và chuyên nghiệp.</p>',
+                'image' => 'news/details/cong-so-phu-kien.jpg',
+                'created_at' => now()->subDays(7),
+                'updated_at' => now()->subDays(7),
+            ],
+            
+            // Chi tiết cho tin tức 3
+            [
+                'news_id' => 3,
+                'content' => '<h2>1. Áo Sơ Mi Trắng</h2><p>Món đồ cơ bản nhất mà mọi quý ông nên có. Dễ phối với mọi trang phục từ casual đến formal.</p>',
+                'image' => 'news/details/top10-somi.jpg',
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(5),
+            ],
+            [
+                'news_id' => 3,
+                'content' => '<h2>2. Quần Jean Đen</h2><p>Quần jean đen form slim fit là lựa chọn hoàn hảo, dễ phối với áo thun, áo sơ mi hay áo khoác.</p>',
+                'image' => 'news/details/top10-jean.jpg',
+                'created_at' => now()->subDays(5),
+                'updated_at' => now()->subDays(5),
+            ],
+        ];
 
-        $this->command->info('Created ' . News::count() . ' news articles.');
+        DB::table('new_details')->insert($newsDetails);
     }
 }

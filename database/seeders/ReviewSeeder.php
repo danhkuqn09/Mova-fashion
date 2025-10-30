@@ -2,51 +2,32 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Review;
-use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
 
 class ReviewSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $orderItems = OrderItem::whereHas('order', function ($query) {
-            $query->whereIn('status', ['delivered']);
-        })->get();
-
-        if ($orderItems->isEmpty()) {
-            $this->command->warn('No delivered order items found.');
-            return;
-        }
-
-        $reviewTexts = [
-            'Sản phẩm rất tốt, chất lượng như mô tả!',
-            'Đóng gói cẩn thận, giao hàng nhanh.',
-            'Chất liệu vải đẹp, form chuẩn.',
-            'Giá hơi cao nhưng chất lượng xứng đáng.',
-            'Màu sắc đẹp, đúng như hình.',
-            'Shop phục vụ tận tình, sẽ ủng hộ tiếp.',
-            'Sản phẩm ổn, đáng tiền.',
-            'Hơi nhỏ so với size thông thường.',
-            'Chất lượng tốt, giá cả hợp lý.',
-            'Rất hài lòng với sản phẩm này!',
+        $reviews = [
+            // Review cho order_item 1
+            ['user_id' => 4, 'order_item_id' => 1, 'rating' => 5, 'content' => 'Áo rất đẹp, chất liệu cotton mềm mại. Form dáng vừa vặn, đúng size. Shop giao hàng nhanh, đóng gói cẩn thận. Sẽ ủng hộ shop tiếp!', 'image' => 'reviews/review-1.jpg', 'created_at' => now()->subDays(12), 'updated_at' => now()->subDays(12)],
+            
+            ['user_id' => 4, 'order_item_id' => 2, 'rating' => 4, 'content' => 'Áo sơ mi đẹp, phù hợp mặc công sở. Chất vải hơi dày một chút nhưng không sao. Giá hợp lý.', 'image' => null, 'created_at' => now()->subDays(12), 'updated_at' => now()->subDays(12)],
+            
+            ['user_id' => 6, 'order_item_id' => 4, 'rating' => 5, 'content' => 'Quần jean chất lượng tuyệt vời! Form slim fit ôm đẹp, chất denim dày dặn. Màu xanh đậm rất đẹp, không phai màu sau khi giặt. Đáng tiền!', 'image' => 'reviews/review-2.jpg', 'created_at' => now()->subDays(16), 'updated_at' => now()->subDays(16)],
+            
+            ['user_id' => 6, 'order_item_id' => 5, 'rating' => 5, 'content' => 'Quần ống rộng rất trendy, mặc thoải mái. Chất liệu tốt, form dáng đẹp. Mình rất hài lòng!', 'image' => 'reviews/review-3.jpg', 'created_at' => now()->subDays(16), 'updated_at' => now()->subDays(16)],
+            
+            ['user_id' => 6, 'order_item_id' => 6, 'rating' => 4, 'content' => 'Túi đẹp, da PU mềm. Size vừa phải, đựng đồ được nhiều thứ. Khóa kéo hơi cứng một chút.', 'image' => null, 'created_at' => now()->subDays(16), 'updated_at' => now()->subDays(16)],
+            
+            ['user_id' => 8, 'order_item_id' => 8, 'rating' => 5, 'content' => 'Áo polo rất đẹp và sang trọng. Chất liệu pique thoáng mát, thấm hút mồ hôi tốt. Mặc đi chơi hoặc đi làm đều hợp. Giá cả hợp lý. 5 sao!', 'image' => 'reviews/review-4.jpg', 'created_at' => now()->subDays(6), 'updated_at' => now()->subDays(6)],
         ];
 
-        // Tạo review cho 60% order items đã giao
-        $reviewCount = (int)($orderItems->count() * 0.6);
-        $selectedItems = $orderItems->random(min($reviewCount, $orderItems->count()));
-
-        foreach ($selectedItems as $item) {
-            Review::create([
-                'user_id' => $item->order->user_id,
-                'order_item_id' => $item->id,
-                'rating' => rand(3, 5),
-                'content' => fake()->randomElement($reviewTexts),
-                'image' => fake()->boolean(30) ? 'uploads/reviews/review-' . rand(1, 10) . '.jpg' : null,
-                'created_at' => fake()->dateTimeBetween($item->order->created_at, 'now'),
-            ]);
-        }
-
-        $this->command->info('Created ' . Review::count() . ' reviews.');
+        DB::table('reviews')->insert($reviews);
     }
 }

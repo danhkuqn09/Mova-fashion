@@ -10,19 +10,23 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'voucher_id',
         'name',
         'email',
         'phone',
         'address',
-        'total_price',
         'status',
-        'voucher_code',
+        'original_total',
         'discount_amount',
+        'final_total',
+        'payment_method',
+        'note',
     ];
 
     protected $casts = [
-        'total_price' => 'decimal:2',
-        'discount_amount' => 'integer',
+        'original_total' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'final_total' => 'decimal:2',
     ];
 
     public function user(): BelongsTo
@@ -30,13 +34,13 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
-    }
-
-    public function voucher(): BelongsTo
-    {
-        return $this->belongsTo(Voucher::class, 'voucher_code', 'code');
     }
 }

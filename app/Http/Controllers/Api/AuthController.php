@@ -456,15 +456,20 @@ class AuthController extends Controller
             // Tạo token mới
             $token = $user->createToken('google_auth_token')->plainTextToken;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Đăng nhập Google thành công!',
-                'data' => [
-                    'user' => $user,
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ]
-            ], 200);
+            // Redirect về frontend với token và user info
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+            $userData = urlencode(json_encode([
+                'id' => $user->id,
+                'username' => $user->username,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $user->avatar,
+                'role' => $user->role,
+            ]));
+            
+            return redirect()->away(
+                "{$frontendUrl}/auth/google/callback?token={$token}&user={$userData}"
+            );
 
         } catch (\Exception $e) {
             Log::error('Google OAuth failed: ' . $e->getMessage());

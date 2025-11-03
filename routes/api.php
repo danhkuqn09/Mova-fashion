@@ -19,13 +19,13 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 // Trang chủ và Route sản phẩm public
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/products', [HomeController::class, 'index']);
-Route::get('/products/{id}', [HomeController::class, 'show']);
 Route::get('/products/featured', [HomeController::class, 'featured']);
 Route::get('/products/new-arrivals', [HomeController::class, 'newArrivals']);
 Route::get('/products/on-sale', [HomeController::class, 'onSale']);
+Route::get('/products/search', [HomeController::class, 'search']);
 Route::get('/products/category/{categoryId}', [HomeController::class, 'getByCategory']);
 Route::get('/products/related/{id}', [HomeController::class, 'getRelated']);
-Route::get('/products/search', [HomeController::class, 'search']);
+Route::get('/products/{id}', [HomeController::class, 'show']);
 Route::get('/categories', [HomeController::class, 'getCategories']);
 
 // Các route cần đăng nhập bằng Sanctum

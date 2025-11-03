@@ -69,6 +69,13 @@ class HomeController extends Controller
             $avgRating = $reviews->avg('rating');
             $totalReviews = $reviews->count();
 
+            // Lấy số lượng đã bán
+            $totalSold = DB::table('order_items')
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->where('order_items.product_id', $product->id)
+                ->whereIn('orders.status', ['processing', 'completed'])
+                ->sum('order_items.quantity');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy chi tiết sản phẩm thành công',
@@ -78,7 +85,8 @@ class HomeController extends Controller
                     'rating' => [
                         'average' => round($avgRating, 1),
                         'total' => $totalReviews
-                    ]
+                    ],
+                    'total_sold' => $totalSold ?? 0
                 ]
             ], 200);
 
@@ -97,12 +105,11 @@ class HomeController extends Controller
     public function featured()
     {
         try {
-            // Lấy sản phẩm có tag 'featured' hoặc view_count cao
+            // Lấy sản phẩm có tag 'featured' hoặc sản phẩm có view_count cao
             $products = Product::with(['category', 'colors', 'variants'])
-                ->where(function($query) {
-                    $query->where('tag', 'LIKE', '%featured%')
-                          ->orOrderBy('view_count', 'desc');
-                })
+                ->where('tag', 'LIKE', '%featured%')
+                ->orWhereNotNull('id')
+                ->orderBy('view_count', 'desc')
                 ->limit(8)
                 ->get();
 

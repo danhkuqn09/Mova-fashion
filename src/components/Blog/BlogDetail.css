@@ -1,0 +1,76 @@
+.blog-detail {
+  background: #fff;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Container chính chia 2 cột */
+.blog-detail-container {
+  display: flex;
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 0 20px;
+  gap: 40px;
+}
+
+/* Bên trái: nội dung chính */
+.blog-detail-main {
+  flex: 3;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.blog-detail-main h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #222;
+  line-height: 1.4;
+}
+
+.detail-meta {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.detail-image {
+  /* width: 100%;
+  height: 360px; */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.detail-content {
+  font-size: 1rem;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* Bên phải: bài viết liên quan */
+.blog-detail-sidebar {
+  flex: 1.2;
+}
+
+.blog-detail-sidebar h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .blog-detail-container {
+    flex-direction: column;
+  }
+
+  .blog-detail-main {
+    flex: none;
+  }
+
+  .blog-detail-sidebar {
+    margin-top: 40px;
+  }
+}

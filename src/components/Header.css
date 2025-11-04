@@ -1,15 +1,19 @@
 .header {
   width: 100%;
+  margin: 0 auto;
   background-color: #fff;
   border-bottom: 1px solid #eee;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 60px;
+  padding: 15px 0;
   position: sticky;
   top: 0;
   z-index: 100;
 }
+
 
 .logo {
   display: flex;
@@ -17,6 +21,15 @@
   font-weight: bold;
   font-size: 22px;
   gap: 8px;
+}
+.logo a {
+   font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #666666;
+}
+.logo a:hover {
+  color: #b88e2f;
 }
 
 .logo img {
@@ -54,4 +67,63 @@
 
 .icons i:hover {
   color: #b88e2f;
+}
+/* Icon User */
+/* ===== Dropdown cho icon user ===== */
+.user-icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Menu nhỏ hiện ra khi click icon user */
+.user-dropdown {
+  position: absolute;
+  top: 38px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  transform-origin: top center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 6px 0;
+  z-index: 1000;
+  width: 140px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease-out;
+}
+
+.user-dropdown.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+}
+
+/* item trong menu */
+.user-dropdown .dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* hover */
+.user-dropdown .dropdown-item:hover {
+  background-color: #f2f2f2;
+  color: #b88e2f;
+}
+
+/* hiệu ứng mượt khi hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -14,6 +14,14 @@
     padding: 0 20px;
     align-items: flex-start;
 }
+.product-info .price {
+  font-size: 22px;
+  font-weight: 600;
+  color: #c98d48; /* Màu vàng nâu sang trọng */
+  margin: 10px 0 16px;
+  text-align: left;
+}
+
 
 /* --- Gallery --- */
 .product-gallery {

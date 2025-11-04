@@ -7,17 +7,17 @@ function Footer() {
       <div className="footer-container">
         {/* Cột 1 */}
         <div className="footer-column">
-          <h2 className="footer-logo">MOVACLOTHES.</h2>
+          <h2 className="footer-logo">MOVACLOTHES</h2>
         </div>
 
         {/* Cột 2 */}
         <div className="footer-column">
           <h4>Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Shop</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="/">Trang Chủ</a></li>
+            <li><a href="/shop">Cửa Hàng</a></li>
+            <li><a href="/blog">Giới Thiệu</a></li>
+            <li><a href="#">Liên Hệ</a></li>
           </ul>
         </div>
 

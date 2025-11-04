@@ -18,43 +18,6 @@ body {
   text-align: center;
 }
 
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 80px;
-  border-bottom: 1px solid #eee;
-  background-color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 1.4rem;
-}
-
-.header nav ul {
-  display: flex;
-  list-style: none;
-  gap: 30px;
-}
-
-.header nav ul li a {
-  text-decoration: none;
-  color: #000;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.header nav ul li a:hover {
-  color: #b88e2f;
-}
 
 /* Icon */
 .header-icons {
@@ -71,7 +34,7 @@ body {
 
 .header-icons i:hover {
   color: #b88e2f;
-}
+} */
 
 /* Hero section */
 .hero {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./BannerCart.css";
+import "./BannerOrder.css";
 
 function BannerCart() {
   return (
@@ -9,11 +9,11 @@ function BannerCart() {
         <img src="/Image/bannerShop.jpg" alt="Banner cửa hàng" className="banner-image" />
       </div>
       <div className="banner-content">
-        <h1 className="shop-title">Giỏ Hàng</h1>
+        <h1 className="shop-title">Đơn Hàng</h1>
         <p className="shop-path">
           <Link to="/" className="breadcrumb-link">Trang Chủ</Link>
           <span> &gt; </span>
-          <span className="breadcrumb-current">Giỏ Hàng</span>
+          <span className="breadcrumb-current">Đơn Hàng</span>
         </p>
       </div>
     </section>

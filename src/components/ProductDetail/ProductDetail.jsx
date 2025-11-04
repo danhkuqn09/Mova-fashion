@@ -1,33 +1,69 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; //  import thêm useLocation
-import Header from "../Header";
+import { useLocation } from "react-router-dom";
 import Banner from "./Banner";
 import Footer from "../Footer";
 import "./ProductDetail.css";
-// import VestNauDetail1 from "./Image/VestNauDetail1.jpg";
-// import VestNauDetail2 from "./Image/VestNauDetail2.jpg";
+
 function ProductDetail() {
   const location = useLocation();
-  const product = location.state; //  Nhận dữ liệu từ trang trước
+  const product = location.state;
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("L");
   const [selectedColor, setSelectedColor] = useState("#c98d48");
   const { name, price, images } = location.state;
   const [mainImg, setMainImg] = useState(images[0]);
-  //   const thumbnails = [
-  // VestNauDetail1,
-  // VestNauDetail2
-  // ];
-  // hoặc thêm ảnh phụ nếu có
+
+  // 👉 Làm sạch giá để luôn ra dạng số (kể cả khi có dấu . hoặc ₫)
+  const cleanPrice = Number(String(price).replace(/[^\d]/g, "")) || 0;
+  const totalPrice = cleanPrice * quantity;
+
   const handleQuantity = (type) => {
     setQuantity((prev) =>
       type === "increase" ? prev + 1 : prev > 1 ? prev - 1 : 1
     );
   };
 
+  // 👉 Hàm định dạng tiền VND
+  const formatVND = (value) => value.toLocaleString("vi-VN") + "₫";
+
+  // ✅ Hàm thêm sản phẩm vào giỏ hàng
+  const handleAddToCart = () => {
+    const productToAdd = {
+      id: product.id,
+      name: product.name,
+      price: cleanPrice,
+      image: mainImg,
+      quantity,
+      size: selectedSize,
+      color: selectedColor,
+    };
+
+    // Lấy giỏ hàng hiện có từ localStorage
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // Nếu sản phẩm cùng id, size, màu → cộng thêm số lượng
+    const existingIndex = existingCart.findIndex(
+      (item) =>
+        item.id === productToAdd.id &&
+        item.size === productToAdd.size &&
+        item.color === productToAdd.color
+    );
+
+    if (existingIndex !== -1) {
+      existingCart[existingIndex].quantity += quantity;
+    } else {
+      existingCart.push(productToAdd);
+    }
+
+    // Lưu lại
+    localStorage.setItem("cart", JSON.stringify(existingCart));
+
+    // Thông báo nhẹ
+    alert(" Đã thêm sản phẩm vào giỏ hàng!");
+  };
+
   return (
     <div className="ProductDetail">
-      <Header />
       <Banner />
       <div className="product-detail">
         <div className="product-gallery">
@@ -42,23 +78,27 @@ function ProductDetail() {
               />
             ))}
           </div>
-          {/* Ảnh Chính */}
+
           <div className="main-image">
             <img src={mainImg} alt="main product" />
           </div>
         </div>
-        {/* Thông tin */}
+
         <div className="product-info">
           <h2>{name}</h2>
-          <p>{price}</p>
+
+          {/* 👉 Hiển thị tổng giá */}
+          <p className="price">{formatVND(totalPrice)}</p>
+
           <div className="rating">
             <span>⭐ ⭐ ⭐ ⭐ ⭐</span>
             <p>5 Customer Review</p>
           </div>
+
           <p className="product-description">
             Thoải mái, trẻ trung, năng động phù hợp với mọi thời tiết.
           </p>
-            {/* Chọn Size */}
+
           <div className="options">
             <div className="size">
               <p>Kích thước</p>
@@ -96,10 +136,12 @@ function ProductDetail() {
               <span>{quantity}</span>
               <button onClick={() => handleQuantity("increase")}>+</button>
             </div>
-            <button className="add-to-cart">Thêm vào giỏ hàng</button>
+            {/* ✅ Gắn sự kiện thêm vào giỏ hàng */}
+            <button className="add-to-cart" onClick={handleAddToCart}>
+              Thêm vào giỏ hàng
+            </button>
             <button className="product-buy">Mua Ngay</button>
           </div>
-
 
           <div className="details">
             <p><strong>SKU:</strong> SP{product?.id || "000"}</p>
@@ -108,17 +150,9 @@ function ProductDetail() {
           </div>
         </div>
       </div>
-
-
-
       <Footer />
-
     </div>
-
   );
-
 }
-
-
 
 export default ProductDetail;

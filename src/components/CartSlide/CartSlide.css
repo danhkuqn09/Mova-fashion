@@ -116,21 +116,33 @@
 .cart-footer {
   padding: 20px;
   border-top: 1px solid #eee;
-  background: #f9f9f9;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
+/* Dòng subtotal */
 .subtotal {
   display: flex;
   justify-content: space-between;
-  font-size: 1.1rem;
-  margin-bottom: 20px;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.subtotal strong:first-child {
+  font-weight: 600;
 }
 
 .subtotal-price {
-  color: #c00;
-  font-weight: bold;
+  color: #d32f2f; /* đỏ tươi hơn một chút */
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
+/* Nút hành động */
 .action-buttons {
   display: flex;
   justify-content: space-between;
@@ -141,26 +153,53 @@
   flex: 1;
   text-decoration: none;
   text-align: center;
-  padding: 12px 10px;
+  padding: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 25px; /* Bo tròn như hình */
+  border-radius: 25px;
   background-color: #fff;
   color: #333;
   font-weight: 600;
-  transition: background-color 0.2s, color 0.2s;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
 }
 
 .action-btn:hover {
-  background-color: #f0f0f0;
+  background-color: #f2f2f2;
 }
 
-/* Nút Checkout có thể làm nổi bật hơn */
+/* Nút Checkout nổi bật hơn */
 .action-btn:nth-child(2) {
-  background-color: #333;
+  background-color: #222;
   color: #fff;
-  border-color: #333;
+  border-color: #222;
 }
 
 .action-btn:nth-child(2):hover {
-  background-color: #555;
+  background-color: #444;
+}
+
+/* ===== Tùy chỉnh thanh cuộn trong giỏ hàng ===== */
+.cart-body::-webkit-scrollbar {
+  width: 6px; /* Độ rộng thanh cuộn */
+}
+
+.cart-body::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Màu nền */
+  border-radius: 10px;
+}
+
+.cart-body::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1; /* Màu thanh cuộn */
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.cart-body::-webkit-scrollbar-thumb:hover {
+  background-color: #999; /* Đổi màu khi hover */
+}
+
+/* Với Firefox */
+.cart-body {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
 }

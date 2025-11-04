@@ -1,56 +1,77 @@
-// src/components/LoginForm.jsx
 
-import React, { useState } from 'react';
-import { AiOutlineGoogle } from 'react-icons/ai';
-import { useNavigate } from 'react-router-dom';
-import Header from "./Header"; // Component Header của bạn
-import Footer from "./Footer"; // Component Footer của bạn
-// Nếu muốn dùng icon khác, bạn cần import thêm
-import { FaFacebookF, FaApple } from 'react-icons/fa'; // Cần cài thêm nếu chưa có: npm install react-icons
-
-import '../index.css';
+import React, { useState } from "react";
+import axios from "axios"; 
+import { AiOutlineGoogle } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
+// import Header from "./Header";
+import Footer from "./Footer";
+import { FaFacebookF, FaApple } from "react-icons/fa";
+import "../index.css";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
-  // ⚠️ KHỞI TẠO HOOK
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage('');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
 
-    // --- LOGIC ĐĂNG NHẬP GIẢ LẬP ---
-    if (email === '123@gmail.com' && password === '123') {
-      setMessage("Đăng nhập thành công! Đang chuyển hướng...");
+  try {
+    const res = await axios.post("http://localhost:8000/api/login", {
+      username: email,
+      password,
+    });
 
-      // ⚠️ THỰC HIỆN CHUYỂN HƯỚNG
-      // Chuyển hướng về trang chủ sau 1 giây
+    console.log("Kết quả từ Laravel:", res.data);
+
+    // ✅ Kiểm tra đăng nhập thành công
+    if (res.data.success) {
+      setMessage(res.data.message || "Đăng nhập thành công! Đang chuyển hướng...");
+
+      // ✅ Lưu token và user vào localStorage
+      localStorage.setItem("token", res.data.data.access_token);
+      localStorage.setItem("user", JSON.stringify(res.data.data.user));
+      
+      // ✅ Chuyển hướng về trang chủ
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1000);
-
     } else {
-      setMessage('Email hoặc Mật khẩu không đúng. Vui lòng thử lại.');
+      setMessage(res.data.message || "Đăng nhập thất bại!");
     }
-  };
+  } catch (error) {
+    console.error("Lỗi đăng nhập:", error);
+
+    if (error.response?.data?.message) {
+      setMessage(error.response.data.message);
+    } else if (error.response?.data?.errors) {
+      setMessage(JSON.stringify(error.response.data.errors));
+    } else {
+      setMessage("Đăng nhập thất bại! Kiểm tra lại thông tin hoặc server.");
+    }
+  }
+};
+
   return (
     <div className="login-page-layout">
-      <Header />
       <div className="main-content-wrapper">
         <div className="registration-container">
           <div className="register-form-box">
             <h2>Đăng Nhập</h2>
-
-            {message &&
-              <p style={{
-                color: message.includes('thành công') ? 'green' : 'red',
-                marginBottom: '15px',
-                fontWeight: 'bold'
-              }}>{message}</p>
-            }
+            {message && (
+              <p
+                style={{
+                  color: message.includes("thành công") ? "green" : "red",
+                  marginBottom: "15px",
+                  fontWeight: "bold",
+                }}
+              >
+                {message}
+              </p>
+            )}
 
             <form onSubmit={handleSubmit}>
               <input
@@ -59,6 +80,7 @@ const LoginForm = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                
               />
               <input
                 type="password"
@@ -68,21 +90,26 @@ const LoginForm = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              <button type="submit" className="register-button">Đăng Nhập</button>
+              <button type="submit" className="register-button">
+                Đăng Nhập
+                
+              </button> 
+              
             </form>
 
             <div className="login-prompt">
-              chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
+              Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
             </div>
 
-            <div className="social-login-separator">
-              hoặc đăng nhập bằng
-            </div>
+            <div className="social-login-separator">hoặc đăng nhập bằng</div>
 
             <div className="social-buttons-grid">
               <button className="social-login-button google">
                 <AiOutlineGoogle size={20} />
               </button>
+            </div>
+            <div className="forget-password">
+              <a href="/forgot-password">Quên mật khẩu?</a>
             </div>
           </div>
         </div>

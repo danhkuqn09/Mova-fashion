@@ -1,0 +1,268 @@
+/* ===============================
+   MOVA ADMIN - LUXURY DASHBOARD
+   Style: Elegant, Premium, Minimalist
+=================================*/
+
+:root {
+  --primary: #0d0d0d;
+  --accent: #f5c542;
+  --bg: #f9f9f9;
+  --text-main: #222;
+  --text-sub: #666;
+  --card-bg: #fff;
+  --border: #e6e6e6;
+  --radius: 16px;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  --transition: all 0.3s ease;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-main);
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #111 0%, #000 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 25px 20px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: var(--shadow);
+}
+
+.sidebar h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: center;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #ddd;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.sidebar a svg {
+  font-size: 1.2rem;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: var(--accent);
+  color: #111;
+  font-weight: 600;
+  transform: translateX(5px);
+}
+
+/* ========== TOPBAR ========== */
+.topbar {
+  background: var(--card-bg);
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--shadow);
+}
+
+.topbar .admin-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.topbar .admin-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 10px rgba(245, 197, 66, 0.5);
+}
+
+/* ========== MAIN AREA ========== */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-main {
+  flex: 1;
+  margin-left: 250px;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+/* ========== DASHBOARD ========== */
+.dashboard-content {
+  padding: 40px 60px;
+}
+
+.dashboard-header {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 35px;
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.dashboard-header::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 3px;
+  background: var(--accent);
+  left: 0;
+  bottom: -10px;
+  border-radius: 2px;
+}
+
+/* ========== DASHBOARD CARDS ========== */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+.dashboard-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 25px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+  font-size: 1.1rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.dashboard-card p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* card accent animation */
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0%;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 10px;
+  transform: translateX(-50%);
+  transition: var(--transition);
+}
+
+.dashboard-card:hover::before {
+  width: 80%;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 992px) {
+  .dashboard-content {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 220px;
+  }
+  .admin-main {
+    margin-left: 220px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+  }
+  .admin-main {
+    margin-left: 0;
+  }
+}
+.sidebar {
+  width: 250px;
+  background: #0d0d0d;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.sidebar h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  color: #fff;
+  text-align: center;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #ddd;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+}

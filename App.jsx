@@ -1,70 +1,81 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'; 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { FiUser, FiSearch, FiHeart, FiShoppingBag } from 'react-icons/fi';
 import './index.css';
 import LoginForm from './components/LoginForm';
 import CartPage from './components/CartPage';
 import RegisterForm from './components/RegisterForm';
+import CheckoutPage from './components/CheckoutPage';
+import Dashboard from "./pages/admin/Dashboard";
+import Products from "./pages/admin/Products";
+import Orders from "./pages/admin/Orders";
+import Users from "./pages/admin/Users";
+import Categories from "./pages/admin/Categories";
+import Comments from "./pages/admin/Comments";
+import Voucher from "./pages/admin/Voucher";
+import News from "./pages/admin/News";
+
+
 
 // --- Component Giả Lập/Cơ Sở ---
 
 // 1. Header Component
 const Header = () => (
-    <header className="header">
-        <div className="logo">
-            <Link to="/">MOVA<span style={{fontWeight: 'normal', fontSize: '14px', marginLeft: '5px'}}>CLOTHES</span></Link>
-        </div>
-        <nav className="nav-links">
-            <Link to="/">Trang Chủ</Link>
-            <Link to="/store">Cửa Hàng</Link>
-            <Link to="/about">Giới Thiệu</Link>
-            <Link to="/contact">Liên Hệ</Link>
-        </nav>
-        <div className="user-actions">
-            <Link to="/login" className="icon"><FiUser size={20} /></Link>
-            <span className="icon"><FiSearch size={20} /></span>
-            <span className="icon"><FiHeart size={20} /></span>
-            <Link to="/cart" className="icon"><FiShoppingBag size={20} /></Link>
-        </div>
-    </header>
+  <header className="header">
+    <div className="logo">
+      <Link to="/">MOVA<span style={{ fontWeight: 'normal', fontSize: '14px', marginLeft: '5px' }}>CLOTHES</span></Link>
+    </div>
+    <nav className="nav-links">
+      <Link to="/">Trang Chủ</Link>
+      <Link to="/store">Cửa Hàng</Link>
+      <Link to="/about">Giới Thiệu</Link>
+      <Link to="/contact">Liên Hệ</Link>
+    </nav>
+    <div className="user-actions">
+      <Link to="/login" className="icon"><FiUser size={20} /></Link>
+      <span className="icon"><FiSearch size={20} /></span>
+      <span className="icon"><FiHeart size={20} /></span>
+      <Link to="/cart" className="icon"><FiShoppingBag size={20} /></Link>
+    </div>
+  </header>
 );
 
 // 2. Footer Component
 const Footer = () => (
-    <footer className="footer">
-        <div className="footer-top">
-            <div className="footer-logo">
-                MOVA<span style={{fontWeight: 'normal', fontSize: '14px', marginLeft: '3px'}}>CLOTHES.</span>
-            </div>
-            <div className="footer-section">
-                <h4>Links</h4>
-                <ul>
-                    <li><Link to="/">Trang Chủ</Link></li>
-                    <li><Link to="/store">Cửa Hàng</Link></li>
-                    <li><Link to="/about">Giới Thiệu</Link></li>
-                    <li><Link to="/contact">Liên Hệ</Link></li>
-                </ul>
-            </div>
-            <div className="footer-section">
-                <h4>Help</h4>
-                <ul>
-                    <li><a href="#payment">Payment Options</a></li>
-                    <li><a href="#returns">Returns</a></li>
-                    <li><a href="#privacy">Privacy Policies</a></li>
-                </ul>
-            </div>
-            <div className="footer-section">
-                <h4>Newsletter</h4>
-                <div className="newsletter-form">
-                    <input type="email" placeholder="Enter Your Email Address" />
-                    <button>SUBSCRIBE</button>
-                </div>
-            </div>
+  <footer className="footer">
+    <div className="footer-top">
+      <div className="footer-logo">
+        MOVA<span style={{ fontWeight: 'normal', fontSize: '14px', marginLeft: '3px' }}>CLOTHES.</span>
+      </div>
+      <div className="footer-section">
+        <h4>Links</h4>
+        <ul>
+          <li><Link to="/">Trang Chủ</Link></li>
+          <li><Link to="/store">Cửa Hàng</Link></li>
+          <li><Link to="/about">Giới Thiệu</Link></li>
+          <li><Link to="/contact">Liên Hệ</Link></li>
+        </ul>
+      </div>
+      <div className="footer-section">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#payment">Payment Options</a></li>
+          <li><a href="#returns">Returns</a></li>
+          <li><a href="#privacy">Privacy Policies</a></li>
+        </ul>
+      </div>
+      <div className="footer-section">
+        <h4>Newsletter</h4>
+        <div className="newsletter-form">
+          <input type="email" placeholder="Enter Your Email Address" />
+          <button>SUBSCRIBE</button>
         </div>
-        <div className="footer-bottom">
-            2025 MOVECLOTHES. All rights reserved
-        </div>
-    </footer>
+      </div>
+    </div>
+    <div className="footer-bottom">
+      2025 MOVECLOTHES. All rights reserved
+    </div>
+  </footer>
 );
 
 
@@ -86,13 +97,13 @@ const HomePage = () => (
 function App() {
   return (
     // Toàn bộ ứng dụng được bọc trong Router
-    <Router> 
+    <Router>
       <div className="app-layout">
         <Routes>
-          
+
           {/* 1. Trang Chủ (Sử dụng HomePage đã có Header/Footer) */}
           <Route path="/" element={<HomePage />} />
-          
+
           {/* 2. Trang Đăng Nhập (Sử dụng LoginForm) */}
           <Route path="/login" element={
             <>
@@ -119,7 +130,22 @@ function App() {
               <Footer />
             </>
           } />
-          
+          {/* 4. Trang Giỏ Hàng/Thanh Toán (Sử dụng CartPage) */}
+          <Route path="/Checkout" element={
+            <>
+              <Header />
+              <main><CheckoutPage /></main>
+              <Footer />
+            </>
+          } />
+          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/categories" element={<Categories />} />
+          <Route path="/admin/comments" element={<Comments />} />
+          <Route path="/admin/voucher" element={<Voucher />} />
+          <Route path="/admin/news" element={<News />} />
         </Routes>
       </div>
     </Router>

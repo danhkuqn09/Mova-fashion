@@ -1,0 +1,187 @@
+.footer {
+    background: rgb(255, 255, 255); 
+    box-shadow: 0 -4px 32px 0 rgba(0, 176, 240, 0.229); 
+    padding: 40px 0;
+    font-family: 'Times New Roman', Times, serif;
+    border-top: 1px solid rgba(255, 255, 255, 0.4); 
+    color: #1d3557;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 60px;
+}
+
+.footer-container {
+    display: grid;
+    text-align: left;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 50px;
+    margin-bottom: 30px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 80px;
+}
+.footer-container > .footer-column {
+    text-align: left; 
+}
+.footer-container > .footer-column:nth-child(4) {
+    text-align: left; /* Giữ căn trái cho nội dung chính */
+}
+/* 2. Màu sắc và Typography */
+.footer-logo {
+    font-size: 37px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.footer-column h4 {
+    font-size: 14px;
+    margin-bottom: 15px;
+    color: #1d3557; /* Màu đậm */
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #457b9d; /* Link màu xanh nhẹ */
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+    text-decoration: underline;
+    color: #1d3557;
+}
+
+/* 3. Newsletter */
+.newsletter-form {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #457b9d; 
+    padding-bottom: 5px;
+    max-width: 280px;
+}
+
+.newsletter-form input {
+    border: none;
+    outline: none;
+    background: transparent; /* Input trong suốt */
+    font-size: 13px;
+    flex: 1;
+    color: #1d3557;
+}
+
+.newsletter-form button {
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    color: #1d3557; 
+}
+
+/* 4. Footer Bottom */
+.footer-bottom {
+    max-width: 1280px;
+    margin: 30px auto 0;
+    padding: 10px 80px 0;
+    text-align: left;
+    border-top: 1px solid rgba(29, 53, 87, 0.2);
+}
+
+.footer-bottom p {
+    font-size: 12px;
+    color: #000000; 
+    margin: 0;
+}
+
+/* --- Thay đổi/Thêm vào Footer.css --- */
+
+/* Màn hình máy tính bảng (Dưới 992px) */
+@media (max-width: 992px) {
+    .footer-container {
+        /* Vẫn giữ 4 cột nhưng giảm kích thước */
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 15px; /* Giảm khoảng cách giữa các cột */
+        padding: 0 15px; /* Giảm padding ngang */
+    }
+
+    /* Tiêu đề cột */
+    .footer-column h4 {
+        font-size: 16px; /* Giảm kích thước tiêu đề */
+        margin-bottom: 10px;
+    }
+
+    /* Link và nội dung */
+    .footer-column a, 
+    .footer-column li,
+    .footer-bottom p {
+        font-size: 13px; /* Giảm kích thước chữ của link và text */
+    }
+    
+    .footer-logo {
+        font-size: 20px; /* Giảm kích thước Logo */
+    }
+
+    /* Newsletter input/button */
+    .newsletter-form input,
+    .newsletter-form button {
+        padding: 6px; /* Giảm padding input/button */
+        font-size: 12px;
+    }
+    
+    /* Cột logo chiếm toàn bộ hàng, cần căn giữa (Tắt nếu muốn giữ 4 cột) */
+    /*
+    .footer-container > .footer-column:nth-child(1) {
+        grid-column: span 2;
+        text-align: center;
+    }
+    */
+    
+    /* BỎ CÁC QUY TẮC CHIA 2 CỘT CŨ (ví dụ: grid-column: span 2) nếu bạn muốn giữ 4 cột */
+}
+
+/* Màn hình điện thoại (Dưới 576px) */
+@media (max-width: 576px) {
+    .footer-container {
+        /* Quay lại bố cục 1 cột xếp chồng cho điện thoại */
+        grid-template-columns: 1fr;
+        gap: 20px;
+        text-align: center; 
+        padding: 0 10px;
+    }
+    
+    .footer-column h4 {
+        font-size: 18px; 
+    }
+    
+    .footer-column a, 
+    .footer-column li,
+    .footer-bottom p {
+        font-size: 14px; 
+    }
+
+    .footer-container > .footer-column {
+        text-align: center;
+    }
+    
+    .footer-column ul {
+        display: inline-block;
+        text-align: left; /* Giữ link thẳng hàng trong list */
+    }
+    
+    .newsletter-form {
+        margin: 0 auto;
+        max-width: 100px; /* Giảm kích thước form newsletter */
+    }
+}

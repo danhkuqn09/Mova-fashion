@@ -1,0 +1,300 @@
+.header {
+  width: 100%;
+  background-color: #ededed;
+  border-bottom: 1px solid #eee;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 80px;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+
+.icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  /* Đảm bảo cả tên và ảnh đều được căn giữa theo chiều dọc */
+  font-weight: bold;
+  font-size: 30px;
+  gap: 8px;
+}
+
+.logo a {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #666666;
+  transition: 0.5s;
+}
+
+.logo a:hover {
+  color: #b88e2f;
+  transition: 0.5s;
+  letter-spacing: 2px;
+}
+
+.logo img {
+  width: 80px;
+  height: auto;
+  border-radius: 50%;
+}
+
+.nav {
+  display: flex;
+  gap: 40px;
+}
+
+.nav a {
+  color: #000;
+  text-decoration: none;
+  font-size: 20px;
+  transition: color 0.3s ease;
+  position: relative;
+  transition: 0.3s;
+
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: #ccc12d;
+  transition: width 0.3s ease-out;
+}
+
+.nav a:hover {
+  color: #b88e2f;
+  letter-spacing: 1px;
+  transition: 0.3s;
+}
+
+.nav a:hover::after {
+  width: 100%
+}
+
+.nav li {
+  text-decoration: none;
+  list-style: none;
+}
+
+.icons {
+  display: flex;
+  gap: 20px;
+  font-size: 18px;
+  cursor: pointer;
+    transition: 0.3s;
+}
+
+.icons i:hover {
+  color: #b88e2f;
+  transition: 0.3s;
+}
+
+/* Icon User */
+/* ===== Dropdown cho icon user ===== */
+.user-icon-container {
+  position: relative;
+  /* Đặt margin/padding về 0 để tránh gây lệch */
+  margin: 0;
+  padding: 0;
+  /* Đảm bảo nó được coi là một khối flex item */
+  display: flex;
+  align-items: center;
+}
+
+/* Menu nhỏ hiện ra khi click icon user */
+.user-dropdown {
+  position: absolute;
+  top: 38px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  transform-origin: top center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 6px 0;
+  z-index: 1000;
+  width: 140px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease-out;
+}
+
+.user-dropdown.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  pointer-events: auto;
+}
+
+/* item trong menu */
+.user-dropdown .dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* hover */
+.user-dropdown .dropdown-item:hover {
+  background-color: #f2f2f2;
+  color: #b88e2f;
+}
+
+/* hiệu ứng mượt khi hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* --- CSS Mobile Menu/Hamburger --- */
+
+/* --- Media Queries cho Header (Lặp lại để chắc chắn) --- */
+
+/* Màn hình máy tính bảng (Dưới 992px) */
+@media (max-width: 992px) {
+    .header {
+        padding: 15px 40px; 
+    }
+
+    .nav {
+        gap: 25px;
+    }
+
+    .nav a {
+        font-size: 18px;
+    }
+
+    .logo a {
+        font-size: 18px;
+    }
+
+    .logo img {
+        width: 60px; 
+    }
+}
+
+/* Màn hình điện thoại (Dưới 768px) */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+    
+    /* [NEW] Hiển thị icon Hamburger trên mobile */
+    .menu-toggle-icon {
+        display: block !important; /* Bắt buộc hiển thị */
+        order: 1; /* Đặt icon hamburger ở vị trí dễ nhìn */
+    }
+
+    /* Ẩn Navigation chính trên Mobile */
+    .nav {
+        display: flex; /* Đặt lại thành flex để tạo sidebar */
+        flex-direction: column;
+        
+        position: fixed; 
+        top: 0;
+        right: -300px; /* Ẩn menu ra khỏi màn hình */
+        
+        width: 250px;
+        height: 100vh;
+        
+        /* Đồng bộ hiệu ứng Giọt nước cho Menu Sidebar */
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+
+        padding-top: 80px; 
+        transition: right 0.3s ease-in-out; 
+        z-index: 999;
+        
+        list-style: none;
+    }
+
+    /* Menu được mở khi có class .active */
+    .nav.active {
+        right: 0; /* Hiện menu */
+    }
+
+    /* Điều chỉnh các item trong menu mobile */
+    .nav li {
+        width: 100%;
+        text-align: left;
+    }
+
+    .nav a {
+        display: block; 
+        padding: 15px 20px;
+        font-size: 16px;
+        color: #1d3557;
+        width: auto; 
+    }
+    
+    .nav a::after {
+        display: none; 
+    }
+    
+    .nav a:hover {
+        background-color: rgba(69, 123, 157, 0.1);
+        color: #457b9d;
+        letter-spacing: normal;
+    }
+    
+    /* Điều chỉnh Icon Container */
+    .icons {
+        gap: 15px;
+        font-size: 20px;
+        /* Đảm bảo icons không bị che khuất bởi menu */
+        z-index: 1001; 
+    }
+
+    /* Ẩn thanh nav mặc định trên mobile */
+    .nav:not(.active) {
+        /* Đảm bảo thanh nav chỉ hiện khi có class active */
+        display: none; 
+    }
+}
+
+/* Ẩn Icon Hamburger trên Desktop */
+@media (min-width: 769px) {
+    .menu-toggle-icon {
+        display: none !important;
+    }
+    .nav {
+        display: flex; /* Đảm bảo nó hiện lại trên desktop */
+        flex-direction: row;
+        position: static;
+        height: auto;
+        padding-top: 0;
+        background: transparent;
+        backdrop-filter: none;
+    }
+}

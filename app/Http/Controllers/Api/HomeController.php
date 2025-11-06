@@ -69,10 +69,11 @@ class HomeController extends Controller
             $avgRating = $reviews->avg('rating');
             $totalReviews = $reviews->count();
 
-            // Lấy số lượng đã bán
+            // Lấy số lượng đã bán (thông qua product_variants)
             $totalSold = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->where('order_items.product_id', $product->id)
+                ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+                ->where('product_variants.product_id', $product->id)
                 ->whereIn('orders.status', ['processing', 'completed'])
                 ->sum('order_items.quantity');
 

@@ -41,4 +41,22 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'momo' => [
+        'partner_code' => env('MOMO_PARTNER_CODE'),
+        'access_key' => env('MOMO_ACCESS_KEY'),
+        'secret_key' => env('MOMO_SECRET_KEY'),
+        'endpoint' => env('MOMO_ENDPOINT', 'https://test-payment.momo.vn/v2/gateway/api/create'),
+        'return_url' => env('MOMO_RETURN_URL'),
+        'notify_url' => env('MOMO_NOTIFY_URL'),
+    ],
+
+    'payos' => [
+        'client_id' => env('PAYOS_CLIENT_ID'),
+        'api_key' => env('PAYOS_API_KEY'),
+        'checksum_key' => env('PAYOS_CHECKSUM_KEY'),
+        'endpoint' => env('PAYOS_ENDPOINT', 'https://api-merchant.payos.vn/v2/payment-requests'),
+        'return_url' => env('PAYOS_RETURN_URL'),
+        'cancel_url' => env('PAYOS_CANCEL_URL'),
+    ],
+
 ];

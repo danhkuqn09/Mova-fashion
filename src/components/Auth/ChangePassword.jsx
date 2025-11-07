@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; 
-import Footer from "./Footer";
+import Footer from "../Footer";
 import "./changepassword.css";
 
 const ChangePassword = () => {
@@ -22,7 +22,7 @@ const ChangePassword = () => {
         {
           current_password: currentPassword,
           password: newPassword,
-          password_confirmation: confirmPassword,
+          password_confirmation: confirmPassword, 
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem(token)}` },

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Footer from "./Footer";
-import { useNavigate } from "react-router-dom"; // 🔹 import useNavigate
+import Footer from "../Footer";
+import { useNavigate } from "react-router-dom"; // import useNavigate
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // 🔹 khởi tạo hook điều hướng
+  const navigate = useNavigate(); // khởi tạo hook điều hướng
 
   const handleSubmit = async (e) => {
     e.preventDefault();

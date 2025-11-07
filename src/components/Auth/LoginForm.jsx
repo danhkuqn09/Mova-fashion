@@ -4,9 +4,9 @@ import axios from "axios";
 import { AiOutlineGoogle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 // import Header from "./Header";
-import Footer from "./Footer";
+import Footer from "../Footer";
 import { FaFacebookF, FaApple } from "react-icons/fa";
-import "../index.css";
+
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");

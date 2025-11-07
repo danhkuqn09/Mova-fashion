@@ -37,14 +37,28 @@
 }
 
 .product-card p {
-  color: #555;
-  font-weight: 500;
+ color: #b88e2f;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 .show-more-container {
   text-align: center;
   margin-top: 20px;
 }
 
+.buy-btn button {
+ background-color: #000;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.buy-btn button:hover {
+  background-color: #b88e2f;
+  color: white;
+}
 .show-more-btn {
   background-color: transparent;
   color: #c48b3b;

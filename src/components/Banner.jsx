@@ -14,7 +14,7 @@ function Banner() {
         <p>Thanh lịch, đẳng cấp & tinh tế</p>
       </div>
 
-      <div className="categories">
+      <div className="image-categories">
         <div>
           <img src="/Image/congSo.png" alt="Công sở" />
           <p>Công Sở</p>

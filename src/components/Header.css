@@ -69,61 +69,71 @@
   color: #b88e2f;
 }
 /* Icon User */
-/* ===== Dropdown cho icon user ===== */
-.user-icon-container {
+.user-menu-container {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Menu nhỏ hiện ra khi click icon user */
-.user-dropdown {
+/* Menu dropdown khi click mở */
+.user-dropdown-menu {
   position: absolute;
-  top: 38px;
+  top: 120%;
   left: 50%;
-  transform: translateX(-50%) scale(0.95);
-  transform-origin: top center;
+  transform: translateX(-50%);
   background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 6px 0;
-  z-index: 1000;
-  width: 140px;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.15s ease-out;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  padding: 8px 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  animation: fadeIn 0.25s ease;
 }
 
-.user-dropdown.show {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-  pointer-events: auto;
-}
-
-/* item trong menu */
-.user-dropdown .dropdown-item {
-  display: block;
-  padding: 10px 15px;
-  color: #333;
+/* Các item trong menu */
+.user-dropdown-menu .dropdown-item {
+  padding: 10px 20px;
   text-decoration: none;
+  color: #333;
   font-size: 14px;
-  transition: background 0.2s, color 0.2s;
+  transition: 0.2s;
 }
 
-/* hover */
-.user-dropdown .dropdown-item:hover {
-  background-color: #f2f2f2;
+.user-dropdown-menu .dropdown-item:hover {
+  background-color: #f7f7f7;
   color: #b88e2f;
 }
 
-/* hiệu ứng mượt khi hiện */
+/* Hiệu ứng mượt */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translate(-50%, -10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
   }
+}
+/* Đăng xuất */
+.logout-btn {
+  background: none;
+  border: none;
+  color: #000;
+  font-size: 15px;
+  text-align: left;
+  padding: 8px 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.logout-btn:hover {
+  color: #b88e2f;
+  background-color: #f9f9f9;
 }

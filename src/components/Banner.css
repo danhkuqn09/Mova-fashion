@@ -20,17 +20,17 @@
   margin: 40px 0;
 }
 
-.categories {
+.image-categories {
   display: flex;
   justify-content: center;
   gap: 30px;
 }
 
-.categories div {
+.image-categories div {
   text-align: center;
 }
 
-.categories img {
+.image-categories img {
   width: 300px;
   height: 380px;
   border-radius: 15px;

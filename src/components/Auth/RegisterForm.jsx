@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Footer from "./Footer";
+import Footer from "../Footer";
 import "./RegisterForm.css";
 
 const RegisterForm = () => {

@@ -45,7 +45,7 @@ function ProductSection() {
               alt={p.name}
             />
             <h3>{p.name}</h3>
-            <p>{p.price ? `${p.price.toLocaleString()}₫` : "Liên hệ"}</p>
+            <p>{p.price}đ</p>
             <Link
               to="/productdetail"
               state={{

@@ -1,49 +1,135 @@
-import React, { useState, useEffect, useRef } from "react";
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 function Header({ onCartClick }) {
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const userMenuRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  // Đóng menu khi click ra ngoài
+  // ✅ Khi load trang → kiểm tra user
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setShowUserMenu(false);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  // ✅ Toggle menu user
+  const toggleUserMenu = (e) => {
+    e.stopPropagation();
+    setIsMenuOpen((prev) => !prev);
+  };
+
+  // ✅ Đóng menu khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".user-menu-container")) {
+        setIsMenuOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, []);
+
+  // ✅ Logout
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      if (token) {
+        await axios.post(
+          "http://localhost:8000/api/logout",
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+
+    // Xóa dữ liệu đăng nhập
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setIsMenuOpen(false);
+
+    // Chuyển hướng
+    navigate("/login");
+  };
 
   return (
     <header className="header">
+      {/* Logo */}
       <div className="logo">
-        <a href="/"><span>MOVACLOTHES</span></a>
-        <img src="/Image/LogoHome.png" alt="MovaClothes Logo" />
+        <Link to="/">
+          <span>MOVACLOTHES</span>
+          <img src="/Image/LogoHome.png" alt="MovaClothes Logo" />
+        </Link>
       </div>
 
+      {/* Menu */}
       <nav className="nav">
         <li><Link to="/">Trang chủ</Link></li>
         <li><Link to="/shop">Cửa hàng</Link></li>
-        <li><Link to="/blog">Giới Thiệu</Link></li>
-        <li><Link to="/contact">Liên Hệ</Link></li>
+        <li><Link to="/blog">Giới thiệu</Link></li>
+        <li><Link to="/contact">Liên hệ</Link></li>
       </nav>
 
-      <div className="icons" ref={userMenuRef}>
-        <div className="user-icon-container" style={{ position: "relative" }}>
+      {/* Icons */}
+      <div className="icons">
+        {/* 👤 User menu */}
+        <div className="user-menu-container">
           <i
             className="fas fa-user"
-            onClick={() => setShowUserMenu((prev) => !prev)}
+            onClick={toggleUserMenu}
             style={{ cursor: "pointer" }}
           ></i>
 
-          {/* Dropdown luôn tồn tại, chỉ ẩn bằng CSS */}
-          <div className={`user-dropdown ${showUserMenu ? "show" : ""}`}>
-            <Link to="/login" className="dropdown-item">Đăng nhập</Link>
-            <Link to="/register" className="dropdown-item">Đăng ký</Link>
-          </div>
+          {isMenuOpen && (
+            <ul className="user-dropdown-menu">
+              {!user ? (
+                <>
+                  <Link
+                    to="/login"
+                    className="dropdown-item"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="dropdown-item"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Đăng ký
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <li className="dropdown-item" style={{ cursor: "default" }}>
+                    👋 Xin chào, <strong>{user.name}</strong>
+                  </li>
+                  <Link
+                    to="/change-password"
+                    className="dropdown-item"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Đổi mật khẩu
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="dropdown-item logout-btn"
+                  >
+                    Đăng xuất
+                  </button>
+                </>
+              )}
+            </ul>
+          )}
         </div>
 
         <i className="fas fa-search"></i>

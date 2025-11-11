@@ -103,6 +103,7 @@
   color: #333;
   font-size: 14px;
   transition: 0.2s;
+  
 }
 
 .user-dropdown-menu .dropdown-item:hover {
@@ -127,7 +128,6 @@
   border: none;
   color: #000;
   font-size: 15px;
-  text-align: left;
   padding: 8px 16px;
   cursor: pointer;
   width: 100%;

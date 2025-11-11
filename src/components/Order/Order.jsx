@@ -60,7 +60,7 @@ const Cart = () => {
             {cartItems.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-                  Giỏ hàng của bạn đang trống 😢
+                  Đơn hàng của bạn đang trống 😢
                 </td>
               </tr>
             ) : (

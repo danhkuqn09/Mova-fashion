@@ -111,7 +111,7 @@ function Header() {
               ) : (
                 <>
                   <li className="dropdown-item" style={{ cursor: "default" }}>
-                    👋 Xin chào, <strong>{user.name}</strong>
+                     Xin chào, <br /> <strong>{user.name}</strong>
                   </li>
                   <Link
                     to="/change-password"

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function Header({ onCartClick }) {
+function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -67,8 +67,8 @@ function Header({ onCartClick }) {
       <div className="logo">
         <Link to="/">
           <span>MOVACLOTHES</span>
-          <img src="/Image/LogoHome.png" alt="MovaClothes Logo" />
         </Link>
+         <img src="/Image/LogoHome.png" alt="MovaClothes Logo" />
       </div>
 
       {/* Menu */}
@@ -136,7 +136,7 @@ function Header({ onCartClick }) {
         <i className="fas fa-heart"></i>
         <i
           className="fas fa-shopping-cart"
-          onClick={onCartClick}
+          onClick={() => navigate("/cart")}
           style={{ cursor: "pointer" }}
         ></i>
       </div>

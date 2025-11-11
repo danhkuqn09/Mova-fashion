@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 function Shop() {
   const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]); // ← thêm state chung cho danh mục
+  const [products, setProducts] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [onSale, setOnSale] = useState([]);
@@ -28,7 +28,8 @@ function Shop() {
         const getData = (res) => {
           if (Array.isArray(res.data)) return res.data;
           if (Array.isArray(res.data.data)) return res.data.data;
-          if (Array.isArray(res.data.data.products.data)) return res.data.data.products.data;
+          if (Array.isArray(res.data.data?.products?.data))
+            return res.data.data.products.data;
           return [];
         };
 
@@ -46,7 +47,6 @@ function Shop() {
     fetchAllData();
   }, []);
 
-  // 👉 Khi bấm vào danh mục → gọi API lọc sản phẩm theo categoryId
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
     setLoading(true);
@@ -57,7 +57,8 @@ function Shop() {
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
-        if (Array.isArray(res.data.data.products.data)) return res.data.data.products.data;
+        if (Array.isArray(res.data.data?.products?.data))
+          return res.data.data.products.data;
         return [];
       };
       setProducts(getData(res));
@@ -68,7 +69,15 @@ function Shop() {
     }
   };
 
-  if (loading) return <p className="loading">Đang tải dữ liệu...</p>;
+  // 🌀 Loading spinner giống các trang khác
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Đang tải dữ liệu...</p>
+      </div>
+    );
+  }
 
   const renderProducts = (list) =>
     list.map((p) => (
@@ -86,7 +95,6 @@ function Shop() {
         <Link to={`/productdetail/${p.id}`} className="buy-btn">
           <button>Mua Ngay</button>
         </Link>
-
       </div>
     ));
 
@@ -95,8 +103,7 @@ function Shop() {
       <button
         key={c.id}
         onClick={() => handleCategoryClick(c.id)}
-        className={`category-btn ${selectedCategory === c.id ? "active" : ""
-          }`}
+        className={`category-btn ${selectedCategory === c.id ? "active" : ""}`}
       >
         {c.name}
       </button>
@@ -111,11 +118,10 @@ function Shop() {
         <div className="category-list">{renderCategories()}</div>
       </section>
 
-      {/* Nếu chọn danh mục thì chỉ hiển thị sản phẩm của danh mục đó */}
       {selectedCategory ? (
         <section className="products">
-          <h2>Sản phẩm theo danh mục </h2>
-          <div className="product-grid">{renderProducts(products)}</div>
+          <h2>Sản phẩm theo danh mục</h2>
+          <div className="shop-grid">{renderProducts(products)}</div>
         </section>
       ) : (
         <>

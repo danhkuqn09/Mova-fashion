@@ -8,24 +8,24 @@ function ProductSection() {
   const [visibleCount, setVisibleCount] = useState(8);
 
   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get("http://localhost:8000/api/products");
-      console.log("Dữ liệu từ Laravel:", res.data);
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/products");
+        console.log("Dữ liệu từ Laravel:", res.data);
 
-      // Dữ liệu nằm trong res.data.data.data (vì Laravel phân trang)
-      const productData = Array.isArray(res.data.data?.data)
-        ? res.data.data.data
-        : [];
+        // Dữ liệu nằm trong res.data.data.data (vì Laravel phân trang)
+        const productData = Array.isArray(res.data.data?.data)
+          ? res.data.data.data
+          : [];
 
-      setProducts(productData);
-    } catch (error) {
-      console.error("Lỗi khi tải sản phẩm:", error);
-    }
-  };
+        setProducts(productData);
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm:", error);
+      }
+    };
 
-  fetchProducts();
-}, []);
+    fetchProducts();
+  }, []);
 
 
   const showMore = () => setVisibleCount((prev) => prev + 8);
@@ -40,21 +40,13 @@ function ProductSection() {
               src={
                 p.image
                   ? `http://localhost:8000/storage/${p.image}`
-                  : "/Image/default.jpg"
+                  : "/storage/aoSoMiNam.jpg"
               }
               alt={p.name}
             />
             <h3>{p.name}</h3>
             <p>{p.price}đ</p>
-            <Link
-              to="/productdetail"
-              state={{
-                name: p.name,
-                price: p.price,
-                images: [p.image],
-              }}
-              className="buy-btn"
-            >
+            <Link to={`/productdetail/${p.id}`} className="buy-btn">
               <button>Mua Ngay</button>
             </Link>
           </div>

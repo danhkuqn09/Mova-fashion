@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // Components
@@ -9,7 +9,7 @@ import Product from "./components/Product/Product";
 import Shop from "./components/Shop/shop";
 import ProductDetail from "./components/ProductDetail/ProductDetail";
 import Order from "./components/Order/Order";
-import CartSlide from "./components/CartSlide/CartSlide";
+import Cart from "./components/Cart/Cart";
 import Blog from "./components/Blog/Blog";
 import BlogDetail from "./components/Blog/BlogDetail";
 
@@ -25,14 +25,10 @@ import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
-  // Quản lý mở/đóng giỏ hàng
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const handleOpenCart = () => setIsCartOpen(true);
-  const handleCloseCart = () => setIsCartOpen(false);
-
+  
   return (
     <>
-      <Header onCartClick={handleOpenCart} />
+      <Header  />
 
       <Routes>
         {/* Trang chủ */}
@@ -53,7 +49,8 @@ function App() {
         <Route path="/order" element={<Order />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
-
+        <Route path="/cart" element={<Cart />} />
+        
         {/* Auth */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -70,9 +67,7 @@ function App() {
           }
         />
       </Routes>
-
-      {/* Slide giỏ hàng (CartSlide) */}
-      <CartSlide isOpen={isCartOpen} onClose={handleCloseCart} />
+      
     </>
   );
 }

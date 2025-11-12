@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import { AiOutlineGoogle } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 // import Header from "./Header";
@@ -14,46 +14,61 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
+  const handleGoogleLogin = async () => {
+    try {
+      const res = await axios.get("http://localhost:8000/api/auth/google");
+      if (res.data.success && res.data.url) {
+        window.location.href = res.data.url; // redirect trình duyệt
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      } else {
+        alert("Không thể kết nối Google. Vui lòng thử lại!");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Lỗi khi đăng nhập với Google");
+    }
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMessage("");
+    e.preventDefault();
+    setMessage("");
 
-  try {
-    const res = await axios.post("http://localhost:8000/api/login", {
-      username: email,
-      password,
-    });
+    try {
+      const res = await axios.post("http://localhost:8000/api/login", {
+        username: email,
+        password,
+      });
 
-    console.log("Kết quả từ Laravel:", res.data);
+      console.log("Kết quả từ Laravel:", res.data);
 
-    // ✅ Kiểm tra đăng nhập thành công
-    if (res.data.success) {
-      setMessage(res.data.message || "Đăng nhập thành công! Đang chuyển hướng...");
+      // ✅ Kiểm tra đăng nhập thành công
+      if (res.data.success) {
+        setMessage(res.data.message || "Đăng nhập thành công! Đang chuyển hướng...");
 
-      // ✅ Lưu token và user vào localStorage
-      localStorage.setItem("token", res.data.data.access_token);
-      localStorage.setItem("user", JSON.stringify(res.data.data.user));
-      
-      // ✅ Chuyển hướng về trang chủ
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-    } else {
-      setMessage(res.data.message || "Đăng nhập thất bại!");
+        // ✅ Lưu token và user vào localStorage
+        localStorage.setItem("token", res.data.data.access_token);
+        localStorage.setItem("user", JSON.stringify(res.data.data.user));
+
+        // ✅ Chuyển hướng về trang chủ
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else {
+        setMessage(res.data.message || "Đăng nhập thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+
+      if (error.response?.data?.message) {
+        setMessage(error.response.data.message);
+      } else if (error.response?.data?.errors) {
+        setMessage(JSON.stringify(error.response.data.errors));
+      } else {
+        setMessage("Đăng nhập thất bại! Kiểm tra lại thông tin hoặc server.");
+      }
     }
-  } catch (error) {
-    console.error("Lỗi đăng nhập:", error);
-
-    if (error.response?.data?.message) {
-      setMessage(error.response.data.message);
-    } else if (error.response?.data?.errors) {
-      setMessage(JSON.stringify(error.response.data.errors));
-    } else {
-      setMessage("Đăng nhập thất bại! Kiểm tra lại thông tin hoặc server.");
-    }
-  }
-};
+  };
 
   return (
     <div className="login-page-layout">
@@ -80,7 +95,7 @@ const LoginForm = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                
+
               />
               <input
                 type="password"
@@ -92,9 +107,9 @@ const LoginForm = () => {
 
               <button type="submit" className="register-button">
                 Đăng Nhập
-                
-              </button> 
-              
+
+              </button>
+
             </form>
 
             <div className="login-prompt">
@@ -104,9 +119,14 @@ const LoginForm = () => {
             <div className="social-login-separator">hoặc đăng nhập bằng</div>
 
             <div className="social-buttons-grid">
-              <button className="social-login-button google">
-                <AiOutlineGoogle size={20} />
+              <button
+                className="social-login-button google"
+                onClick={handleGoogleLogin}
+              >
+                <AiOutlineGoogle size={20} /> Đăng nhập với Google
               </button>
+
+
             </div>
             <div className="forget-password">
               <a href="/forgot-password">Quên mật khẩu?</a>
@@ -114,7 +134,6 @@ const LoginForm = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

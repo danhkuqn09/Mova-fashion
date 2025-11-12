@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Banner from "./Banner";
-import Footer from "../Footer";
 import "./shop.css";
 import { Link } from "react-router-dom";
 
@@ -142,7 +141,7 @@ function Shop() {
         </>
       )}
 
-      <Footer />
+      
     </div>
   );
 }

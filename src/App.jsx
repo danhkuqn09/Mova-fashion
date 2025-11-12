@@ -19,16 +19,17 @@ import Login from "./components/Auth/LoginForm";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ChangePassword from "./components/Auth/ChangePassword";
+import LoginSuccess from "./components/Auth/LoginSuccess";
 
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
-  
+
   return (
     <>
-      <Header  />
+      <Header />
 
       <Routes>
         {/* Trang chủ */}
@@ -38,7 +39,6 @@ function App() {
             <>
               <Banner />
               <Product />
-              <Footer />
             </>
           }
         />
@@ -50,7 +50,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/cart" element={<Cart />} />
-        
+
         {/* Auth */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -66,8 +66,10 @@ function App() {
             )
           }
         />
+        <Route path="/auth/google/callback" element={<LoginSuccess />} />
+
       </Routes>
-      
+      <Footer />
     </>
   );
 }

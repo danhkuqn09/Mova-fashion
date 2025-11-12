@@ -68,7 +68,6 @@ const BlogDetail = () => {
           ))}
         </aside>
       </div>
-      <Footer />
     </div>
   );
 };

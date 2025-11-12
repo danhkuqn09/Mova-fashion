@@ -38,7 +38,6 @@ const ResetPassword = () => {
       </form>
       {message && <p>{message}</p>}
     </div>
-    <Footer />
     </>
   );
   

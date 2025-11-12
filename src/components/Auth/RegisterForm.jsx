@@ -80,6 +80,9 @@ const RegisterForm = () => {
                     onChange={handleChange}
                     required
                   />
+                  <div className="login-prompt">
+                    Có tài khoản? <a href="/login">Đăng nhập ngay</a>
+                  </div>
                   <button type="submit" className="register-button">Đăng Ký</button>
                 </form>
               </>
@@ -102,7 +105,6 @@ const RegisterForm = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

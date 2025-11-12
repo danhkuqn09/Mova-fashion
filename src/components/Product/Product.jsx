@@ -5,7 +5,7 @@ import axios from "axios";
 
 function ProductSection() {
   const [products, setProducts] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,7 +28,7 @@ function ProductSection() {
   }, []);
 
 
-  const showMore = () => setVisibleCount((prev) => prev + 8);
+  const showMore = () => setVisibleCount((prev) => prev + 10);
 
   return (
     <section className="products">

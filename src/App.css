@@ -6,18 +6,20 @@
 }
 
 body {
-  font-family: "Poppins", sans-serif;
-  background-color: #fff;
+  font-family: 'Times New Roman', Times, serif;
+  background-color: #ffffff;
   color: #333;
+  margin: 0;
+  padding:0;
 }
 
 /* Container chính */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
+  max-width: none; 
+  margin: 0; 
+  width: 100%; 
   text-align: center;
 }
-
 
 /* Icon */
 .header-icons {
@@ -53,9 +55,20 @@ body {
 
 /* Footer */
 .footer {
-  margin-top: 60px;
-  padding: 30px;
-  background-color: #fafafa;
-  color: #666;
-  font-size: 0.9rem;
+  margin-top: 60px; 
+  padding: 30px 0; 
+  background-color: #f9f9f9;
+  color: #222;
+  font-family: 'Times New Roman', Times, serif;
+  border-top: 1px solid #ddd;
+  width: 100%; 
+}
+.footer-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+    max-width: 3000px; 
+    margin: 0 auto;
+    padding: 0 80px; 
 }

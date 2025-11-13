@@ -52,7 +52,7 @@
 }
 
 .footer-column ul li a {
-    color: #457b9d; /* Link màu xanh nhẹ */
+    color: #000; /* Link màu xanh nhẹ */
     text-decoration: none;
     font-size: 14px;
     transition: color 0.3s;
@@ -60,7 +60,7 @@
 
 .footer-column ul li a:hover {
     text-decoration: underline;
-    color: #1d3557;
+    color: #b88e2f;
 }
 
 /* 3. Newsletter */

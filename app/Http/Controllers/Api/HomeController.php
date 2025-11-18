@@ -40,67 +40,6 @@ class HomeController extends Controller
     }
 
     /**
-     * Lấy chi tiết sản phẩm
-     */
-    public function show($id)
-    {
-        try {
-            $product = Product::with([
-                'category',
-                'colors',
-                'variants.color',
-                'comments.user',
-            ])->find($id);
-
-            if (!$product) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không tìm thấy sản phẩm'
-                ], 404);
-            }
-
-            // Tăng lượt xem
-            $product->increment('view_count');
-
-            // Lấy reviews của sản phẩm
-            $reviews = $product->reviews()->with('user')->get();
-            
-            // Tính rating trung bình
-            $avgRating = $reviews->avg('rating');
-            $totalReviews = $reviews->count();
-
-            // Lấy số lượng đã bán (thông qua product_variants)
-            $totalSold = DB::table('order_items')
-                ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
-                ->where('product_variants.product_id', $product->id)
-                ->whereIn('orders.status', ['processing', 'completed'])
-                ->sum('order_items.quantity');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy chi tiết sản phẩm thành công',
-                'data' => [
-                    'product' => $product,
-                    'reviews' => $reviews,
-                    'rating' => [
-                        'average' => round($avgRating, 1),
-                        'total' => $totalReviews
-                    ],
-                    'total_sold' => $totalSold ?? 0
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy chi tiết sản phẩm',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
      * Lấy sản phẩm nổi bật (featured products)
      */
     public function featured()

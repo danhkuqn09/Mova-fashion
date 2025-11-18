@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('news', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->string('thumbnail')->nullable();
-            $table->text('summary')->nullable();
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->text('summary');
+            $table->longText('content'); // Nội dung HTML
+            $table->enum('status', ['draft', 'pending', 'published', 'rejected'])->default('draft');
+            $table->integer('view_count')->default(0);
             $table->timestamps();
+            
         });
     }
 

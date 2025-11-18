@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -40,7 +41,6 @@ class OrderController extends Controller
                 'message' => 'Lấy danh sách đơn hàng thành công',
                 'data' => $orders
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -64,6 +64,8 @@ class OrderController extends Controller
                 'payment_method' => 'required|string|in:COD,momo,payos',
                 'voucher_code' => 'nullable|string|exists:vouchers,code',
                 'note' => 'nullable|string|max:1000',
+                'cart_item_ids' => 'nullable|array', // ← Thêm field này
+                'cart_item_ids.*' => 'integer|exists:carts,id', // Validate từng ID
             ], [
                 'name.required' => 'Vui lòng nhập họ tên',
                 'email.required' => 'Vui lòng nhập email',
@@ -73,6 +75,8 @@ class OrderController extends Controller
                 'payment_method.required' => 'Vui lòng chọn phương thức thanh toán',
                 'payment_method.in' => 'Phương thức thanh toán không hợp lệ',
                 'voucher_code.exists' => 'Mã voucher không tồn tại',
+                'cart_item_ids.array' => 'Danh sách sản phẩm không hợp lệ',
+                'cart_item_ids.*.exists' => 'Sản phẩm không tồn tại trong giỏ hàng',
             ]);
 
             if ($validator->fails()) {
@@ -86,14 +90,21 @@ class OrderController extends Controller
             $user = Auth::user();
 
             // Lấy giỏ hàng
-            $cartItems = Cart::with('productVariant.product')
-                ->where('user_id', $user->id)
-                ->get();
+            $cartQuery = Cart::with('productVariant.product')
+                ->where('user_id', $user->id);
+
+            // ← NẾU CÓ cart_item_ids → Chỉ lấy những items được chọn
+            if ($request->has('cart_item_ids') && !empty($request->cart_item_ids)) {
+                $cartQuery->whereIn('id', $request->cart_item_ids);
+            }
+            // ← NẾU KHÔNG CÓ → Lấy toàn bộ giỏ hàng (giống cũ)
+
+            $cartItems = $cartQuery->get();
 
             if ($cartItems->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Giỏ hàng trống'
+                    'message' => 'Không có sản phẩm nào được chọn'
                 ], 400);
             }
 
@@ -152,7 +163,7 @@ class OrderController extends Controller
                     if (!$voucher->canApply($originalTotal)) {
                         DB::rollBack();
                         $reason = 'Không thể áp dụng voucher';
-                        
+
                         if (!$voucher->isValid()) {
                             $reason = 'Mã voucher không còn hiệu lực';
                         } elseif ($originalTotal < $voucher->min_total) {
@@ -180,6 +191,7 @@ class OrderController extends Controller
                     'phone' => $request->phone,
                     'address' => $request->address,
                     'status' => 'pending',
+                    'payment_status' => 'unpaid', // Mặc định chưa thanh toán
                     'original_total' => $originalTotal,
                     'discount_amount' => $discountAmount,
                     'final_total' => $finalTotal,
@@ -203,19 +215,26 @@ class OrderController extends Controller
                     $voucher->incrementUsedCount();
                 }
 
-                // Xóa giỏ hàng
-                Cart::where('user_id', $user->id)->delete();
+                // ← XÓA CHỈ NHỮNG ITEMS ĐÃ CHECKOUT
+                if ($request->has('cart_item_ids') && !empty($request->cart_item_ids)) {
+                    // Xóa theo IDs đã chọn
+                    Cart::whereIn('id', $request->cart_item_ids)
+                        ->where('user_id', $user->id)
+                        ->delete();
+                } else {
+                    // Xóa toàn bộ giỏ hàng (giống cũ)
+                    Cart::where('user_id', $user->id)->delete();
+                }
 
                 DB::commit();
 
                 // Load lại order với relationships
                 $order->load(['items.productVariant.product', 'items.productVariant.color', 'voucher']);
 
-                // Xử lý thanh toán
+                // Xử lý thanh toán 
                 if ($request->payment_method === 'momo') {
-                    // Tạo URL thanh toán Momo
                     $momoResponse = $this->createMomoPayment($order);
-                    
+
                     if (isset($momoResponse['payUrl'])) {
                         return response()->json([
                             'success' => true,
@@ -228,9 +247,7 @@ class OrderController extends Controller
                             ]
                         ], 201);
                     } else {
-                        // Nếu tạo payment thất bại, rollback
                         DB::rollBack();
-                        
                         return response()->json([
                             'success' => false,
                             'message' => 'Không thể tạo thanh toán Momo',
@@ -240,9 +257,8 @@ class OrderController extends Controller
                 }
 
                 if ($request->payment_method === 'payos') {
-                    // Tạo thanh toán PayOS
                     $payosResponse = $this->createPayOSPayment($order);
-                    
+
                     if (isset($payosResponse['checkoutUrl'])) {
                         return response()->json([
                             'success' => true,
@@ -255,9 +271,7 @@ class OrderController extends Controller
                             ]
                         ], 201);
                     } else {
-                        // Nếu tạo payment thất bại, rollback
                         DB::rollBack();
-                        
                         return response()->json([
                             'success' => false,
                             'message' => 'Không thể tạo thanh toán PayOS',
@@ -275,12 +289,10 @@ class OrderController extends Controller
                         'payment_method' => 'COD'
                     ]
                 ], 201);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -297,13 +309,15 @@ class OrderController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $order = Order::with([
-                'items.productVariant.product.category',
+                'items.productVariant.product.images',
                 'items.productVariant.color',
-                'voucher',
-                'user'
-            ])->find($id);
+                'items.productVariant.size',
+                'items.review', // Load review relationship
+                'voucher'
+            ])->where('user_id', $user->id) // ← Chỉ lấy đơn của user
+                ->find($id);
 
             if (!$order) {
                 return response()->json([
@@ -312,20 +326,73 @@ class OrderController extends Controller
                 ], 404);
             }
 
-            // Kiểm tra quyền truy cập
-            if ($order->user_id !== $user->id && $user->role !== 'admin') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Bạn không có quyền xem đơn hàng này'
-                ], 403);
-            }
+            // Format order items với thông tin review
+            $formattedItems = $order->items->map(function ($item) use ($order) {
+                $hasReview = $item->review !== null;
+                $canReview = $order->status === 'completed' && !$hasReview;
+
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->productVariant->product->id,
+                        'name' => $item->productVariant->product->name,
+                        'image' => $item->productVariant->product->images->first()->image_url ?? null,
+                    ],
+                    'variant' => [
+                        'color' => $item->productVariant->color->name ?? null,
+                        'size' => $item->productVariant->size->name ?? null,
+                    ],
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->quantity * $item->price,
+                    // Thông tin review
+                    'can_review' => $canReview,
+                    'has_review' => $hasReview,
+                    'review' => $hasReview ? [
+                        'id' => $item->review->id,
+                        'rating' => $item->review->rating,
+                        'content' => $item->review->content,
+                        'image' => $item->review->image ? Storage::url($item->review->image) : null,
+                        'created_at' => $item->review->created_at->format('d/m/Y H:i'),
+                    ] : null,
+                ];
+            });
+
+            $orderData = [
+                'id' => $order->id,
+                'order_code' => $order->order_code,
+                'status' => $order->status,
+                'status_text' => $this->getStatusText($order->status),
+                'payment_method' => $order->payment_method,
+                'payment_method_text' => $this->getPaymentMethodText($order->payment_method),
+                'payment_status' => $order->payment_status,
+                'customer_info' => [
+                    'name' => $order->name,
+                    'email' => $order->email,
+                    'phone' => $order->phone,
+                    'address' => $order->address,
+                ],
+                'pricing' => [
+                    'original_total' => $order->original_total,
+                    'discount_amount' => $order->discount_amount,
+                    'final_total' => $order->final_total,
+                ],
+                'voucher' => $order->voucher ? [
+                    'code' => $order->voucher->code,
+                    'type' => $order->voucher->type,
+                    'value' => $order->voucher->value,
+                ] : null,
+                'items' => $formattedItems,
+                'note' => $order->note,
+                'created_at' => $order->created_at->format('d/m/Y H:i'),
+                'updated_at' => $order->updated_at->format('d/m/Y H:i'),
+            ];
 
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy chi tiết đơn hàng thành công',
-                'data' => $order
+                'data' => $orderData
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -342,7 +409,7 @@ class OrderController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $order = Order::with('items')->find($id);
 
             if (!$order) {
@@ -398,12 +465,10 @@ class OrderController extends Controller
                     'message' => 'Hủy đơn hàng thành công',
                     'data' => $order
                 ], 200);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -432,11 +497,11 @@ class OrderController extends Controller
 
             // Tìm kiếm theo tên, email, phone
             if ($search) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('email', 'LIKE', "%{$search}%")
-                      ->orWhere('phone', 'LIKE', "%{$search}%")
-                      ->orWhere('id', 'LIKE', "%{$search}%");
+                        ->orWhere('email', 'LIKE', "%{$search}%")
+                        ->orWhere('phone', 'LIKE', "%{$search}%")
+                        ->orWhere('id', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -447,7 +512,6 @@ class OrderController extends Controller
                 'message' => 'Lấy danh sách đơn hàng thành công',
                 'data' => $orders
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -456,7 +520,40 @@ class OrderController extends Controller
             ], 500);
         }
     }
+    //Show chi tiết đơn hàng admin
+    public function adminShowOrder($id)
+    {
+        try {
+            $order = Order::with([
+                'items.productVariant.product.category',
+                'items.productVariant.color',
+                'items.productVariant.size',
+                'voucher',
+                'user' // ← Admin cần thấy thông tin user
+            ])->find($id);
 
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy đơn hàng'
+                ], 404);
+            }
+
+            // KHÔNG CẦN kiểm tra quyền vì đã có middleware admin
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lấy chi tiết đơn hàng thành công',
+                'data' => $order
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy chi tiết đơn hàng',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Admin: Cập nhật trạng thái đơn hàng
      */
@@ -512,7 +609,6 @@ class OrderController extends Controller
                     $order->save();
 
                     DB::commit();
-
                 } catch (\Exception $e) {
                     DB::rollBack();
                     throw $e;
@@ -532,7 +628,6 @@ class OrderController extends Controller
                     'new_status' => $newStatus,
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -574,7 +669,6 @@ class OrderController extends Controller
                 'success' => true,
                 'message' => 'Xóa đơn hàng thành công'
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -606,7 +700,6 @@ class OrderController extends Controller
                 'message' => 'Lấy thống kê đơn hàng thành công',
                 'data' => $statistics
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -647,7 +740,6 @@ class OrderController extends Controller
                 'message' => 'Lấy thống kê thành công',
                 'data' => $statistics
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -672,23 +764,23 @@ class OrderController extends Controller
         $orderId = $order->id . '_' . time(); // Lưu order_id để retrieve sau
         $requestId = $orderId;
         $amount = (string) ((int) $order->final_total);
-        $orderInfo = "Thanh toan don hang #" . $order->id;
+        $orderInfo = "Thanh toan don hang Mova Fashion";
         $redirectUrl = $returnUrl;
         $ipnUrl = $notifyUrl;
         $extraData = base64_encode(json_encode(['order_id' => $order->id]));
         $requestType = "captureWallet";
 
         // captureWallet API signature
-        $rawHash = "accessKey=" . $accessKey . 
-                   "&amount=" . $amount . 
-                   "&extraData=" . $extraData . 
-                   "&ipnUrl=" . $ipnUrl . 
-                   "&orderId=" . $orderId . 
-                   "&orderInfo=" . $orderInfo . 
-                   "&partnerCode=" . $partnerCode . 
-                   "&redirectUrl=" . $redirectUrl . 
-                   "&requestId=" . $requestId . 
-                   "&requestType=" . $requestType;
+        $rawHash = "accessKey=" . $accessKey .
+            "&amount=" . $amount .
+            "&extraData=" . $extraData .
+            "&ipnUrl=" . $ipnUrl .
+            "&orderId=" . $orderId .
+            "&orderInfo=" . $orderInfo .
+            "&partnerCode=" . $partnerCode .
+            "&redirectUrl=" . $redirectUrl .
+            "&requestId=" . $requestId .
+            "&requestType=" . $requestType;
 
         $signature = hash_hmac("sha256", $rawHash, $secretKey);
 
@@ -723,6 +815,12 @@ class OrderController extends Controller
             // Debug - Log response
             Log::info('Momo Response', ['response' => $jsonResult]);
 
+            // Lưu orderId để mapping sau
+            if (isset($jsonResult['payUrl'])) {
+                $order->transaction_id = $orderId;
+                $order->save();
+            }
+
             return $jsonResult;
         } catch (\Exception $e) {
             return [
@@ -741,16 +839,20 @@ class OrderController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
                 'Content-Type: application/json',
-                'Content-Length: ' . strlen($data))
+                'Content-Length: ' . strlen($data)
+            )
         );
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        
+
         $result = curl_exec($ch);
         curl_close($ch);
-        
+
         return $result;
     }
 
@@ -761,21 +863,21 @@ class OrderController extends Controller
     {
         try {
             $secretKey = config('services.momo.secret_key');
-            
+
             // Verify signature
             $rawHash = "accessKey=" . config('services.momo.access_key') .
-                       "&amount=" . $request->amount .
-                       "&extraData=" . $request->extraData .
-                       "&message=" . $request->message .
-                       "&orderId=" . $request->orderId .
-                       "&orderInfo=" . $request->orderInfo .
-                       "&orderType=" . $request->orderType .
-                       "&partnerCode=" . $request->partnerCode .
-                       "&payType=" . $request->payType .
-                       "&requestId=" . $request->requestId .
-                       "&responseTime=" . $request->responseTime .
-                       "&resultCode=" . $request->resultCode .
-                       "&transId=" . $request->transId;
+                "&amount=" . $request->amount .
+                "&extraData=" . $request->extraData .
+                "&message=" . $request->message .
+                "&orderId=" . $request->orderId .
+                "&orderInfo=" . $request->orderInfo .
+                "&orderType=" . $request->orderType .
+                "&partnerCode=" . $request->partnerCode .
+                "&payType=" . $request->payType .
+                "&requestId=" . $request->requestId .
+                "&responseTime=" . $request->responseTime .
+                "&resultCode=" . $request->resultCode .
+                "&transId=" . $request->transId;
 
             $signature = hash_hmac("sha256", $rawHash, $secretKey);
 
@@ -809,7 +911,14 @@ class OrderController extends Controller
             // Momo resultCode = 0 nghĩa là thành công
             if ($request->resultCode == 0) {
                 $order->status = 'processing';
+                $order->payment_status = 'paid';
                 $order->save();
+
+                Log::info('Momo payment successful', [
+                    'order_id' => $order->id,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status
+                ]);
 
                 return response()->json([
                     'resultCode' => 0,
@@ -834,7 +943,13 @@ class OrderController extends Controller
                     }
 
                     $order->status = 'cancelled';
+                    $order->payment_status = 'unpaid';
                     $order->save();
+
+                    Log::info('Momo payment failed - order cancelled', [
+                        'order_id' => $order->id,
+                        'resultCode' => $request->resultCode
+                    ]);
 
                     DB::commit();
 
@@ -842,17 +957,15 @@ class OrderController extends Controller
                         'resultCode' => 0,
                         'message' => 'Order cancelled'
                     ]);
-
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    
+
                     return response()->json([
                         'resultCode' => 99,
                         'message' => 'Error'
                     ]);
                 }
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'resultCode' => 99,
@@ -911,7 +1024,6 @@ class OrderController extends Controller
                     ]
                 ], 400);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -957,7 +1069,6 @@ class OrderController extends Controller
                     'payment_method' => $order->payment_method,
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -981,8 +1092,8 @@ class OrderController extends Controller
 
         $orderCode = (int) ($order->id . time()); // PayOS yêu cầu số nguyên
         $amount = (int) $order->final_total;
-        $description = "Thanh toan don hang #" . $order->id;
-        
+        $description = "Thanh toan don hang Mova Fashion";
+
         // Tạo items trước
         $items = [];
         foreach ($order->items as $item) {
@@ -1030,7 +1141,7 @@ class OrderController extends Controller
                 'x-api-key: ' . $apiKey,
             ]);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            
+
             $result = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
@@ -1053,7 +1164,6 @@ class OrderController extends Controller
                 'message' => $jsonResult['desc'] ?? 'Unknown error',
                 'code' => $jsonResult['code'] ?? 'UNKNOWN'
             ];
-
         } catch (\Exception $e) {
             Log::error('PayOS Payment Error', ['error' => $e->getMessage()]);
             return [
@@ -1093,7 +1203,14 @@ class OrderController extends Controller
             if ($code === '00' && $success) {
                 // Thanh toán thành công
                 $order->status = 'processing';
+                $order->payment_status = 'paid';
                 $order->save();
+
+                Log::info('PayOS payment successful', [
+                    'order_id' => $order->id,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status
+                ]);
 
                 return response()->json([
                     'error' => 0,
@@ -1104,6 +1221,7 @@ class OrderController extends Controller
                 DB::beginTransaction();
                 try {
                     $order->status = 'cancelled';
+                    $order->payment_status = 'unpaid';
                     $order->save();
 
                     // Hoàn lại tồn kho
@@ -1119,19 +1237,22 @@ class OrderController extends Controller
                         $voucher->decrement('used_count');
                     }
 
+                    Log::info('PayOS payment failed - order cancelled', [
+                        'order_id' => $order->id,
+                        'code' => $code
+                    ]);
+
                     DB::commit();
 
                     return response()->json([
                         'error' => 0,
                         'message' => 'Payment failed, order cancelled'
                     ]);
-
                 } catch (\Exception $e) {
                     DB::rollBack();
                     throw $e;
                 }
             }
-
         } catch (\Exception $e) {
             Log::error('PayOS Webhook Error', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Internal server error'], 500);
@@ -1179,7 +1300,6 @@ class OrderController extends Controller
                     ]
                 ], 400);
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1187,5 +1307,35 @@ class OrderController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Helper: Lấy text hiển thị trạng thái
+     */
+    private function getStatusText($status)
+    {
+        $statusTexts = [
+            'pending' => 'Chờ xác nhận',
+            'processing' => 'Đang xử lý',
+            'shipping' => 'Đang giao hàng',
+            'completed' => 'Hoàn thành',
+            'cancelled' => 'Đã hủy',
+        ];
+
+        return $statusTexts[$status] ?? $status;
+    }
+
+    /**
+     * Helper: Lấy text hiển thị phương thức thanh toán
+     */
+    private function getPaymentMethodText($paymentMethod)
+    {
+        $paymentTexts = [
+            'COD' => 'Thanh toán khi nhận hàng',
+            'momo' => 'Ví điện tử Momo',
+            'payos' => 'Chuyển khoản ngân hàng (PayOS)',
+        ];
+
+        return $paymentTexts[$paymentMethod] ?? $paymentMethod;
     }
 }

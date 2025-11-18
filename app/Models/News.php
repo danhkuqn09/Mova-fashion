@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class News extends Model
 {
@@ -13,20 +12,18 @@ class News extends Model
         'title',
         'thumbnail',
         'summary',
+        'content',
         'status',
+        'view_count',
     ];
 
     protected $casts = [
         'status' => 'string',
+        'view_count' => 'integer',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function details(): HasMany
-    {
-        return $this->hasMany(NewDetail::class);
     }
 }

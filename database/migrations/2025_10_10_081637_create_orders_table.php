@@ -19,11 +19,23 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->string('address');
-            $table->string('status')->default('pending');
+            $table->enum('status', [
+                'pending',      // Chờ xác nhận
+                'processing',   // Đang xử lý
+                'shipping',     // Đang giao hàng
+                'completed',    // Hoàn thành
+                'cancelled'     // Đã hủy
+            ])->default('pending');
+            $table->enum('payment_status', [
+                'unpaid',   // Chưa thanh toán
+                'paid',     // Đã thanh toán
+                'refunded'  // Đã hoàn tiền
+            ])->default('unpaid');
             $table->decimal('original_total', 10, 2);          // Tổng tiền gốc
             $table->decimal('discount_amount', 10, 2)->default(0);  // Số tiền giảm
             $table->decimal('final_total', 10, 2);             // Tổng tiền sau giảm
             $table->string('payment_method')->nullable();       // Phương thức thanh toán
+            $table->string('transaction_id')->nullable();         // Mã giao dịch từ cổng thanh toán
             $table->text('note')->nullable();
             $table->timestamps();
 

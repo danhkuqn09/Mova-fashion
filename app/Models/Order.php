@@ -16,10 +16,12 @@ class Order extends Model
         'phone',
         'address',
         'status',
+        'payment_status',
         'original_total',
         'discount_amount',
         'final_total',
         'payment_method',
+        'transaction_id',
         'note',
     ];
 

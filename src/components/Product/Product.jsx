@@ -13,9 +13,8 @@ function ProductSection() {
         const res = await axios.get("http://localhost:8000/api/products");
         console.log("Dữ liệu từ Laravel:", res.data);
 
-        // Dữ liệu nằm trong res.data.data.data (vì Laravel phân trang)
-        const productData = Array.isArray(res.data.data?.data)
-          ? res.data.data.data
+        const productData = Array.isArray(res.data.data?.products)
+          ? res.data.data.products
           : [];
 
         setProducts(productData);
@@ -28,6 +27,7 @@ function ProductSection() {
   }, []);
 
 
+
   const showMore = () => setVisibleCount((prev) => prev + 10);
 
   return (
@@ -37,11 +37,7 @@ function ProductSection() {
         {products.slice(0, visibleCount).map((p) => (
           <div className="product-card" key={p.id}>
             <img
-              src={
-                p.image
-                  ? `http://localhost:8000/storage/${p.image}`
-                  : "/storage/aoSoMiNam.jpg"
-              }
+              src={`http://localhost:8000${p.image}`}
               alt={p.name}
             />
             <h3>{p.name}</h3>

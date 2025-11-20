@@ -10,6 +10,7 @@ import Shop from "./components/Shop/shop";
 import ProductDetail from "./components/ProductDetail/ProductDetail";
 import Order from "./components/Order/Order";
 import Cart from "./components/Cart/Cart";
+import Checkout from "./components/Checkout/Checkout";
 import Blog from "./components/Blog/Blog";
 import BlogDetail from "./components/Blog/BlogDetail";
 
@@ -20,6 +21,14 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ChangePassword from "./components/Auth/ChangePassword";
 import LoginSuccess from "./components/Auth/LoginSuccess";
+import Dashboard from "./components/Admin/Page/DashBoard";
+import Users from "./components/Admin/Page/Users";
+import Products from "./components/Admin/Page/Product";
+import Categories from "./components/Admin/Page/Categories";
+import Orders from "./components/Admin/Page/Order";
+import Comments from "./components/Admin/Page/Comment";
+import Voucher from "./components/Admin/Page/Voucher";
+import News from "./components/Admin/Page/News";
 
 // CSS & Libraries
 import "./App.css";
@@ -50,6 +59,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
 
         {/* Auth */}
         <Route path="/register" element={<Register />} />
@@ -67,6 +77,15 @@ function App() {
           }
         />
         <Route path="/auth/google/callback" element={<LoginSuccess />} />
+        {/* Admin */}
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/products" element={<Products />} />
+        <Route path="/admin/categories" element={<Categories />} />
+        <Route path="/admin/orders" element={<Orders />} />
+        <Route path="/admin/comments" element={<Comments />} />
+        <Route path="/admin/voucher" element={<Voucher />} />
+        <Route path="/admin/news" element={<News />} />
 
       </Routes>
       <Footer />

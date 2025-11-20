@@ -1,7 +1,3 @@
-/* ==========================
-   🛒 CART PAGE STYLES
-========================== */
-
 .cart-page {
   max-width: 1100px;
   margin: 60px auto;
@@ -23,10 +19,7 @@
   color: #b88e2f;
 }
 
-/* ==========================
-   🏷️ TITLE
-========================== */
-.cart-page h2 { 
+.cart-page h2 {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 10px;
@@ -34,9 +27,6 @@
   padding-bottom: 10px;
 }
 
-/* ==========================
-   📦 CART ITEM LIST
-========================== */
 .cart-items {
   display: flex;
   flex-direction: column;
@@ -49,17 +39,16 @@
 .cart-items::-webkit-scrollbar {
   width: 6px;
 }
+
 .cart-items::-webkit-scrollbar-thumb {
   background-color: #ccc;
   border-radius: 10px;
 }
+
 .cart-items::-webkit-scrollbar-thumb:hover {
   background-color: #999;
 }
 
-/* ==========================
-   🧾 EACH ITEM
-========================== */
 .cart-item {
   display: flex;
   align-items: flex-start;
@@ -103,9 +92,6 @@
   color: #555;
 }
 
-/* ==========================
-   🔢 QUANTITY CONTROL
-========================== */
 .quantity-control {
   display: flex;
   align-items: center;
@@ -140,9 +126,7 @@
   font-weight: 600;
 }
 
-/* ==========================
-   ❌ REMOVE BUTTON
-========================== */
+
 .remove-item-btn {
   background: #ffeaea;
   border: none;
@@ -165,9 +149,6 @@
   color: #fff;
 }
 
-/* ==========================
-   💰 SUMMARY SECTION
-========================== */
 .cart-summary {
   display: flex;
   flex-direction: column;
@@ -183,9 +164,6 @@
   color: #d32f2f;
 }
 
-/* ==========================
-   🧭 BUTTONS
-========================== */
 .cart-summary .checkout-btn,
 .cart-summary .continue-btn {
   text-decoration: none;
@@ -217,9 +195,6 @@
   background-color: #f5f5f5;
 }
 
-/* ==========================
-   📱 RESPONSIVE (Mobile)
-========================== */
 @media (max-width: 768px) {
   .cart-item {
     flex-direction: column;
@@ -245,9 +220,7 @@
     width: 100%;
   }
 }
-/* ==========================
-   ⏳ Loading spinner
-========================== */
+
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -272,4 +245,77 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.styled-checkbox {
+  appearance: none;
+  left: -10px;
+  top: 5px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #b88e2f;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  transition: 0.25s;
+  align-items: flex-start;
+}
+
+/* Khi hover */
+.styled-checkbox:hover {
+  border-color: #a07824;
+}
+
+/* Khi được chọn */
+.styled-checkbox:checked {
+  background-color: #b88e2f;
+  border-color: #b88e2f;
+}
+
+/* Dấu ✓ */
+.styled-checkbox:checked::after {
+  content: "✓";
+  font-size: 15px;
+  color: white;
+  position: absolute;
+  top: 0px;
+  left: 4px;
+  font-weight: bold;
+}
+
+.cart-item {
+  position: relative;
+}
+
+.checkbox-left {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  z-index: 5;
+
+  appearance: none;
+  border: 2px solid #b88e2f;
+  border-radius: 6px;
+  background: white;
+  transition: 0.25s;
+}
+
+.checkbox-left:checked {
+  background: #b88e2f;
+  border-color: #b88e2f;
+}
+
+.checkbox-left:checked::after {
+  content: "✓";
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  position: absolute;
+  left: 4px;
+  top: -1px;
 }

@@ -99,8 +99,8 @@ function Shop() {
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
-        if (Array.isArray(res.data.data?.products?.data))
-          return res.data.data.products.data;
+        if (Array.isArray(res.data.data.products))
+          return res.data.data.products;
         return [];
       };
       setProducts(getData(res));
@@ -127,7 +127,7 @@ function Shop() {
         <img
           src={
             p.image
-              ? `http://localhost:8000/storage/${p.image}`
+              ? `http://localhost:8000${p.image}`
               : "/Image/no-image.png"
           }
           alt={p.name}

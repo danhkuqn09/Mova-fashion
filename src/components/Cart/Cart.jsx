@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Cart.css";
-import Footer from "../Footer";
 import axios from "axios";
 
 // 🔹 Hàm định dạng tiền VNĐ
@@ -14,7 +13,10 @@ const formatCurrency = (amount) => {
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true); // 👈 thêm state loading
+  const [loading, setLoading] = useState(true);
+
+  // 🔹 Danh sách item được chọn để thanh toán
+  const [selectedItems, setSelectedItems] = useState([]);
 
   // 🔹 Load giỏ hàng từ API khi mở trang
   useEffect(() => {
@@ -25,7 +27,7 @@ function CartPage() {
       return;
     }
 
-    setLoading(true); // 👈 bắt đầu loading
+    setLoading(true);
 
     axios
       .get("http://localhost:8000/api/cart", {
@@ -36,7 +38,7 @@ function CartPage() {
       .then((res) => {
         const cartData = res.data?.data?.items || [];
         setCartItems(cartData);
-        setLoading(false); // ✅ kết thúc loading
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Lỗi khi tải giỏ hàng:", error);
@@ -49,11 +51,28 @@ function CartPage() {
       });
   }, []);
 
-  // 🔹 Tính tổng tiền
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  // 🔹 Toggle chọn sản phẩm
+  const toggleSelectItem = (itemId) => {
+    setSelectedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  // 🔹 Chọn tất cả
+  const selectAll = () => {
+    if (selectedItems.length === cartItems.length) {
+      setSelectedItems([]); // bỏ chọn tất cả
+    } else {
+      setSelectedItems(cartItems.map((item) => item.id)); // chọn hết
+    }
+  };
+
+  // 🔹 Tổng tiền các sản phẩm được chọn
+  const selectedSubtotal = cartItems
+    .filter((item) => selectedItems.includes(item.id))
+    .reduce((total, item) => total + item.price * item.quantity, 0);
 
   // 🔹 Xóa sản phẩm
   const removeItem = async (itemId) => {
@@ -62,12 +81,11 @@ function CartPage() {
 
     try {
       await axios.delete(`http://localhost:8000/api/cart/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setCartItems(cartItems.filter((item) => item.id !== itemId));
+      setSelectedItems(selectedItems.filter((id) => id !== itemId));
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
       alert("Không thể xóa sản phẩm khỏi giỏ hàng!");
@@ -76,44 +94,43 @@ function CartPage() {
 
   // 🔹 Cập nhật số lượng
   const updateQuantity = async (itemId, type) => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-  setCartItems((prevCart) =>
-    prevCart.map((item) => {
-      if (item.id === itemId) {
-        let newQty = item.quantity;
-        if (type === "increase") newQty++;
-        else if (type === "decrease" && newQty > 1) newQty--;
-        else if (type === "decrease" && newQty === 1) {
-          removeItem(item.id);
-          return item;
+    setCartItems((prevCart) =>
+      prevCart.map((item) => {
+        if (item.id === itemId) {
+          let newQty = item.quantity;
+          if (type === "increase") newQty++;
+          else if (type === "decrease" && newQty > 1) newQty--;
+          else if (type === "decrease" && newQty === 1) {
+            removeItem(item.id);
+            return item;
+          }
+          return { ...item, quantity: newQty };
         }
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    })
-  );
-
-  // 👉 Gọi API phía sau, không chặn UI
-  try {
-    const currentItem = cartItems.find((i) => i.id === itemId);
-    let newQty = currentItem.quantity;
-    if (type === "increase") newQty++;
-    else if (type === "decrease" && newQty > 1) newQty--;
-
-    await axios.put(
-      `http://localhost:8000/api/cart/${itemId}`,
-      { quantity: newQty },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
+        return item;
+      })
     );
-  } catch (error) {
-    console.error("Lỗi cập nhật giỏ hàng:", error);
-    alert("Không thể cập nhật số lượng!");
-  }
-};
+
+    try {
+      const currentItem = cartItems.find((i) => i.id === itemId);
+      let newQty = currentItem.quantity;
+      if (type === "increase") newQty++;
+      else if (type === "decrease" && newQty > 1) newQty--;
+
+      await axios.put(
+        `http://localhost:8000/api/cart/${itemId}`,
+        { quantity: newQty },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    } catch (error) {
+      console.error("Lỗi cập nhật giỏ hàng:", error);
+      alert("Không thể cập nhật số lượng!");
+    }
+  };
 
   // 🔹 Hiển thị Loading
   if (loading) {
@@ -125,24 +142,42 @@ function CartPage() {
     );
   }
 
-  // 🔹 Khi giỏ hàng trống
+  // 🔹 Giỏ hàng trống
   if (cartItems.length === 0) {
     return (
       <div className="cart-page">
         <h2>Giỏ hàng của bạn trống</h2>
         <Link to="/">Tiếp tục mua sắm</Link>
-        <Footer />
       </div>
     );
   }
 
-  // 🔹 Giao diện giỏ hàng chính
+  // 🔹 Giao diện chính
   return (
     <div className="cart-page">
       <h2>Giỏ hàng của bạn</h2>
 
+      {/* Chọn tất cả */}
+      <div className="select-all-box">
+        <input
+          type="checkbox"
+          className="styled-checkbox"
+          checked={selectedItems.length === cartItems.length}
+          onChange={selectAll}
+        />
+        <span>Chọn tất cả</span>
+      </div>
+
       {cartItems.map((item) => (
         <div className="cart-item" key={item.id}>
+          {/* Chọn 1 sả3n phâẩ3m*/}
+          <input
+            type="checkbox"
+            className="select-item-checkbox checkbox-left"
+            checked={selectedItems.includes(item.id)}
+            onChange={() => toggleSelectItem(item.id)}
+          />
+
           <img
             src={`http://localhost:8000/storage/${item.product.image}`}
             alt={item.product.name}
@@ -167,9 +202,13 @@ function CartPage() {
             </p>
 
             <div className="quantity-control">
-              <button onClick={() => updateQuantity(item.id, "decrease")}>-</button>
+              <button onClick={() => updateQuantity(item.id, "decrease")}>
+                -
+              </button>
               <span>{item.quantity}</span>
-              <button onClick={() => updateQuantity(item.id, "increase")}>+</button>
+              <button onClick={() => updateQuantity(item.id, "increase")}>
+                +
+              </button>
             </div>
 
             <p>
@@ -177,26 +216,46 @@ function CartPage() {
               <strong>{formatCurrency(item.price * item.quantity)}</strong>
             </p>
           </div>
-          <button
-            className="remove-item-btn"
-            onClick={() => removeItem(item.id)}
-          >
+
+          <button className="remove-item-btn" onClick={() => removeItem(item.id)}>
             &times;
           </button>
         </div>
       ))}
 
+      {/* 🔹 Tổng tiền sản phẩm được chọn */}
       <div className="cart-summary">
-        <h3>Tổng cộng: {formatCurrency(subtotal)}</h3>
-        <Link to="/checkout" className="checkout-btn">
+        <h3>
+          Tổng cộng:{" "}
+          {selectedItems.length === 0
+            ? "0₫"
+            : formatCurrency(selectedSubtotal)}
+        </h3>
+
+        {/* 🔹 Nút Checkout – chỉ cho thanh toán nếu có sản phẩm được chọn */}
+        <Link
+          to="/checkout"
+          state={{
+            selectedIds: selectedItems,
+            cartItems: cartItems.filter((i) => selectedItems.includes(i.id)),
+            subtotal: selectedSubtotal,
+          }}
+          className={`checkout-btn ${selectedItems.length === 0 ? "disabled" : ""
+            }`}
+          onClick={(e) => {
+            if (selectedItems.length === 0) {
+              e.preventDefault();
+              alert("Hãy chọn ít nhất 1 sản phẩm để thanh toán!");
+            }
+          }}
+        >
           Thanh toán
         </Link>
+
         <Link to="/" className="continue-btn">
           Tiếp tục mua sắm
         </Link>
       </div>
-
-      <Footer />
     </div>
   );
 }

@@ -25,8 +25,8 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 
 // Trang chủ và Route sản phẩm public
 Route::get('/home', [HomeController::class, 'index']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
+
+
 Route::get('/products/featured', [HomeController::class, 'featured']);
 Route::get('/products/new-arrivals', [HomeController::class, 'newArrivals']);
 Route::get('/products/on-sale', [HomeController::class, 'onSale']);
@@ -34,6 +34,12 @@ Route::get('/products/search', [HomeController::class, 'search']);
 Route::get('/products/category/{categoryId}', [HomeController::class, 'getByCategory']);
 Route::get('/products/related/{id}', [HomeController::class, 'getRelated']);
 Route::get('/categories', [HomeController::class, 'getCategories']);
+
+// Route sản phẩm
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+
+
 
 // Review routes (Public - Xem review)
 Route::get('/reviews', [ReviewController::class, 'index']);

@@ -265,12 +265,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Format categories data
-     * Hàm này dùng để chuyển đổi dữ liệu raw từ database thành format chuẩn cho API
-     * - Chuyển đổi image path thành full URL
-     * - Format ngày tháng theo định dạng d/m/Y H:i
-     * - Loại bỏ các field không cần thiết (timestamps, updated_at...)
-     * - Đảm bảo response luôn có cấu trúc nhất quán
+     * Format categories
      */
     private function formatCategories($categories)
     {

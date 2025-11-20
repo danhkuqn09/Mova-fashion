@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\NewController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
@@ -46,7 +47,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 
 // Comment routes (Public - Xem bình luận sản phẩm)
-Route::get('/products/{productId}/comments', [App\Http\Controllers\Api\CommentController::class, 'index']);
+Route::get('/products/{productId}/comments', [CommentController::class, 'index']);
 
 // Momo callbacks (Public - Momo gọi trực tiếp)
 Route::post('/momo/notify', [OrderController::class, 'momoNotify']); // IPN URL
@@ -95,10 +96,10 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/news/{id}/submit', [NewController::class, 'submitForReview']);
 
 	// Comment routes (User - Quản lý bình luận)
-	Route::post('/comments', [App\Http\Controllers\Api\CommentController::class, 'store']);
-	Route::put('/comments/{id}', [App\Http\Controllers\Api\CommentController::class, 'update']);
-	Route::delete('/comments/{id}', [App\Http\Controllers\Api\CommentController::class, 'destroy']);
-	Route::get('/my-comments', [App\Http\Controllers\Api\CommentController::class, 'myComments']);
+	Route::post('/comments', [CommentController::class, 'store']);
+	Route::put('/comments/{id}', [CommentController::class, 'update']);
+	Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+	Route::get('/my-comments', [CommentController::class, 'myComments']);
 
 	// Admin routes
 	Route::middleware('admin')->group(function () {
@@ -137,8 +138,8 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::put('/admin/products/variants/{variantId}/stock', [ProductController::class, 'updateVariantStock']);
 
 		// Quản lí Comment (Admin)
-		Route::get('/admin/comments', [App\Http\Controllers\Api\CommentController::class, 'adminIndex']);
-		Route::delete('/admin/comments/{id}', [App\Http\Controllers\Api\CommentController::class, 'adminDestroy']);
+		Route::get('/admin/comments', [CommentController::class, 'adminIndex']);
+		Route::delete('/admin/comments/{id}', [CommentController::class, 'adminDestroy']);
 	});
 });
 

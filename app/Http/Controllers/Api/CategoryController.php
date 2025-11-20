@@ -263,4 +263,26 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Format categories data
+     * Hàm này dùng để chuyển đổi dữ liệu raw từ database thành format chuẩn cho API
+     * - Chuyển đổi image path thành full URL
+     * - Format ngày tháng theo định dạng d/m/Y H:i
+     * - Loại bỏ các field không cần thiết (timestamps, updated_at...)
+     * - Đảm bảo response luôn có cấu trúc nhất quán
+     */
+    private function formatCategories($categories)
+    {
+        return $categories->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'image' => $category->image ? Storage::url($category->image) : null,
+                'description' => $category->description,
+                'products_count' => $category->products_count,
+                'created_at' => $category->created_at->format('d/m/Y H:i'),
+            ];
+        });
+    }
 }

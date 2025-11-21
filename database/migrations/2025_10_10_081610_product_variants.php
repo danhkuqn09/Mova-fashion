@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('color_id')->constrained('product_colors')->onDelete('cascade');
             $table->string('size');
+            $table->decimal('price', 15, 2)->nullable();
+            $table->decimal('sale_price', 15, 2)->nullable();
             $table->integer('quantity');
             $table->string('image')->nullable();
-            $table->string('sku')->unique()->nullable();
             $table->timestamps();
         });
     }

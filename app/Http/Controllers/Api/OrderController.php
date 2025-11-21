@@ -133,15 +133,19 @@ class OrderController extends Controller
                         ], 400);
                     }
 
-                    // Giá sản phẩm (ưu tiên sale_price)
-                    $price = $product->sale_price ?? $product->price;
-                    $subtotal = $price * $cartItem->quantity;
+                    // Tính giá hiển thị cho variant
+                    $displayPrice = $variant->sale_price 
+                        ?? $variant->price 
+                        ?? $product->sale_price 
+                        ?? $product->price;
+                        
+                    $subtotal = $displayPrice * $cartItem->quantity;
                     $originalTotal += $subtotal;
 
                     $orderItemsData[] = [
                         'product_variant_id' => $variant->id,
                         'quantity' => $cartItem->quantity,
-                        'price' => $price,
+                        'price' => $displayPrice,
                     ];
                 }
 
@@ -293,6 +297,220 @@ class OrderController extends Controller
                 DB::rollBack();
                 throw $e;
             }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi tạo đơn hàng',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mua ngay - Không qua giỏ hàng
+     */
+    public function buyNow(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'product_variant_id' => 'required|exists:product_variants,id',
+                'quantity' => 'required|integer|min:1',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'required|string|max:20',
+                'address' => 'required|string|max:500',
+                'payment_method' => 'required|string|in:COD,momo,payos',
+                'voucher_code' => 'nullable|string|exists:vouchers,code',
+                'note' => 'nullable|string|max:1000',
+            ], [
+                'product_variant_id.required' => 'Vui lòng chọn sản phẩm',
+                'product_variant_id.exists' => 'Sản phẩm không tồn tại',
+                'quantity.required' => 'Vui lòng nhập số lượng',
+                'quantity.min' => 'Số lượng phải lớn hơn 0',
+                'name.required' => 'Vui lòng nhập họ tên',
+                'email.required' => 'Vui lòng nhập email',
+                'email.email' => 'Email không hợp lệ',
+                'phone.required' => 'Vui lòng nhập số điện thoại',
+                'address.required' => 'Vui lòng nhập địa chỉ',
+                'payment_method.required' => 'Vui lòng chọn phương thức thanh toán',
+                'payment_method.in' => 'Phương thức thanh toán không hợp lệ',
+                'voucher_code.exists' => 'Mã voucher không tồn tại',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $user = Auth::user();
+            $variant = ProductVariant::with('product')->findOrFail($request->product_variant_id);
+
+            // Kiểm tra tồn kho
+            if ($variant->quantity < $request->quantity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sản phẩm không đủ số lượng trong kho',
+                    'data' => [
+                        'available_quantity' => $variant->quantity,
+                        'requested_quantity' => $request->quantity
+                    ]
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            try {
+                // Tính giá hiển thị cho variant
+                $displayPrice = $variant->sale_price 
+                    ?? $variant->price 
+                    ?? $variant->product->sale_price 
+                    ?? $variant->product->price;
+
+                $originalTotal = $displayPrice * $request->quantity;
+
+                // Xử lý voucher nếu có
+                $discountAmount = 0;
+                $voucherId = null;
+
+                if ($request->voucher_code) {
+                    $voucher = Voucher::where('code', strtoupper($request->voucher_code))->first();
+
+                    if (!$voucher) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Mã voucher không tồn tại'
+                        ], 400);
+                    }
+
+                    if (!$voucher->canApply($originalTotal)) {
+                        DB::rollBack();
+                        $reason = 'Không thể áp dụng voucher';
+
+                        if (!$voucher->isValid()) {
+                            $reason = 'Mã voucher không còn hiệu lực';
+                        } elseif ($originalTotal < $voucher->min_total) {
+                            $reason = "Đơn hàng chưa đạt giá trị tối thiểu " . number_format($voucher->min_total) . "đ";
+                        }
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => $reason
+                        ], 400);
+                    }
+
+                    $discountAmount = $voucher->calculateDiscount($originalTotal);
+                    $voucherId = $voucher->id;
+                }
+
+                $finalTotal = $originalTotal - $discountAmount;
+
+                // Tạo đơn hàng
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'voucher_id' => $voucherId,
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'status' => 'pending',
+                    'payment_status' => 'unpaid',
+                    'original_total' => $originalTotal,
+                    'discount_amount' => $discountAmount,
+                    'final_total' => $finalTotal,
+                    'payment_method' => $request->payment_method,
+                    'note' => $request->note,
+                ]);
+
+                // Tạo order item
+                $order->items()->create([
+                    'product_variant_id' => $variant->id,
+                    'quantity' => $request->quantity,
+                    'price' => $displayPrice,
+                ]);
+
+                // Giảm số lượng tồn kho
+                $variant->quantity -= $request->quantity;
+                $variant->save();
+
+                // Tăng used_count của voucher
+                if ($voucherId) {
+                    $voucher = Voucher::find($voucherId);
+                    $voucher->incrementUsedCount();
+                }
+
+                DB::commit();
+
+                // Load lại order với relationships
+                $order->load(['items.productVariant.product', 'items.productVariant.color', 'voucher']);
+
+                // Xử lý thanh toán
+                if ($request->payment_method === 'momo') {
+                    $momoResponse = $this->createMomoPayment($order);
+
+                    if (isset($momoResponse['payUrl'])) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Đặt hàng thành công. Vui lòng thanh toán.',
+                            'data' => [
+                                'order' => $order,
+                                'payment_url' => $momoResponse['payUrl'],
+                                'payment_method' => 'momo',
+                                'qr_code_url' => $momoResponse['qrCodeUrl'] ?? null
+                            ]
+                        ], 201);
+                    } else {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Không thể tạo thanh toán Momo',
+                            'error' => $momoResponse['message'] ?? 'Unknown error'
+                        ], 500);
+                    }
+                }
+
+                if ($request->payment_method === 'payos') {
+                    $payosResponse = $this->createPayOSPayment($order);
+
+                    if (isset($payosResponse['checkoutUrl'])) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Đặt hàng thành công. Vui lòng thanh toán.',
+                            'data' => [
+                                'order' => $order,
+                                'payment_url' => $payosResponse['checkoutUrl'],
+                                'payment_method' => 'payos',
+                                'qr_code_url' => $payosResponse['qrCode'] ?? null
+                            ]
+                        ], 201);
+                    } else {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Không thể tạo thanh toán PayOS',
+                            'error' => $payosResponse['message'] ?? 'Unknown error'
+                        ], 500);
+                    }
+                }
+
+                // Thanh toán COD
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Đặt hàng thành công',
+                    'data' => [
+                        'order' => $order,
+                        'payment_method' => 'COD'
+                    ]
+                ], 201);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

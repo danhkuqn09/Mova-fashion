@@ -178,14 +178,40 @@ class ProductController extends Controller
                             'image' => $color->image ? Storage::url($color->image) : null,
                         ];
                     }),
-                    'variants' => $product->variants->map(function ($variant) {
+                    'variants' => $product->variants->map(function ($variant) use ($product) {
+                        // Tính giá hiển thị cho variant
+                        $displayPrice = $variant->sale_price 
+                            ?? $variant->price 
+                            ?? $product->sale_price 
+                            ?? $product->price;
+                        
+                        // Giá gốc để tính discount
+                        $originalPrice = $variant->price ?? $product->price;
+                        
+                        // Tính % giảm giá
+                        $discountPercent = 0;
+                        $salePrice = $variant->sale_price ?? $product->sale_price;
+                        if ($salePrice && $originalPrice > $salePrice) {
+                            $discountPercent = round((($originalPrice - $salePrice) / $originalPrice) * 100);
+                        }
+                        
                         return [
                             'id' => $variant->id,
                             'color_id' => $variant->color_id,
                             'color_name' => $variant->color->name ?? null,
+                            'color_hex' => $variant->color->hex_code ?? null,
                             'size' => $variant->size,
-                            'stock' => $variant->stock,
-                            'in_stock' => $variant->stock > 0,
+                            'quantity' => $variant->quantity,
+                            'in_stock' => $variant->quantity > 0,
+                            'image' => $variant->image ? Storage::url($variant->image) : null,
+                            
+                            // Pricing
+                            'price' => $variant->price,
+                            'sale_price' => $variant->sale_price,
+                            'display_price' => $displayPrice,
+                            'original_price' => $originalPrice,
+                            'discount_percent' => $discountPercent,
+                            'is_on_sale' => $variant->sale_price || ($product->sale_price && !$variant->price),
                         ];
                     }),
                     'comments' => $product->comments->map(function ($comment) {
@@ -238,8 +264,10 @@ class ProductController extends Controller
                 'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'variants' => 'required|array|min:1',
                 'variants.*.color_index' => 'required|integer',
-                'variants.*.size' => 'required|string|in:S,M,L,XL,XXL',
-                'variants.*.stock' => 'required|integer|min:0',
+                'variants.*.size' => 'required|string',
+                'variants.*.quantity' => 'required|integer|min:0',
+                'variants.*.price' => 'nullable|numeric|min:0',
+                'variants.*.sale_price' => 'nullable|numeric|min:0',
             ], [
                 'name.required' => 'Vui lòng nhập tên sản phẩm',
                 'price.required' => 'Vui lòng nhập giá sản phẩm',
@@ -302,7 +330,9 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                         'color_id' => $colorId,
                         'size' => $variantData['size'],
-                        'stock' => $variantData['stock'],
+                        'quantity' => $variantData['quantity'],
+                        'price' => $variantData['price'] ?? null,
+                        'sale_price' => $variantData['sale_price'] ?? null,
                     ]);
                 }
 
@@ -457,13 +487,15 @@ class ProductController extends Controller
     }
 
     /**
-     * Admin: Cập nhật stock của variant
+     * Admin: Cập nhật variant (quantity, price, sale_price)
      */
     public function updateVariantStock(Request $request, $variantId)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'stock' => 'required|integer|min:0',
+                'quantity' => 'nullable|integer|min:0',
+                'price' => 'nullable|numeric|min:0',
+                'sale_price' => 'nullable|numeric|min:0',
             ]);
 
             if ($validator->fails()) {
@@ -483,22 +515,34 @@ class ProductController extends Controller
                 ], 404);
             }
 
-            $variant->stock = $request->stock;
+            // Cập nhật các trường được gửi lên
+            if ($request->has('quantity')) {
+                $variant->quantity = $request->quantity;
+            }
+            if ($request->has('price')) {
+                $variant->price = $request->price;
+            }
+            if ($request->has('sale_price')) {
+                $variant->sale_price = $request->sale_price;
+            }
+            
             $variant->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật tồn kho thành công',
+                'message' => 'Cập nhật biến thể thành công',
                 'data' => [
                     'id' => $variant->id,
-                    'stock' => $variant->stock,
+                    'quantity' => $variant->quantity,
+                    'price' => $variant->price,
+                    'sale_price' => $variant->sale_price,
                 ]
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi cập nhật tồn kho',
+                'message' => 'Lỗi khi cập nhật biến thể',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -509,12 +553,32 @@ class ProductController extends Controller
      */
     private function formatProduct($product)
     {
+        // Tính khoảng giá từ variants
+        $prices = [];
+        foreach ($product->variants as $variant) {
+            $displayPrice = $variant->sale_price 
+                ?? $variant->price 
+                ?? $product->sale_price 
+                ?? $product->price;
+            $prices[] = $displayPrice;
+        }
+        
+        $minPrice = !empty($prices) ? min($prices) : $product->price;
+        $maxPrice = !empty($prices) ? max($prices) : $product->price;
+        
         return [
             'id' => $product->id,
             'name' => $product->name,
             'image' => $product->image ? Storage::url($product->image) : null,
             'price' => $product->price,
             'sale_price' => $product->sale_price,
+            'price_range' => [
+                'min' => $minPrice,
+                'max' => $maxPrice,
+                'display' => $minPrice == $maxPrice 
+                    ? number_format($minPrice, 0, ',', '.') . 'đ'
+                    : number_format($minPrice, 0, ',', '.') . 'đ - ' . number_format($maxPrice, 0, ',', '.') . 'đ'
+            ],
             'discount_percent' => $product->sale_price 
                 ? round((($product->price - $product->sale_price) / $product->price) * 100) 
                 : 0,
@@ -525,7 +589,7 @@ class ProductController extends Controller
             ],
             'colors_count' => $product->colors->count(),
             'variants_count' => $product->variants->count(),
-            'total_stock' => $product->variants->sum('stock'),
+            'total_stock' => $product->variants->sum('quantity'),
             'view_count' => $product->view_count,
             'created_at' => $product->created_at->format('d/m/Y H:i'),
         ];

@@ -15,9 +15,10 @@ class ProductVariant extends Model
         'product_id',
         'color_id',
         'size',
+        'price',
+        'sale_price',
         'quantity',
         'image',
-        'sku'
     ];
 
     protected $casts = [
@@ -33,7 +34,6 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(ProductColor::class, 'color_id');
     }
-
     public function carts(): HasMany
     {
         return $this->hasMany(Cart::class, 'product_variant_id');
@@ -43,4 +43,6 @@ class ProductVariant extends Model
     {
         return $this->hasMany(OrderItem::class, 'product_variant_id');
     }
+
+    
 }

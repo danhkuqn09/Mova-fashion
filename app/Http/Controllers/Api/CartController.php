@@ -34,9 +34,13 @@ class CartController extends Controller
                 $variant = $cart->productVariant;
                 $product = $variant->product;
                 
-                // Giá sản phẩm (ưu tiên sale_price)
-                $price = $product->sale_price ?? $product->price;
-                $subtotal = $price * $cart->quantity;
+                // Tính giá hiển thị cho variant
+                $displayPrice = $variant->sale_price 
+                    ?? $variant->price 
+                    ?? $product->sale_price 
+                    ?? $product->price;
+                    
+                $subtotal = $displayPrice * $cart->quantity;
                 $totalPrice += $subtotal;
 
                 $items[] = [
@@ -55,11 +59,14 @@ class CartController extends Controller
                         'size' => $variant->size,
                         'color' => $variant->color->color_name ?? null,
                         'color_code' => $variant->color->color_code ?? null,
+                        'color_hex' => $variant->color->hex_code ?? null,
                         'image' => $variant->image,
-                        'stock' => $variant->quantity,
+                        'quantity' => $variant->quantity,
+                        'price' => $variant->price,
+                        'sale_price' => $variant->sale_price,
                     ],
                     'quantity' => $cart->quantity,
-                    'price' => (float) $price,
+                    'price' => (float) $displayPrice,
                     'subtotal' => (float) $subtotal,
                 ];
             }

@@ -79,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	// Order routes (User)
 	Route::get('/orders', [OrderController::class, 'index']);
 	Route::post('/orders', [OrderController::class, 'store']);
+	Route::post('/orders/buy-now', [OrderController::class, 'buyNow']);
 	Route::get('/orders/statistics', [OrderController::class, 'getStatistics']);
 	Route::get('/orders/{id}', [OrderController::class, 'show']);
 	Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);

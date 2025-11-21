@@ -85,7 +85,7 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $reviews = Review::with(['orderItem.productVariant.product.images', 'orderItem.productVariant.color'])
+            $reviews = Review::with(['orderItem.productVariant.product', 'orderItem.productVariant.color'])
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -96,7 +96,7 @@ class ReviewController extends Controller
                     'product' => [
                         'id' => $review->orderItem->productVariant->product->id,
                         'name' => $review->orderItem->productVariant->product->name,
-                        'image' => $review->orderItem->productVariant->product->images->first()->image_url ?? null,
+                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
                     ],
                     'variant' => [
                         'color' => $review->orderItem->productVariant->color->name ?? null,
@@ -234,7 +234,7 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $review = Review::with(['orderItem.productVariant.product.images', 'orderItem.productVariant.color'])
+            $review = Review::with(['orderItem.productVariant.product', 'orderItem.productVariant.color'])
                 ->where('user_id', $user->id)
                 ->find($id);
 
@@ -253,7 +253,7 @@ class ReviewController extends Controller
                     'product' => [
                         'id' => $review->orderItem->productVariant->product->id,
                         'name' => $review->orderItem->productVariant->product->name,
-                        'image' => $review->orderItem->productVariant->product->images->first()->image_url ?? null,
+                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
                     ],
                     'rating' => $review->rating,
                     'content' => $review->content,
@@ -320,7 +320,7 @@ class ReviewController extends Controller
             $rating = $request->input('rating');
             $perPage = $request->input('per_page', 15);
 
-            $query = Review::with(['user', 'orderItem.productVariant.product.images'])
+            $query = Review::with(['user', 'orderItem.productVariant.product'])
                 ->orderBy('created_at', 'desc');
 
             // Search by product name or user name
@@ -352,7 +352,7 @@ class ReviewController extends Controller
                     'product' => [
                         'id' => $review->orderItem->productVariant->product->id,
                         'name' => $review->orderItem->productVariant->product->name,
-                        'image' => $review->orderItem->productVariant->product->images->first()->image_url ?? null,
+                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
                     ],
                     'order_id' => $review->orderItem->order_id,
                     'rating' => $review->rating,

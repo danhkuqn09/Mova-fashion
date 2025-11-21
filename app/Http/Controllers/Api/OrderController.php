@@ -529,9 +529,8 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $order = Order::with([
-                'items.productVariant.product.images',
+                'items.productVariant.product',
                 'items.productVariant.color',
-                'items.productVariant.size',
                 'items.review', // Load review relationship
                 'voucher'
             ])->where('user_id', $user->id) // ← Chỉ lấy đơn của user
@@ -554,11 +553,11 @@ class OrderController extends Controller
                     'product' => [
                         'id' => $item->productVariant->product->id,
                         'name' => $item->productVariant->product->name,
-                        'image' => $item->productVariant->product->images->first()->image_url ?? null,
+                        'image' => $item->productVariant->product->image ? Storage::url($item->productVariant->product->image) : null,
                     ],
                     'variant' => [
                         'color' => $item->productVariant->color->name ?? null,
-                        'size' => $item->productVariant->size->name ?? null,
+                        'size' => $item->productVariant->size ?? null,
                     ],
                     'quantity' => $item->quantity,
                     'price' => $item->price,
@@ -745,7 +744,6 @@ class OrderController extends Controller
             $order = Order::with([
                 'items.productVariant.product.category',
                 'items.productVariant.color',
-                'items.productVariant.size',
                 'voucher',
                 'user' // ← Admin cần thấy thông tin user
             ])->find($id);

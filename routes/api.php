@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\NewController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\UserController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
@@ -61,8 +62,14 @@ Route::get('/payos/return', [OrderController::class, 'payosReturn']); // Return 
 
 // Các route cần đăng nhập bằng Sanctum
 Route::middleware('auth:sanctum')->group(function () {
-	Route::post('/logout', [AuthController::class, 'logout']);
-	Route::post('/change-password', [AuthController::class, 'changePassword']);
+	// Thông tin user
+	Route::get('/profile', [UserController::class, 'getProfile']);
+	Route::post('/profile/update', [UserController::class, 'updateProfile']); 
+	Route::put('/profile/password', [UserController::class, 'updatePassword']); 
+	Route::delete('/profile/avatar', [UserController::class, 'deleteAvatar']);
+	Route::get('/profile/statistics', [UserController::class, 'getStatistics']);
+	Route::post('/logout', [UserController::class, 'logout']);
+	Route::post('/logout-all', [UserController::class, 'logoutAllDevices']);
 
 	// Cart routes
 	Route::get('/cart', [CartController::class, 'index']);
@@ -94,13 +101,13 @@ Route::middleware('auth:sanctum')->group(function () {
 	// News routes (User - Quản lý bài viết của mình)
 	Route::get('/news/my-news', [NewController::class, 'myNews']);
 	Route::post('/news', [NewController::class, 'store']);
-	Route::put('/news/{id}', [NewController::class, 'update']);
+	Route::post('/news/{id}', [NewController::class, 'update']);
 	Route::delete('/news/{id}', [NewController::class, 'destroy']);
 	Route::post('/news/{id}/submit', [NewController::class, 'submitForReview']);
 
 	// Comment routes (User - Quản lý bình luận)
 	Route::post('/comments', [CommentController::class, 'store']);
-	Route::put('/comments/{id}', [CommentController::class, 'update']);
+	Route::post('/comments/{id}', [CommentController::class, 'update']);
 	Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 	Route::get('/my-comments', [CommentController::class, 'myComments']);
 
@@ -131,18 +138,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
 		// Quản lí Category (Admin)
 		Route::post('/admin/categories', [CategoryController::class, 'store']);
-		Route::put('/admin/categories/{id}', [CategoryController::class, 'update']);
+		Route::post('/admin/categories/{id}', [CategoryController::class, 'update']);
 		Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy']);
 
 		// Quản lí Product (Admin)
 		Route::post('/admin/products', [ProductController::class, 'store']);
-		Route::put('/admin/products/{id}', [ProductController::class, 'update']);
+		Route::post('/admin/products/{id}', [ProductController::class, 'update']);
 		Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
 		Route::put('/admin/products/variants/{variantId}/stock', [ProductController::class, 'updateVariantStock']);
 
 		// Quản lí Comment (Admin)
 		Route::get('/admin/comments', [CommentController::class, 'adminIndex']);
 		Route::delete('/admin/comments/{id}', [CommentController::class, 'adminDestroy']);
+
+		// Quản lí User (Admin)
+		Route::get('/admin/users', [UserController::class, 'adminIndex']);
+		Route::get('/admin/users/statistics', [UserController::class, 'adminStatistics']);
+		Route::get('/admin/users/{id}', [UserController::class, 'adminShow']);
+		Route::post('/admin/users', [UserController::class, 'adminStore']);
+		Route::post('/admin/users/{id}', [UserController::class, 'adminUpdate']); // POST with _method=PUT for avatar upload
+		Route::delete('/admin/users/{id}', [UserController::class, 'adminDestroy']);
+		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']);
 	});
 });
 

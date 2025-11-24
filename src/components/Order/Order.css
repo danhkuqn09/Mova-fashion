@@ -1,89 +1,80 @@
-/* Order.css */
-
-/* 1. Khung bao quanh toàn trang */
-.order-page {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 0 20px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Tiêu đề "Danh sách đơn hàng..." */
-.order-page h2 {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #333;
-  font-size: 24px;
-}
-
-/* 2. Thẻ (Card) cho từng đơn hàng */
-.order-card {
-  background-color: #ffffff;
-  border: 1px solid #e1e1e1;
-  border-radius: 8px;
-  padding: 20px;
+.order-table-container {
+  border: 3px solid #ddd;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
+  padding: 10px;
 }
 
-.order-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* 3. Tiêu đề "Đơn #..." */
-.order-card h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #007bff; /* Màu xanh dương cho mã đơn */
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-}
-
-/* 4. Các dòng thông tin (Ngày đặt, Trạng thái, Tổng tiền) */
-.order-card p {
-  margin: 8px 0;
-  font-size: 15px;
-  color: #555;
-  line-height: 1.5;
-}
-
-/* Mẹo CSS: Chọn thẻ p thứ 3 (là dòng Tổng tiền) để làm nổi bật */
-.order-card p:nth-of-type(3) {
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
   font-weight: bold;
-  color: #d0011b; /* Màu đỏ cho giá tiền */
-  font-size: 16px;
+}
+
+.status-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.status-badge.pending {
+  background-color: orange;
+}
+.status-badge.cancelled {
+  background-color: red;
+}
+.status-badge.completed {
+  background-color: green;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.order-table th,
+.order-table td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.product-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 10px;
 }
 
-/* 5. Khu vực danh sách sản phẩm */
-.order-items {
-  margin-top: 15px;
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 6px;
+.order-actions button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
 }
 
-/* Từng dòng sản phẩm bên trong */
-.order-items div {
-  padding: 8px 0;
-  border-bottom: 1px dashed #dcdcdc;
-  color: #333;
-  font-size: 14px;
+.cancel-btn {
+  background-color: red;
+  color: #fff;
+  border: none;
 }
 
-/* Bỏ gạch chân ở sản phẩm cuối cùng */
-.order-items div:last-child {
-  border-bottom: none;
+.delete-btn {
+  background-color: gray;
+  color: #fff;
+  border: none;
 }
 
-/* Responsive: Giữ hiển thị tốt trên điện thoại */
-@media (max-width: 600px) {
-  .order-page {
-    padding: 10px;
-  }
-  .order-card {
-    padding: 15px;
-  }
+.detail-btn {
+  background-color: #00aaff;
+  color: #fff;
+  border: none;
 }

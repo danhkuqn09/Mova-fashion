@@ -13,6 +13,7 @@ import Cart from "./components/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
 import Blog from "./components/Blog/Blog";
 import BlogDetail from "./components/Blog/BlogDetail";
+import MomoCallbackPage from "./components/Payment/MomoCallbackPage";
 
 // Auth Forms
 import Register from "./components/Auth/RegisterForm";
@@ -29,6 +30,7 @@ import Orders from "./components/Admin/Page/Order";
 import Comments from "./components/Admin/Page/Comment";
 import Voucher from "./components/Admin/Page/Voucher";
 import News from "./components/Admin/Page/News";
+import OrderDetail from "./components/Order/OrderDetail";
 
 // CSS & Libraries
 import "./App.css";
@@ -77,6 +79,8 @@ function App() {
           }
         />
         <Route path="/auth/google/callback" element={<LoginSuccess />} />
+        <Route path="/payment/callback" element={<MomoCallbackPage />} />
+
         {/* Admin */}
         <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/users" element={<Users />} />
@@ -86,6 +90,7 @@ function App() {
         <Route path="/admin/comments" element={<Comments />} />
         <Route path="/admin/voucher" element={<Voucher />} />
         <Route path="/admin/news" element={<News />} />
+        <Route path="/order/:id" element={<OrderDetail />} />
 
       </Routes>
       <Footer />

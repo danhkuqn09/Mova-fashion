@@ -17,6 +17,15 @@ function CartPage() {
 
   // 🔹 Danh sách item được chọn để thanh toán
   const [selectedItems, setSelectedItems] = useState([]);
+{cartItems.map((item) => {
+    console.log("ITEM:", item);
+    console.log("PRODUCT VARIANT:", item.product_variant);
+    return (
+        <div key={item.id}>
+            {/* UI */}
+        </div>
+    );
+})}
 
   // 🔹 Load giỏ hàng từ API khi mở trang
   useEffect(() => {

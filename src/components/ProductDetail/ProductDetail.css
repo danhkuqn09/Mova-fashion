@@ -357,3 +357,135 @@
     transform: rotate(360deg);
   }
 }
+/* ====== COMMENT AREA ====== */
+
+.product-comments {
+  margin-top: 40px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.06);
+}
+
+.product-comments h3 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Form viết bình luận */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+  resize: vertical;
+  transition: 0.2s;
+  background: #f8f8f8;
+  color: #000;
+}
+
+.comment-form textarea:focus {
+  border-color: #333;
+  background: #fff;
+}
+
+.comment-form input[type="file"] {
+  font-size: 14px;
+}
+
+.comment-form button {
+  width: 180px;
+  padding: 10px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  align-self: flex-start;
+  transition: 0.3s;
+}
+
+.comment-form button:hover {
+  background: #b88e2f;
+}
+
+/* ==== Danh sách bình luận ==== */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.comment-item {
+  padding: 18px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafafa;
+  transition: 0.2s;
+  text-align: left;
+}
+
+.comment-item:hover {
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.comment-header span {
+  color: #777;
+  font-weight: normal;
+}
+
+.comment-item p {
+  margin: 5px 0 10px 0;
+  font-size: 15px;
+}
+
+/* Ảnh trong bình luận */
+.comment-image {
+  width: 140px;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+  display: block;
+}
+
+/* Nút xóa */
+.delete-comment {
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: #e63946;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.delete-comment:hover {
+  background: #c71c30;
+}
+

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Banner from "./Banner";
 import "./shop.css";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Shop() {
   const [categories, setCategories] = useState([]);
@@ -13,7 +13,7 @@ function Shop() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const location = useLocation();
-
+  const navigate = useNavigate();
   // 🧠 Lấy từ khóa từ URL (ví dụ: /shop?query=áo)
   const keyword = new URLSearchParams(location.search).get("keyword") || "";
 
@@ -26,7 +26,6 @@ function Shop() {
     }
   }, [keyword]);
 
-  // 🧩 Hàm tải dữ liệu mặc định (trang shop không có tìm kiếm)
   const fetchAllData = async () => {
     setLoading(true);
     try {
@@ -38,6 +37,9 @@ function Shop() {
           axios.get("http://localhost:8000/api/products/on-sale"),
         ]);
 
+      setCategories(resCategories.data.data.categories || []);
+
+      // Giữ nguyên các phần khác
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
@@ -46,10 +48,10 @@ function Shop() {
         return [];
       };
 
-      setCategories(getData(resCategories));
       setFeatured(getData(resFeatured));
       setNewArrivals(getData(resNewArrivals));
       setOnSale(getData(resOnSale));
+
       setProducts([]);
       setSelectedCategory(null);
     } catch (error) {
@@ -58,6 +60,7 @@ function Shop() {
       setLoading(false);
     }
   };
+
 
   // 🔍 Hàm gọi API tìm kiếm
   const handleSearch = async (term) => {
@@ -87,7 +90,7 @@ function Shop() {
     }
   };
 
-  // 🏷 Lọc theo danh mục
+  // Lọc sản phẩm danh mục
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
     setLoading(true);
@@ -95,15 +98,8 @@ function Shop() {
       const res = await axios.get(
         `http://localhost:8000/api/products/category/${categoryId}`
       );
-
-      const getData = (res) => {
-        if (Array.isArray(res.data)) return res.data;
-        if (Array.isArray(res.data.data)) return res.data.data;
-        if (Array.isArray(res.data.data.products))
-          return res.data.data.products;
-        return [];
-      };
-      setProducts(getData(res));
+      const productsData = res.data?.data?.products?.data || [];
+      setProducts(productsData);
     } catch (error) {
       console.error("Lỗi khi lọc sản phẩm theo danh mục:", error);
     } finally {
@@ -111,6 +107,22 @@ function Shop() {
     }
   };
 
+  const handleBuyNow = (p) => {
+    const price = p.price_after_discount ?? p.price;
+
+    navigate("/checkout", {
+      state: {
+        buyNow: true,
+        item: {
+          product_variant_id: p.id,  // hoặc p.variant_id nếu có biến thể
+          quantity: 1,
+          price: price,
+          name: p.name,
+        },
+        subtotal: price,
+      },
+    });
+  };
   // 🌀 Loading spinner
   if (loading) {
     return (
@@ -124,19 +136,17 @@ function Shop() {
   const renderProducts = (list) =>
     list.map((p) => (
       <div className="product-card" key={p.id}>
-        <img
-          src={
-            p.image
-              ? `http://localhost:8000${p.image}`
-              : "/Image/no-image.png"
-          }
-          alt={p.name}
-        />
+        <Link to={`/productdetail/${p.id}`}>
+          <img
+            src={`http://localhost:8000/storage/${p.image}`}
+            alt={p.name}
+          />
+        </Link>
         <h3>{p.name}</h3>
         <p>{p.price}₫</p>
-        <Link to={`/productdetail/${p.id}`} className="buy-btn">
-          <button>Mua Ngay</button>
-        </Link>
+        <button className="buy-btn" onClick={() => handleBuyNow(p)}>
+          Mua Ngay
+        </button>
       </div>
     ));
 

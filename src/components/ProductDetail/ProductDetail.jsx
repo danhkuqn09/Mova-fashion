@@ -24,26 +24,28 @@ function ProductDetail() {
 
   
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await axios.get(`http://localhost:8000/api/products/${id}`);
-        const data =
-          res.data?.data?.product ||
-          res.data?.data ||
-          res.data.product ||
-          res.data;
-        setProduct(data);
-        if (data.image) {
-          setMainImg(`http://localhost:8000${data.image}`);
-        }
-      } catch (error) {
-        console.error("Lỗi khi tải chi tiết sản phẩm:", error);
-      } finally {
-        setLoading(false);
+  const fetchProduct = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/products/${id}`);
+      const data =
+        res.data?.data?.product ||
+        res.data?.data ||
+        res.data.product ||
+        res.data;
+      console.log("PRODUCT RAW DATA:", data); // <-- thêm dòng này
+      setProduct(data);
+      if (data.image) {
+        setMainImg(`http://localhost:8000${data.image}`);
       }
-    };
-    fetchProduct();
-  }, [id]);
+    } catch (error) {
+      console.error("Lỗi khi tải chi tiết sản phẩm:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProduct();
+}, [id]);
+
   // chỉnh số lượng
   const handleQuantity = (type) => {
     setQuantity((prev) =>

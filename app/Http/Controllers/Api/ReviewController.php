@@ -99,7 +99,7 @@ class ReviewController extends Controller
                         'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
                     ],
                     'variant' => [
-                        'color' => $review->orderItem->productVariant->color->name ?? null,
+                        'color' => $review->orderItem->productVariant->color->color_name ?? null,
                     ],
                     'rating' => $review->rating,
                     'content' => $review->content,

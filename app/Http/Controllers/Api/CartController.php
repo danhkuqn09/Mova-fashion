@@ -59,7 +59,7 @@ class CartController extends Controller
                         'size' => $variant->size,
                         'color' => $variant->color->color_name ?? null,
                         'color_code' => $variant->color->color_code ?? null,
-                        'color_hex' => $variant->color->hex_code ?? null,
+                        'color_hex' => $variant->color->color_code ?? null,
                         'image' => $variant->image,
                         'quantity' => $variant->quantity,
                         'price' => $variant->price,

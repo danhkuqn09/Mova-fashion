@@ -274,7 +274,7 @@ class HomeController extends Controller
     public function getCategories()
     {
         try {
-            $categories = Category::withCount('products') // ← XÓA where('is_active', true)
+            $categories = Category::withCount('products')
             ->get();
 
             return response()->json([

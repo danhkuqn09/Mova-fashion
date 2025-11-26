@@ -556,7 +556,7 @@ class OrderController extends Controller
                         'image' => $item->productVariant->product->image ? Storage::url($item->productVariant->product->image) : null,
                     ],
                     'variant' => [
-                        'color' => $item->productVariant->color->name ?? null,
+                        'color' => $item->productVariant->color->color_name ?? null,
                         'size' => $item->productVariant->size ?? null,
                     ],
                     'quantity' => $item->quantity,

@@ -549,6 +549,42 @@ class NewController extends Controller
     }
 
     /**
+     * Admin: Xóa bài viết
+     */
+    public function adminDestroy($id)
+    {
+        try {
+            $news = News::find($id);
+
+            if (!$news) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy bài viết'
+                ], 404);
+            }
+
+            // Xóa thumbnail nếu có
+            if ($news->thumbnail) {
+                Storage::disk('public')->delete($news->thumbnail);
+            }
+
+            $news->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa bài viết thành công'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xóa bài viết',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Helper: Lấy text status
      */
     private function getStatusText($status)

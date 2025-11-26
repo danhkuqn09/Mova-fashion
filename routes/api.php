@@ -127,7 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::put('/admin/orders/{id}/status', [OrderController::class, 'updateStatus']);
 		Route::delete('/admin/orders/{id}', [OrderController::class, 'destroy']);
 
-		// Quản lí Review (Admin - READ ONLY)
+		// Quản lí Review (Admin)
 		Route::get('/admin/reviews', [ReviewController::class, 'adminIndex']);
 		Route::get('/admin/reviews/statistics', [ReviewController::class, 'adminStatistics']);
 
@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::get('/admin/news', [NewController::class, 'adminIndex']);
 		Route::post('/admin/news/{id}/approve', [NewController::class, 'approve']);
 		Route::post('/admin/news/{id}/reject', [NewController::class, 'reject']);
+		Route::delete('/admin/news/{id}', [NewController::class, 'adminDestroy']);
 
 		// Quản lí Category (Admin)
 		Route::post('/admin/categories', [CategoryController::class, 'store']);
@@ -149,16 +150,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
 		// Quản lí Comment (Admin)
 		Route::get('/admin/comments', [CommentController::class, 'adminIndex']);
+		Route::get('/admin/comments/{id}', [CommentController::class, 'adminShow']);
 		Route::delete('/admin/comments/{id}', [CommentController::class, 'adminDestroy']);
 
 		// Quản lí User (Admin)
 		Route::get('/admin/users', [UserController::class, 'adminIndex']);
 		Route::get('/admin/users/statistics', [UserController::class, 'adminStatistics']);
 		Route::get('/admin/users/{id}', [UserController::class, 'adminShow']);
-		Route::post('/admin/users', [UserController::class, 'adminStore']);
-		Route::post('/admin/users/{id}', [UserController::class, 'adminUpdate']); // POST with _method=PUT for avatar upload
 		Route::delete('/admin/users/{id}', [UserController::class, 'adminDestroy']);
-		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']);
+		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']); // Chỉ cập nhật role
 	});
 });
 

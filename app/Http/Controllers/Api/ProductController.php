@@ -132,7 +132,7 @@ class ProductController extends Controller
                         'name' => $review->user->name,
                     ],
                     'variant' => [
-                        'color' => $review->orderItem->productVariant->color->name ?? null,
+                        'color' => $review->orderItem->productVariant->color->color_name ?? null,
                         'size' => $review->orderItem->productVariant->size,
                     ],
                     'created_at' => $review->created_at->format('d/m/Y H:i'),
@@ -173,8 +173,8 @@ class ProductController extends Controller
                     'colors' => $product->colors->map(function ($color) {
                         return [
                             'id' => $color->id,
-                            'name' => $color->name,
-                            'hex_code' => $color->hex_code,
+                            'name' => $color->color_name,
+                            'hex_code' => $color->color_code,
                             'image' => $color->image ? Storage::url($color->image) : null,
                         ];
                     }),
@@ -195,11 +195,20 @@ class ProductController extends Controller
                             $discountPercent = round((($originalPrice - $salePrice) / $originalPrice) * 100);
                         }
                         
+                        // Lấy thông tin màu sắc
+                        $colorData = null;
+                        if ($variant->color_id && $variant->color) {
+                            $colorData = [
+                                'id' => $variant->color->id,
+                                'name' => $variant->color->color_name,
+                                'hex_code' => $variant->color->color_code,
+                            ];
+                        }
+                        
                         return [
                             'id' => $variant->id,
                             'color_id' => $variant->color_id,
-                            'color_name' => $variant->color->name ?? null,
-                            'color_hex' => $variant->color->hex_code ?? null,
+                            'color' => $colorData,
                             'size' => $variant->size,
                             'quantity' => $variant->quantity,
                             'in_stock' => $variant->quantity > 0,
@@ -259,9 +268,9 @@ class ProductController extends Controller
                 'description' => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
                 'colors' => 'required|array|min:1',
-                'colors.*.name' => 'required|string|max:50',
-                'colors.*.hex_code' => 'required|string|max:7',
-                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'colors.*.name' => 'required|string|max:255',
+                'colors.*.color_code' => 'required|string|max:7',
+                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'variants' => 'required|array|min:1',
                 'variants.*.color_index' => 'required|integer',
                 'variants.*.size' => 'required|string',
@@ -314,8 +323,8 @@ class ProductController extends Controller
 
                     $color = ProductColor::create([
                         'product_id' => $product->id,
-                        'name' => $colorData['name'],
-                        'hex_code' => $colorData['hex_code'],
+                        'color_name' => $colorData['name'],
+                        'color_code' => $colorData['color_code'],
                         'image' => $colorImagePath,
                     ]);
 
@@ -384,6 +393,20 @@ class ProductController extends Controller
                 'tag' => 'nullable|string|in:new,hot,sale',
                 'description' => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
+                'variants' => 'nullable|array',
+                'variants.*.id' => 'required|exists:product_variants,id',
+                'variants.*.quantity' => 'nullable|integer|min:0',
+                'variants.*.price' => 'nullable|numeric|min:0',
+                'variants.*.sale_price' => 'nullable|numeric|min:0',
+            ], [
+                'variants.*.id.required' => 'Variant ID là bắt buộc',
+                'variants.*.id.exists' => 'Variant không tồn tại',
+                'variants.*.quantity.integer' => 'Số lượng phải là số nguyên',
+                'variants.*.quantity.min' => 'Số lượng không được âm',
+                'variants.*.price.numeric' => 'Giá phải là số',
+                'variants.*.price.min' => 'Giá không được âm',
+                'variants.*.sale_price.numeric' => 'Giá sale phải là số',
+                'variants.*.sale_price.min' => 'Giá sale không được âm',
             ]);
 
             if ($validator->fails()) {
@@ -394,32 +417,90 @@ class ProductController extends Controller
                 ], 422);
             }
 
-            // Upload image mới nếu có
-            if ($request->hasFile('image')) {
-                // Xóa ảnh cũ
-                if ($product->image) {
-                    Storage::disk('public')->delete($product->image);
+            DB::beginTransaction();
+
+            try {
+                // Upload image mới nếu có
+                if ($request->hasFile('image')) {
+                    // Xóa ảnh cũ
+                    if ($product->image) {
+                        Storage::disk('public')->delete($product->image);
+                    }
+                    $product->image = $request->file('image')->store('products', 'public');
                 }
-                $product->image = $request->file('image')->store('products', 'public');
+
+                // Cập nhật product
+                $product->name = $request->name;
+                $product->price = $request->price;
+                $product->sale_price = $request->sale_price;
+                $product->tag = $request->tag;
+                $product->description = $request->description;
+                $product->category_id = $request->category_id;
+                $product->save();
+
+                // Cập nhật variants nếu có
+                if ($request->has('variants') && is_array($request->variants)) {
+                    foreach ($request->variants as $variantData) {
+                        $variant = ProductVariant::where('id', $variantData['id'])
+                            ->where('product_id', $product->id)
+                            ->first();
+
+                        if ($variant) {
+                            // Cập nhật quantity
+                            if (isset($variantData['quantity'])) {
+                                $variant->quantity = $variantData['quantity'];
+                            }
+
+                            // Cập nhật price (null = dùng giá product)
+                            if (array_key_exists('price', $variantData)) {
+                                $variant->price = $variantData['price'] === '' || $variantData['price'] === null 
+                                    ? null 
+                                    : $variantData['price'];
+                            }
+
+                            // Cập nhật sale_price (null = dùng sale_price product)
+                            if (array_key_exists('sale_price', $variantData)) {
+                                $variant->sale_price = $variantData['sale_price'] === '' || $variantData['sale_price'] === null 
+                                    ? null 
+                                    : $variantData['sale_price'];
+                            }
+
+                            $variant->save();
+                        }
+                    }
+                }
+
+                DB::commit();
+
+                // Load lại product với variants
+                $product->load(['variants.color', 'category']);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cập nhật sản phẩm thành công',
+                    'data' => [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'sale_price' => $product->sale_price,
+                        'variants' => $product->variants->map(function($variant) {
+                            return [
+                                'id' => $variant->id,
+                                'color_name' => $variant->color->color_name,
+                                'color_hex' => $variant->color->color_code,
+                                'size' => $variant->size,
+                                'quantity' => $variant->quantity,
+                                'price' => $variant->price,
+                                'sale_price' => $variant->sale_price,
+                            ];
+                        }),
+                    ]
+                ], 200);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
             }
-
-            // Cập nhật product
-            $product->name = $request->name;
-            $product->price = $request->price;
-            $product->sale_price = $request->sale_price;
-            $product->tag = $request->tag;
-            $product->description = $request->description;
-            $product->category_id = $request->category_id;
-            $product->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Cập nhật sản phẩm thành công',
-                'data' => [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                ]
-            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([

@@ -428,4 +428,65 @@ class CommentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Xem chi tiết bình luận (Admin)
+     * GET /api/admin/comments/{id}
+     */
+    public function adminShow($id)
+    {
+        try {
+            $comment = Comment::with(['user', 'product.category'])
+                ->find($id);
+
+            if (!$comment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy bình luận'
+                ], 404);
+            }
+
+            // Thống kê bổ sung
+            $userCommentCount = Comment::where('user_id', $comment->user_id)->count();
+            $productCommentCount = Comment::where('product_id', $comment->product_id)->count();
+
+            $data = [
+                'id' => $comment->id,
+                'content' => $comment->content,
+                'image' => $comment->image ? asset('storage/' . $comment->image) : null,
+                'user' => [
+                    'id' => $comment->user->id,
+                    'name' => $comment->user->name,
+                    'email' => $comment->user->email,
+                    'avatar' => $comment->user->avatar ? asset('storage/' . $comment->user->avatar) : null,
+                    'total_comments' => $userCommentCount
+                ],
+                'product' => [
+                    'id' => $comment->product->id,
+                    'name' => $comment->product->name,
+                    'slug' => $comment->product->slug,
+                    'image' => $comment->product->image ? asset('storage/' . $comment->product->image) : null,
+                    'category' => $comment->product->category ? [
+                        'id' => $comment->product->category->id,
+                        'name' => $comment->product->category->name
+                    ] : null,
+                    'total_comments' => $productCommentCount
+                ],
+                'created_at' => $comment->created_at->format('d/m/Y H:i'),
+                'updated_at' => $comment->updated_at->format('d/m/Y H:i')
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xem chi tiết bình luận',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

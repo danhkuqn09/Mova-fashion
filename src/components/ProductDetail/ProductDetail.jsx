@@ -22,29 +22,29 @@ function ProductDetail() {
   const [commentImage, setCommentImage] = useState(null);
   const [loadingComments, setLoadingComments] = useState(true);
 
-  
+
   useEffect(() => {
-  const fetchProduct = async () => {
-    try {
-      const res = await axios.get(`http://localhost:8000/api/products/${id}`);
-      const data =
-        res.data?.data?.product ||
-        res.data?.data ||
-        res.data.product ||
-        res.data;
-      console.log("PRODUCT RAW DATA:", data); // <-- thêm dòng này
-      setProduct(data);
-      if (data.image) {
-        setMainImg(`http://localhost:8000${data.image}`);
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8000/api/products/${id}`);
+        const data =
+          res.data?.data?.product ||
+          res.data?.data ||
+          res.data.product ||
+          res.data;
+        console.log("PRODUCT RAW DATA:", data); // <-- thêm dòng này
+        setProduct(data);
+        if (data.image) {
+          setMainImg(`http://localhost:8000${data.image}`);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải chi tiết sản phẩm:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Lỗi khi tải chi tiết sản phẩm:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchProduct();
-}, [id]);
+    };
+    fetchProduct();
+  }, [id]);
 
   // chỉnh số lượng
   const handleQuantity = (type) => {
@@ -227,7 +227,7 @@ function ProductDetail() {
       <Banner />
       <div className="product-detail">
         <div className="product-gallery">
-          <div className="thumbnails">
+          {/* <div className="thumbnails">
             {[product.image, ...product.variants.map((v) => v.image)]
               .filter(Boolean)
               .map((img, i) => (
@@ -245,7 +245,7 @@ function ProductDetail() {
                   }
                 />
               ))}
-          </div>
+          </div> */}
 
           <div className="main-image">
             <img src={mainImg} alt="main product" />
@@ -269,10 +269,16 @@ function ProductDetail() {
                 {product.colors.map((color) => (
                   <button
                     key={color.id}
-                    style={{ backgroundColor: color.color_code }}
+                    style={{ backgroundColor: color.hex_code }}
                     className={selectedColor?.id === color.id ? "active" : ""}
-                    onClick={() => setSelectedColor(color)}
+                    onClick={() => {
+                      setSelectedColor(color);
+                      if (color.image) {
+                        setMainImg(`http://localhost:8000${color.image}`);
+                      }
+                    }}
                   ></button>
+
                 ))}
               </div>
             </div>
@@ -322,10 +328,9 @@ function ProductDetail() {
           </div>
         </div>
       </div>
-
+      {/* Form viết bình luận */}
       <div className="product-comments">
         <h3>Bình luận sản phẩm</h3>
-        {/* Form viết bình luận */}
         <div className="comment-form">
           <textarea
             placeholder="Viết bình luận..."

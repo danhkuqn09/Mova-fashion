@@ -11,23 +11,32 @@ const Categories = () => {
     const [editingCategory, setEditingCategory] = useState(null);
     const [formData, setFormData] = useState({ name: "", description: "" });
 
+    const token = localStorage.getItem("token");
     // Lấy dữ liệu danh mục
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const res = await axios.get("http://localhost:8000/api/categories");
-            let data = [];
-            if (Array.isArray(res.data)) data = res.data;
-            else if (Array.isArray(res.data.data)) data = res.data.data;
-            else if (Array.isArray(res.data.data?.products?.data))
-                data = res.data.data.products.data;
-            setCategories(data);
+            const token = localStorage.getItem("token");
+            const res = await axios.get(
+                "http://localhost:8000/api/categories",
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            let data = res.data.data;
+            // per_page = all → API trả về mảng trực tiếp
+            // per_page default → API trả về dạng { categories: [. ..], pagination: {}}
+            const list = Array.isArray(data) ? data : data.categories;
+            list.sort((a, b) => a.id - b.id); // sắp xếp tăng dần theo id
+            setCategories(list);
+
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu:", error);
         } finally {
             setLoading(false);
         }
     };
+
+
+
 
     useEffect(() => {
         fetchCategories();
@@ -45,36 +54,61 @@ const Categories = () => {
         setShowModal(true);
     };
 
-    // Xử lý submit form (Thêm hoặc Sửa)
+    // Xử lý (Thêm hoặc Sửa)
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const form = new FormData();
+            form.append("name", formData.name);
+            form.append("description", formData.description || "");
+            if (formData.image) {
+                form.append("image", formData.image); // chỉ thêm nếu có file
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data", // bắt buộc khi upload file
+                },
+            };
             if (editingCategory) {
-                await axios.put(
-                    `http://localhost:8000/api/categories/${editingCategory.id}`,
-                    formData
+                // Sửa danh mục
+                await axios.post(
+                    `http://localhost:8000/api/admin/categories/${editingCategory.id}`,
+                    form,
+                    config
                 );
             } else {
-                await axios.post("http://localhost:8000/api/categories", formData);
+                // Thêm danh mục
+                await axios.post(
+                    "http://localhost:8000/api/admin/categories",
+                    form,
+                    config
+                );
             }
+
             setShowModal(false);
             fetchCategories();
         } catch (error) {
             console.error("Lỗi khi lưu danh mục:", error);
+            alert(error.response?.data?.message || "Đã xảy ra lỗi");
         }
     };
 
+
     // Xóa danh mục
     const handleDelete = async (id) => {
-        if (window.confirm("Bạn có chắc muốn xóa danh mục này?")) {
-            try {
-                await axios.delete(`http://localhost:8000/api/categories/${id}`);
-                fetchCategories();
-            } catch (error) {
-                console.error("Lỗi khi xóa danh mục:", error);
-            }
+        if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+        try {
+            await axios.delete(`http://localhost:8000/api/admin/categories/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            fetchCategories();
+        } catch (error) {
+            console.error("Lỗi khi xóa danh mục:", error);
+            alert(error.response?.data?.message || "Đã xảy ra lỗi");
         }
     };
+
 
     return (
         <div className="admin-container">
@@ -98,6 +132,7 @@ const Categories = () => {
                                     <th>ID</th>
                                     <th>Tên danh mục</th>
                                     <th>Mô tả</th>
+                                    <th>Ảnh</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
@@ -108,6 +143,12 @@ const Categories = () => {
                                             <td>{cat.id}</td>
                                             <td>{cat.name}</td>
                                             <td>{cat.description || "Không có mô tả"}</td>
+                                            <td>
+                                                {cat.image
+                                                    ? <img src={`http://localhost:8000${cat.image}`} alt={cat.name} className="category-img" />
+                                                    : "Không có ảnh"}
+                                            </td>
+
                                             <td>
                                                 <button className="btn-edit" onClick={() => openModal(cat)}>Sửa</button>
                                                 <button className="btn-delete" onClick={() => handleDelete(cat.id)}>Xóa</button>
@@ -148,6 +189,13 @@ const Categories = () => {
                                     setFormData({ ...formData, description: e.target.value })
                                 }
                             ></textarea>
+                            <label>Ảnh danh mục</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                            />
+
 
                             <div className="modal-actions">
                                 <button type="submit" className="save-btn">

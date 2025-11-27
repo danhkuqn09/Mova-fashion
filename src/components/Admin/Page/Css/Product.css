@@ -60,3 +60,22 @@
 .admin-table tbody tr:hover {
   background-color: #f9f9ff;
 }
+.modal {
+    max-height: 90vh;      /* Giới hạn chiều cao modal */
+    overflow-y: auto;      /* Bật scroll dọc */
+    padding-right: 10px;   /* Tránh bị che scrollbar */
+}
+
+/* Giúp modal không bị phóng quá rộng */
+.modal-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

@@ -40,8 +40,8 @@ function App() {
 
   return (
     <>
-      <Header />
-
+      < Header />
+  
       <Routes>
         {/* Trang chủ */}
         <Route

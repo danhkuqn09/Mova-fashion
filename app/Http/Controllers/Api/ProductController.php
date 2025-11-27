@@ -261,7 +261,7 @@ class ProductController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
                 'price' => 'required|numeric|min:0',
                 'sale_price' => 'nullable|numeric|min:0|lt:price',
                 'tag' => 'nullable|string|in:new,hot,sale',
@@ -270,7 +270,7 @@ class ProductController extends Controller
                 'colors' => 'required|array|min:1',
                 'colors.*.name' => 'required|string|max:255',
                 'colors.*.color_code' => 'required|string|max:7',
-                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
                 'variants' => 'required|array|min:1',
                 'variants.*.color_index' => 'required|integer',
                 'variants.*.size' => 'required|string',

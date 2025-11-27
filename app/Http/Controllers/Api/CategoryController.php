@@ -110,7 +110,7 @@ class CategoryController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255|unique:categories,name',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'description' => 'nullable|string|max:500',
             ], [
                 'name.required' => 'Vui lòng nhập tên danh mục',
@@ -173,7 +173,7 @@ class CategoryController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255|unique:categories,name,' . $id,
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'description' => 'nullable|string|max:500',
             ], [
                 'name.required' => 'Vui lòng nhập tên danh mục',

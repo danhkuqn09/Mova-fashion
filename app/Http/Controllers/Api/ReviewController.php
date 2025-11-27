@@ -134,7 +134,7 @@ class ReviewController extends Controller
                 'order_item_id' => 'required|exists:order_items,id',
                 'rating' => 'required|integer|min:1|max:5',
                 'content' => 'required|string|min:10|max:1000',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ], [
                 'order_item_id.required' => 'Vui lòng chọn sản phẩm',
                 'order_item_id.exists' => 'Sản phẩm không tồn tại',

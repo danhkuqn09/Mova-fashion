@@ -60,6 +60,10 @@ Route::get('/momo/callback', [OrderController::class, 'momoCallback']); // Retur
 Route::post('/payos/webhook', [OrderController::class, 'payosWebhook']); // Webhook URL
 Route::get('/payos/return', [OrderController::class, 'payosReturn']); // Return URL
 
+
+// Voucher routes (Public - Xem danh sách)
+Route::get('/vouchers', [VoucherController::class, 'index']);
+
 // Các route cần đăng nhập bằng Sanctum
 Route::middleware('auth:sanctum')->group(function () {
 	// Thông tin user
@@ -71,7 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/logout', [UserController::class, 'logout']);
 	Route::post('/logout-all', [UserController::class, 'logoutAllDevices']);
 
-	// Cart routes
+	// Giỏ hàng user
 	Route::get('/cart', [CartController::class, 'index']);
 	Route::post('/cart', [CartController::class, 'store']);
 	Route::put('/cart/{id}', [CartController::class, 'update']);
@@ -79,11 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::delete('/cart-clear', [CartController::class, 'clear']);
 	Route::get('/cart/count', [CartController::class, 'count']);
 
-	// Voucher routes (User - Check và áp dụng)
+	// Voucher routes user
 	Route::post('/vouchers/check', [VoucherController::class, 'checkVoucher']);
 	Route::get('/vouchers/available', [VoucherController::class, 'getAvailableVouchers']);
 
-	// Order routes (User)
+	// Order routes user
 	Route::get('/orders', [OrderController::class, 'index']);
 	Route::post('/orders', [OrderController::class, 'store']);
 	Route::post('/orders/buy-now', [OrderController::class, 'buyNow']);
@@ -92,20 +96,20 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 	Route::get('/orders/{id}/payment-status', [OrderController::class, 'checkPaymentStatus']);
 
-	// Review routes (User)
+	// Review routes user
 	Route::get('/reviews/my-reviews', [ReviewController::class, 'myReviews']);
 	Route::post('/reviews', [ReviewController::class, 'store']);
 	Route::get('/reviews/{id}', [ReviewController::class, 'show']);
 	Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
-	// News routes (User - Quản lý bài viết của mình)
+	// News routes user
 	Route::get('/news/my-news', [NewController::class, 'myNews']);
 	Route::post('/news', [NewController::class, 'store']);
 	Route::post('/news/{id}', [NewController::class, 'update']);
 	Route::delete('/news/{id}', [NewController::class, 'destroy']);
 	Route::post('/news/{id}/submit', [NewController::class, 'submitForReview']);
 
-	// Comment routes (User - Quản lý bình luận)
+	// Comment routes user
 	Route::post('/comments', [CommentController::class, 'store']);
 	Route::post('/comments/{id}', [CommentController::class, 'update']);
 	Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
@@ -158,9 +162,6 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::get('/admin/users/statistics', [UserController::class, 'adminStatistics']);
 		Route::get('/admin/users/{id}', [UserController::class, 'adminShow']);
 		Route::delete('/admin/users/{id}', [UserController::class, 'adminDestroy']);
-		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']); // Chỉ cập nhật role
+		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']);
 	});
 });
-
-// Voucher routes (Public - Xem danh sách)
-Route::get('/vouchers', [VoucherController::class, 'index']);

@@ -168,7 +168,7 @@ class NewController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string|max:255',
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'summary' => 'required|string|max:500',
                 'content' => 'required|string',
             ], [
@@ -232,7 +232,7 @@ class NewController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string|max:255',
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'summary' => 'required|string|max:500',
                 'content' => 'required|string',
             ]);

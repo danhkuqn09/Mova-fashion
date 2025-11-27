@@ -88,7 +88,7 @@ class CommentController extends Controller
             $validator = Validator::make($request->all(), [
                 'product_id' => 'required|exists:products,id',
                 'content' => 'required|string|max:1000',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ], [
                 'product_id.required' => 'Vui lòng chọn sản phẩm',
                 'product_id.exists' => 'Sản phẩm không tồn tại',
@@ -176,7 +176,7 @@ class CommentController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'content' => 'required|string|max:1000',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ], [
                 'content.required' => 'Vui lòng nhập nội dung bình luận',
                 'content.max' => 'Nội dung bình luận không được quá 1000 ký tự',

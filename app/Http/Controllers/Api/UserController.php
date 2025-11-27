@@ -56,13 +56,13 @@ class UserController extends Controller
                 'name' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:20',
                 'address' => 'nullable|string|max:500',
-                'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ], [
                 'name.max' => 'Tên không được quá 255 ký tự',
                 'phone.max' => 'Số điện thoại không được quá 20 ký tự',
                 'address.max' => 'Địa chỉ không được quá 500 ký tự',
                 'avatar.image' => 'File phải là hình ảnh',
-                'avatar.mimes' => 'Ảnh phải có định dạng jpeg, png, jpg',
+                'avatar.mimes' => 'Ảnh phải có định dạng jpeg, png, jpg, webp',
                 'avatar.max' => 'Kích thước ảnh không được vượt quá 2MB',
             ]);
 

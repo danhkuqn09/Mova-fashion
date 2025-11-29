@@ -23,8 +23,8 @@ class ReviewController extends Controller
             $productId = $request->input('product_id');
             $perPage = $request->input('per_page', 10);
 
-            $query = Review::with(['user', 'orderItem.productVariant.product'])
-                ->whereHas('orderItem.productVariant.product', function ($q) use ($productId) {
+            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.color.product'])
+                ->whereHas('orderItem.productVariant.color.product', function ($q) use ($productId) {
                     if ($productId) {
                         $q->where('id', $productId);
                     }
@@ -85,8 +85,10 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $reviews = Review::with(['orderItem.productVariant.product', 'orderItem.productVariant.color'])
-                ->where('user_id', $user->id)
+            $reviews = Review::with(['orderItem.order', 'orderItem.productVariant.color.product'])
+                ->whereHas('orderItem.order', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -195,7 +197,6 @@ class ReviewController extends Controller
 
             // Tạo review
             $review = Review::create([
-                'user_id' => $user->id,
                 'order_item_id' => $request->order_item_id,
                 'rating' => $request->rating,
                 'content' => $request->content,
@@ -203,7 +204,7 @@ class ReviewController extends Controller
             ]);
 
             // Load relationships
-            $review->load(['user', 'orderItem.productVariant.product']);
+            $review->load(['orderItem.order.user', 'orderItem.productVariant.color.product']);
 
             return response()->json([
                 'success' => true,
@@ -234,8 +235,10 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $review = Review::with(['orderItem.productVariant.product', 'orderItem.productVariant.color'])
-                ->where('user_id', $user->id)
+            $review = Review::with(['orderItem.order', 'orderItem.productVariant.color.product'])
+                ->whereHas('orderItem.order', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
                 ->find($id);
 
             if (!$review) {
@@ -280,7 +283,11 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $review = Review::where('user_id', $user->id)->find($id);
+            $review = Review::with('orderItem.order')
+                ->whereHas('orderItem.order', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->find($id);
 
             if (!$review) {
                 return response()->json([
@@ -320,15 +327,15 @@ class ReviewController extends Controller
             $rating = $request->input('rating');
             $perPage = $request->input('per_page', 15);
 
-            $query = Review::with(['user', 'orderItem.productVariant.product'])
+            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.color.product'])
                 ->orderBy('created_at', 'desc');
 
             // Search by product name or user name
             if ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->whereHas('user', function ($q2) use ($search) {
+                    $q->whereHas('orderItem.order.user', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
-                    })->orWhereHas('orderItem.productVariant.product', function ($q2) use ($search) {
+                    })->orWhereHas('orderItem.productVariant.color.product', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
                     });
                 });

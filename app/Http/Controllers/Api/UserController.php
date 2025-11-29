@@ -102,16 +102,14 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'Cập nhật thông tin thành công',
                 'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'address' => $user->address,
+                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
                 ]
-            ], 200);
-
-        } catch (\Exception $e) {
+            ], 200);        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi cập nhật thông tin',
@@ -333,8 +331,7 @@ class UserController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone,
-                    'address' => $user->address,
-                    'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                    'avatar' => $user->image ? Storage::url($user->image) : null,
                     'role' => $user->role,
                     'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->format('d/m/Y H:i') : null,
                     'created_at' => $user->created_at->format('d/m/Y H:i'),

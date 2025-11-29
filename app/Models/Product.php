@@ -38,9 +38,16 @@ class Product extends Model
         return $this->hasMany(ProductColor::class);
     }
 
-    public function variants(): HasMany
+    public function variants()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasManyThrough(
+            ProductVariant::class,
+            ProductColor::class,
+            'product_id',  // Foreign key on product_colors
+            'color_id',    // Foreign key on product_variants
+            'id',          // Local key on products
+            'id'           // Local key on product_colors
+        );
     }
 
     public function comments(): HasMany
@@ -48,10 +55,10 @@ class Product extends Model
         return $this->hasMany(Comment::class);
     }
 
-    // Get all reviews through variants and order items
+    // Get all reviews through order_items
     public function reviews()
     {
-        return Review::whereHas('orderItem.productVariant', function($query) {
+        return Review::whereHas('orderItem.productVariant.color', function($query) {
             $query->where('product_id', $this->id);
         });
     }

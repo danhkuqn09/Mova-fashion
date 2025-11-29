@@ -143,11 +143,12 @@ class ProductController extends Controller
             $avgRating = $reviews->avg('rating');
             $reviewCount = $reviews->count();
 
-            // Tính tổng đã bán (từ order_items)
+            // Tính tổng đã bán (từ order_items qua product_colors)
             $totalSold = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
                 ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
-                ->where('product_variants.product_id', $product->id)
+                ->join('product_colors', 'product_variants.color_id', '=', 'product_colors.id')
+                ->where('product_colors.product_id', $product->id)
                 ->whereIn('orders.status', ['processing', 'shipping', 'completed'])
                 ->sum('order_items.quantity');
 
@@ -336,7 +337,6 @@ class ProductController extends Controller
                     $colorId = $colorIds[$variantData['color_index']];
 
                     ProductVariant::create([
-                        'product_id' => $product->id,
                         'color_id' => $colorId,
                         'size' => $variantData['size'],
                         'quantity' => $variantData['quantity'],
@@ -441,8 +441,10 @@ class ProductController extends Controller
                 // Cập nhật variants nếu có
                 if ($request->has('variants') && is_array($request->variants)) {
                     foreach ($request->variants as $variantData) {
-                        $variant = ProductVariant::where('id', $variantData['id'])
-                            ->where('product_id', $product->id)
+                        $variant = ProductVariant::whereHas('color', function($q) use ($product) {
+                                $q->where('product_id', $product->id);
+                            })
+                            ->where('id', $variantData['id'])
                             ->first();
 
                         if ($variant) {

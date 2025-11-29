@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Review extends Model
 {
     protected $fillable = [
-        'user_id',
         'order_item_id',
         'rating',
         'content',
@@ -19,13 +18,20 @@ class Review extends Model
         'rating' => 'integer',
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function orderItem(): BelongsTo
     {
         return $this->belongsTo(OrderItem::class);
+    }
+
+    // Accessor: Lấy user qua order_item → order
+    public function getUserAttribute()
+    {
+        return $this->orderItem->order->user;
+    }
+
+    // Accessor: Lấy product qua order_item → product_variant
+    public function getProductAttribute()
+    {
+        return $this->orderItem->productVariant->product;
     }
 }

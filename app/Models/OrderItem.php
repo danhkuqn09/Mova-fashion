@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class OrderItem extends Model
@@ -31,13 +30,15 @@ class OrderItem extends Model
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class, 'order_item_id');
-    }
-
     public function review(): HasOne
     {
         return $this->hasOne(Review::class, 'order_item_id');
+    }
+
+
+    // Accessor: Lấy product qua variant
+    public function getProductAttribute()
+    {
+        return $this->productVariant->product;
     }
 }

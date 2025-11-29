@@ -47,7 +47,6 @@ class ProductVariantSeeder extends Seeder
                     $pricingData = $this->generateVariantPricing($product, $size, $color->name);
                     
                     ProductVariant::create([
-                        'product_id' => $product->id,
                         'color_id' => $color->id,
                         'size' => $size,
                         'price' => $pricingData['price'],

@@ -13,18 +13,13 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-
-            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('order_item_id');
-
             $table->unsignedTinyInteger('rating');
             $table->text('content')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_verified_purchase')->default(false); // Đã mua hàng thật chưa     
-
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('order_item_id')->references('id')->on('order_items')->onDelete('cascade');
         });
     }

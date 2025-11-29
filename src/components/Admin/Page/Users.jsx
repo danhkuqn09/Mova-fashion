@@ -19,14 +19,16 @@ const Users = () => {
     // User detail
     const [selectedUser, setSelectedUser] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [detailUser, setDetailUser] = useState(null);
+
 
     // Change Role
     const [roleToChange, setRoleToChange] = useState("");
     const [showRoleModal, setShowRoleModal] = useState(false);
 
     // Delete User
-    const [userToDelete, setUserToDelete] = useState(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    // const [userToDelete, setUserToDelete] = useState(null);
+    // const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     // Fetch list
     const fetchUsers = async (page = 1) => {
@@ -64,11 +66,17 @@ const Users = () => {
     // Show user detail
     const openUserDetail = async (id) => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/admin/users/${id}`);
-            setSelectedUser(res.data.data);
+            const token = localStorage.getItem("token");
+            const res = await axios.get(`http://localhost:8000/api/admin/users/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setDetailUser(res.data.data);   // ⭐ dùng detailUser
             setShowDetailModal(true);
         } catch (err) {
             console.error("Lỗi khi lấy thông tin user", err);
+            alert("Không thể lấy thông tin user. Vui lòng đăng nhập lại.");
         }
     };
 
@@ -81,33 +89,45 @@ const Users = () => {
 
     const changeRole = async () => {
         try {
-            await axios.put(`http://localhost:8000/api/admin/users/${selectedUser.id}/role`, {
-                role: roleToChange
-            });
+            const token = localStorage.getItem("token");
+
+            await axios.put(
+                `http://localhost:8000/api/admin/users/${selectedUser.id}/role`,
+                { role: roleToChange },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
             alert("Cập nhật role thành công!");
             setShowRoleModal(false);
             fetchUsers();
         } catch (err) {
             console.error("Lỗi khi đổi role", err);
+            alert("Không thể đổi role! Bạn không có quyền hoặc token đã hết hạn.");
+
         }
     };
+
 
     // Delete
-    const confirmDelete = (user) => {
-        setUserToDelete(user);
-        setShowDeleteModal(true);
-    };
+    // const confirmDelete = (user) => {
+    //     setUserToDelete(user);
+    //     setShowDeleteModal(true);
+    // };
 
-    const deleteUser = async () => {
-        try {
-            await axios.delete(`http://localhost:8000/api/admin/users/${userToDelete.id}`);
-            alert("Xóa user thành công!");
-            setShowDeleteModal(false);
-            fetchUsers();
-        } catch (err) {
-            console.error("Lỗi khi xóa user", err);
-        }
-    };
+    // const deleteUser = async () => {
+    //     try {
+    //         await axios.delete(`http://localhost:8000/api/admin/users/${userToDelete.id}`);
+    //         alert("Xóa user thành công!");
+    //         setShowDeleteModal(false);
+    //         fetchUsers();
+    //     } catch (err) {
+    //         console.error("Lỗi khi xóa user", err);
+    //     }
+    // };
 
     return (
         <div className="admin-container">
@@ -180,9 +200,8 @@ const Users = () => {
                                         <td>{u.total_orders}</td>
                                         <td>{u.total_spent.toLocaleString()}₫</td>
                                         <td>
-                                            <button onClick={() => openUserDetail(u.id)}>Xem</button>
-                                            <button onClick={() => openRoleModal(u)}>Đổi role</button>
-                                            <button onClick={() => confirmDelete(u)}>Xóa</button>
+                                            <button className="btn-edit" onClick={() => openUserDetail(u.id)}>Xem</button>
+                                            <button className="btn-delete" onClick={() => openRoleModal(u)}>Đổi role</button>
                                         </td>
                                     </tr>
                                 ))
@@ -206,18 +225,18 @@ const Users = () => {
                     )}
 
                     {/* Detail Modal */}
-                    {showDetailModal && selectedUser && (
-                        <div className="modal">
+                    {showDetailModal && detailUser && (
+                        <div className="modal-user">
                             <div className="modal-content">
                                 <h2>Thông tin User</h2>
-                                <p><b>Tên:</b> {selectedUser.user.name}</p>
-                                <p><b>Email:</b> {selectedUser.user.email}</p>
-                                <p><b>Đã xác thực:</b> {selectedUser.user.email_verified_at || "Chưa"}</p>
-                                <p><b>Tổng đơn:</b> {selectedUser.statistics.total_orders}</p>
-                                <p><b>Chi tiêu:</b> {selectedUser.statistics.total_spent.toLocaleString()}₫</p>
+                                <p><b>Tên:</b> {detailUser.user.name}</p>
+                                <p><b>Email:</b> {detailUser.user.email}</p>
+                                <p><b>Đã xác thực:</b> {detailUser.user.email_verified_at || "Chưa"}</p>
+                                <p><b>Tổng đơn:</b> {detailUser.statistics.total_orders}</p>
+                                <p><b>Chi tiêu:</b> {detailUser.statistics.total_spent.toLocaleString()}₫</p>
 
                                 <h3>5 đơn gần nhất</h3>
-                                {selectedUser.recent_orders.map(o => (
+                                {detailUser.recent_orders.map(o => (
                                     <p key={o.id}>{o.order_code} - {o.final_total.toLocaleString()}₫</p>
                                 ))}
 
@@ -228,7 +247,7 @@ const Users = () => {
 
                     {/* Role Modal */}
                     {showRoleModal && selectedUser && (
-                        <div className="modal">
+                        <div className="modal-user">
                             <div className="modal-content">
                                 <h2>Đổi role cho {selectedUser.name}</h2>
 
@@ -239,19 +258,6 @@ const Users = () => {
 
                                 <button onClick={changeRole}>Lưu</button>
                                 <button onClick={() => setShowRoleModal(false)}>Hủy</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Delete Modal */}
-                    {showDeleteModal && userToDelete && (
-                        <div className="modal">
-                            <div className="modal-content">
-                                <h2>Xác nhận xóa</h2>
-                                <p>Bạn có chắc xóa user {userToDelete.name}?</p>
-
-                                <button onClick={deleteUser}>Xóa</button>
-                                <button onClick={() => setShowDeleteModal(false)}>Hủy</button>
                             </div>
                         </div>
                     )}

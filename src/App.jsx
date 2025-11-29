@@ -31,6 +31,8 @@ import Comments from "./components/Admin/Page/Comment";
 import Voucher from "./components/Admin/Page/Voucher";
 import News from "./components/Admin/Page/News";
 import OrderDetail from "./components/Order/OrderDetail";
+import UserProfileFull from "./components/UserProfile/UserProfile"
+
 
 // CSS & Libraries
 import "./App.css";
@@ -78,8 +80,11 @@ function App() {
             )
           }
         />
+         
+        
         <Route path="/auth/google/callback" element={<LoginSuccess />} />
         <Route path="/payment/callback" element={<MomoCallbackPage />} />
+        <Route path="/user" element={<UserProfileFull/>}></Route>
 
         {/* Admin */}
         <Route path="/admin" element={<Dashboard />} />

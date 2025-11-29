@@ -140,7 +140,7 @@ const Orders = () => {
                     <td>{o.status}</td>
                     <td>{o.payment_method}</td>
                     <td>
-                      <button onClick={() => openDetailModal(o.id)}>Xem</button>
+                      <button className="btn-edit" onClick={() => openDetailModal(o.id)}>Xem</button>
                     </td>
                   </tr>
                 ))
@@ -165,7 +165,7 @@ const Orders = () => {
 
           {/* Detail Modal */}
           {showDetailModal && selectedOrder && (
-            <div className="modal">
+            <div className="modal-order">
               <div className="modal-content">
                 <h2>Chi tiết đơn hàng #{selectedOrder.id}</h2>
                 <p><b>User:</b> {selectedOrder.user?.name || selectedOrder.user?.email}</p>

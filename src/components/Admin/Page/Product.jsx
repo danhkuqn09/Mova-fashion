@@ -21,18 +21,37 @@ const Products = () => {
         colors: [],
         variants: [],
     });
-
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        total: 0,
+        per_page: 10,
+    });
     const token = localStorage.getItem("token");
 
     // Lấy danh sách sản phẩm
-    const fetchProducts = async () => {
+    const fetchProducts = async (page = 1) => {
         setLoading(true);
         try {
-            const res = await axios.get("http://localhost:8000/api/products");
+            const res = await axios.get("http://localhost:8000/api/products", {
+                params: { page, per_page: pagination.per_page },
+            });
 
-            let data = res.data.data;
-            const list = Array.isArray(data) ? data : data.products;
+            const data = res.data.data;
+
+            // Lấy danh sách sản phẩm
+            const list = data.products || [];
+
             setProducts(list);
+
+            // Lấy pagination từ API
+            setPagination({
+                current_page: data.pagination.current_page,
+                last_page: data.pagination.last_page,
+                total: data.pagination.total,
+                per_page: data.pagination.per_page,
+            });
+
         } catch (error) {
             console.error("Lỗi khi lấy sản phẩm:", error);
         } finally {
@@ -106,8 +125,7 @@ const Products = () => {
                 form.append("image", formData.image);
             }
 
-            // 🟥 Colors (mảng)
-            // 🟥 Colors (mảng) - handleSubmit
+            //Colors (mảng) - handleSubmit
             formData.colors.forEach((c, index) => {
                 form.append(`colors[${index}][name]`, c.name);
                 form.append(`colors[${index}][color_code]`, c.color_code || "#000000");
@@ -117,7 +135,7 @@ const Products = () => {
 
             });
 
-            // 🟥 Variants (mảng)
+            //  Variants (mảng)
             formData.variants.forEach((v, index) => {
                 form.append(`variants[${index}][size]`, v.size);
                 form.append(`variants[${index}][quantity]`, v.quantity);
@@ -182,48 +200,63 @@ const Products = () => {
                     {loading ? (
                         <p>Đang tải dữ liệu...</p>
                     ) : (
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Tên</th>
-                                    <th>Giá</th>
-                                    <th>Mô tả</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((prod) => (
-                                    <tr key={prod.id}>
-                                        <td>{prod.id}</td>
-                                        <td>
-                                            <img
-                                                src={
-                                                    prod.image
-                                                        ? `http://localhost:8000${prod.image}`
-                                                        : "/Image/no-image.png"
-                                                }
-                                                alt={prod.name}
-                                                className="product-img"
-                                            />
-                                        </td>
-                                        <td>{prod.name}</td>
-                                        <td>{prod.price}₫</td>
-                                        <td>{prod.description || "Không có mô tả"}</td>
-                                        <td>
-                                            <button className="btn-edit" onClick={() => openModal(prod)}>
-                                                Sửa
-                                            </button>
-                                            <button className="btn-delete" onClick={() => handleDelete(prod.id)}>
-                                                Xóa
-                                            </button>
-                                        </td>
+                        <>
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Hình ảnh</th>
+                                        <th>Tên</th>
+                                        <th>Giá</th>
+                                        <th>Mô tả</th>
+                                        <th>Hành động</th>
                                     </tr>
+                                </thead>
+
+                                <tbody>
+                                    {products.map((prod) => (
+                                        <tr key={prod.id}>
+                                            <td>{prod.id}</td>
+                                            <td>
+                                                <img
+                                                    src={
+                                                        prod.image
+                                                            ? `http://localhost:8000${prod.image}`
+                                                            : "/Image/no-image.png"
+                                                    }
+                                                    alt={prod.name}
+                                                    className="product-img"
+                                                />
+                                            </td>
+                                            <td>{prod.name}</td>
+                                            <td>{prod.price}₫</td>
+                                            <td>{prod.description || "Không có mô tả"}</td>
+                                            <td>
+                                                <button className="btn-edit" onClick={() => openModal(prod)}>
+                                                    Sửa
+                                                </button>
+                                                <button className="btn-delete" onClick={() => handleDelete(prod.id)}>
+                                                    Xóa
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <div className="pagination">
+                                {[...Array(pagination.last_page)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={pagination.current_page === i + 1 ? "active" : ""}
+                                        onClick={() => fetchProducts(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </button>
                                 ))}
-                            </tbody>
-                        </table>
+                            </div>
+                        </>
                     )}
+
                 </div>
             </div>
 
@@ -429,7 +462,7 @@ const Products = () => {
                                         ...formData,
                                         variants: [
                                             ...formData.variants,
-                                            { size: "", quantity: 0,  color_index: 0 },
+                                            { size: "", quantity: 0, color_index: 0 },
                                         ],
                                     })
                                 }

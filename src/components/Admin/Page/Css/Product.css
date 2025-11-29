@@ -79,3 +79,22 @@
     flex-direction: column;
     gap: 10px;
 }
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    color: #000;
+}
+
+.pagination button.active {
+    background: #b88e2f;
+    color: #fff;
+    border-color: #007bff;
+}

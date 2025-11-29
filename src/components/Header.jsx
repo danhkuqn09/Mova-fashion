@@ -97,6 +97,7 @@ function Header() {
                   <li className="dropdown-item" style={{ cursor: "default" }}>
                     Xin chào, <br /> <strong>{user.name}</strong>
                   </li>
+                  <Link to="/user" className="dropdown-item">Thông tin cá nhân</Link>
                   <Link to="/order" className="dropdown-item">Đơn Hàng</Link>
                   <Link to="/change-password" className="dropdown-item">
                     Đổi mật khẩu

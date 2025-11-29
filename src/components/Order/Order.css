@@ -27,6 +27,9 @@
 .status-badge.completed {
   background-color: green;
 }
+.status-badge.processing {
+  background-color: #FFFF00;
+}
 
 .order-table {
   width: 100%;
@@ -43,9 +46,9 @@
 }
 
 .product-thumb {
-  width: 50px;
+  /* width: 50px;
   height: 50px;
-  object-fit: cover;
+  object-fit: cover; */
 }
 
 .order-footer {

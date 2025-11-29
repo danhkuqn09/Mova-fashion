@@ -255,8 +255,14 @@ function ProductDetail() {
         <div className="product-info">
           <h2>{product.name}</h2>
           <p className="price">
-            {formatVND(product.sale_price || product.price)}
+            {formatVND(
+              selectedVariant?.sale_price ||
+              selectedVariant?.price ||
+              product.sale_price ||
+              product.price
+            )}
           </p>
+
           <div className="rating">
             <span>⭐ ⭐ ⭐ ⭐ ⭐</span>
             <p>5 Customer Review</p>

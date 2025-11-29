@@ -166,13 +166,29 @@ const CheckoutPage = () => {
 
             <label>Phương thức thanh toán</label>
             <div className="payment-options">
-              {["momo", "payos", "COD"].map((method) => (
-                <label key={method} className={`payment-item ${form.payment_method === method ? "active" : ""}`}>
-                  <input type="radio" name="payment_method" value={method} checked={form.payment_method === method} onChange={handleChange} />
-                  <img src={`/Image/${method.toUpperCase()}.png`} alt={method} />
-                  <span>{method === "COD" ? "Thanh toán khi nhận hàng" : `Thanh toán ${method.toUpperCase()}`}</span>
-                </label>
-              ))}
+              <label className={`payment-item ${form.payment_method === "momo" ? "active" : ""}`}>
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="momo"
+                  checked={form.payment_method === "momo"}
+                  onChange={handleChange}
+                />
+                <img src="/Image/MOMO.png" alt="momo" />
+                <span>Thanh toán MOMO</span>
+              </label>
+
+              <label className={`payment-item ${form.payment_method === "COD" ? "active" : ""}`}>
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="COD"
+                  checked={form.payment_method === "COD"}
+                  onChange={handleChange}
+                />
+                <img src="/Image/COD1.jpg" alt="COD" />
+                <span>Thanh toán khi nhận hàng</span>
+              </label>
             </div>
 
             <div className="voucher-box">

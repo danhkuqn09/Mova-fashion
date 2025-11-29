@@ -76,26 +76,18 @@ const OrderDetail = () => {
             {order.items?.map((item) => (
               <tr key={item.id}>
                 <td>
-                  <div className="product-cell">
-                    {/* Hiển thị ảnh nếu có */}
-                    {item.product.image && (
-                      <img
-                        src={`http://localhost:8000/storage/${item.product_variant?.image}`}
-                        alt={item.product_variant?.product?.name}
-                      />
-
-                    )}
-                    
-
-                  </div>
+                  {item.product.image && (
+                    <img
+                      src={`http://localhost:8000${item.product.image}`}
+                      alt={item.product.name}
+                      className="product-image"
+                    />
+                  )}
                 </td>
                 <td>
                   <span>{item.product.name}</span> <br />
-                  {/* Dữ liệu từ Controller đã format sẵn vào object 'variant' */}
                   Size: {item.variant?.size || "Không có"} <br />
                   Màu: {item.variant?.color || "Không có"}
-
-
                 </td>
                 <td>{Number(item.price).toLocaleString("vi-VN")} ₫</td>
                 <td>{item.quantity}</td>
@@ -103,6 +95,7 @@ const OrderDetail = () => {
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
 

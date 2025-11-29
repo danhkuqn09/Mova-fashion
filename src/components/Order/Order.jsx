@@ -88,7 +88,6 @@ const OrderPage = () => {
     return discount;
   };
 
-
   if (loading) return <p>Đang tải đơn hàng...</p>;
   if (orders.length === 0) return <p>Bạn chưa có đơn hàng nào 😢</p>;
 
@@ -117,31 +116,32 @@ const OrderPage = () => {
             </thead>
             <tbody>
               {order.items?.map((item) => {
-                console.log("🟦 ITEM TRONG ORDER:", item);
+                console.log("ITEM TRONG ORDER:", item);
                 return (
                   <tr key={item.id}>
                     <td>
-                      {item.product?.image && (
+                      {item.product?.image ? (
                         <img
-                          src={`http://localhost:8000/storage/${item.product_variant?.image}`}
-                          alt={item.product?.name}
+                          src={`http://localhost:8000${item.product.image}`}
+                          alt={item.product.name}
                           className="product-thumb"
                         />
 
+                      ) : (
+                        <span>Chưa có ảnh</span>
                       )}
                     </td>
+
                     <td>
                       {item.product_variant?.product?.name}
                       <br />
                       <small>Màu: {item.product_variant?.color?.color_name || "Không có màu"}</small>
-
                       <br />
                       <small>Size: {item.product_variant.size || "Không có size"}</small>
                     </td>
                     <td>{Number(item.price).toLocaleString("vi-VN")} ₫</td>
                     <td>{item.quantity}</td>
                     <td>{Number(order.original_total || order.pricing?.original_total || 0)} ₫</td>
-
                   </tr>
                 );
               })}

@@ -22,6 +22,8 @@ class ProductVariant extends Model
 
     protected $casts = [
         'quantity' => 'integer',
+        'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
     ];
 
     public function color(): BelongsTo
@@ -29,11 +31,36 @@ class ProductVariant extends Model
         return $this->belongsTo(ProductColor::class, 'color_id');
     }
     
-    // Helper để lấy product qua color
+    // Relationship product qua color
+    public function product()
+    {
+        return $this->hasOneThrough(
+            Product::class,
+            ProductColor::class,
+            'id',           // Foreign key on product_colors table
+            'id',           // Foreign key on products table
+            'color_id',     // Local key on product_variants table
+            'product_id'    // Local key on product_colors table
+        );
+    }
+
+    // Accessor để lấy product
     public function getProductAttribute()
     {
+        // Nếu đã load relationship 'color.product'
+        if ($this->relationLoaded('color') && $this->color->relationLoaded('product')) {
+            return $this->color->product;
+        }
+        
+        // Nếu đã load relationship 'product' (hasOneThrough)
+        if ($this->relationLoaded('product')) {
+            return $this->getRelation('product');
+        }
+        
+        // Fallback: load trực tiếp
         return $this->color->product;
     }
+
     public function carts(): HasMany
     {
         return $this->hasMany(Cart::class, 'product_variant_id');

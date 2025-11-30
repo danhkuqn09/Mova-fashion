@@ -16,8 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('order_item_id');
             $table->unsignedTinyInteger('rating');
             $table->text('content')->nullable();
-            $table->string('image')->nullable();
-            $table->boolean('is_verified_purchase')->default(false); // Đã mua hàng thật chưa     
+            $table->string('image')->nullable();   
             $table->timestamps();
 
             $table->foreign('order_item_id')->references('id')->on('order_items')->onDelete('cascade');

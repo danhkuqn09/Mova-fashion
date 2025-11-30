@@ -489,3 +489,108 @@
   background: #c71c30;
 }
 
+/* Đánh giá */
+/* Container tổng */
+.product-reviews {
+margin-top: 20px;
+}
+
+/* Form đánh giá */
+.review-form {
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.review-form textarea {
+width: 100%;
+min-height: 80px;
+padding: 8px;
+border: 1px solid #ccc;
+border-radius: 5px;
+resize: vertical;
+}
+
+.review-form input[type="file"] {
+border: none;
+}
+
+.review-form button {
+width: 120px;
+padding: 8px;
+background-color: #ff6600;
+color: #fff;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+.review-form button:hover {
+background-color: #e55b00;
+}
+
+/* Stars chọn đánh giá */
+.review-form .stars {
+font-size: 20px;
+display: flex;
+gap: 5px;
+}
+
+/* Danh sách review */
+.review-list {
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+
+.review-item {
+border: 1px solid #eee;
+padding: 12px;
+border-radius: 8px;
+background-color: #fafafa;
+}
+
+.review-item strong {
+display: block;
+margin-bottom: 5px;
+}
+
+.review-item .stars {
+color: gold;
+margin-bottom: 8px;
+}
+
+.review-item p {
+margin: 0 0 8px 0;
+}
+
+.review-image {
+max-width: 150px;
+max-height: 150px;
+object-fit: cover;
+border-radius: 5px;
+margin-top: 5px;
+}
+
+/* Nút xóa review */
+.review-item button {
+background-color: #ff4d4f;
+color: #fff;
+border: none;
+padding: 5px 10px;
+border-radius: 5px;
+cursor: pointer;
+}
+
+.review-item button:hover {
+background-color: #e04444;
+}
+
+/* Tabs active */
+.tabs button.active {
+background-color: #b88e2f;
+color: #fff;
+border-radius: 5px;
+margin: 5px;
+}

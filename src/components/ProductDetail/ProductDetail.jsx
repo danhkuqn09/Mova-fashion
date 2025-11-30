@@ -22,6 +22,17 @@ function ProductDetail() {
   const [commentImage, setCommentImage] = useState(null);
   const [loadingComments, setLoadingComments] = useState(true);
 
+  // ⭐ Review
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [activeTab, setActiveTab] = useState("comments"); // comments | reviews
+
+  const [rating, setRating] = useState(0);
+  const [reviewContent, setReviewContent] = useState("");
+  const [reviewImage, setReviewImage] = useState(null);
+  const [canReview, setCanReview] = useState(false);
+  const [userOrderItems, setUserOrderItems] = useState([]);
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -143,10 +154,15 @@ function ProductDetail() {
       setLoadingComments(false);
     }
   };
-  //Load bình luận sau khi sản phẩm load xong
+  //Load bình luận,review sau khi sản phẩm load xong
   useEffect(() => {
-    if (product) fetchComments();
+    if (product) {
+      fetchComments();
+      fetchReviews();
+      checkCanReview();
+    }
   }, [product]);
+
   // Gửi bình luận
   const handleSubmitComment = async () => {
     const token = localStorage.getItem("token");
@@ -208,8 +224,114 @@ function ProductDetail() {
       console.error("Lỗi xóa bình luận:", error);
     }
   };
+  // Lấy danh sách đánh giá sản phẩm
+  const fetchReviews = async () => {
+    try {
+      setLoadingReviews(true);
+      const res = await axios.get(
+        `http://localhost:8000/api/reviews?product_id=${id}`
+      );
 
+      const data = res.data?.data?.reviews || [];
+      setReviews(data);
+    } catch (error) {
+      console.error("Lỗi load đánh giá:", error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+  //  Kiểm tra user đã mua sản phẩm chưa
+  const checkCanReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/api/orders/my-items",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const items = res.data?.data || [];
+      setUserOrderItems(items);
+
+      const bought = items.some(item => item.product_id == id);
+      setCanReview(bought);
+    } catch (err) {
+      console.log("Lỗi kiểm tra quyền đánh giá:", err);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn cần đăng nhập để đánh giá!");
+      navigate("/login");
+      return;
+    }
+
+    if (!rating) {
+      alert("Vui lòng chọn số sao!");
+      return;
+    }
+    if (!reviewContent.trim()) {
+      alert("Vui lòng nhập nội dung đánh giá!");
+      return;
+    }
+
+    // Lấy order_item_id của sản phẩm đã mua
+    const orderItem = userOrderItems.find(i => i.product_id == id);
+    if (!orderItem) {
+      alert("Bạn phải mua sản phẩm trước khi đánh giá!");
+      return;
+    }
+
+    try {
+      const form = new FormData();
+      form.append("order_item_id", orderItem.order_item_id);
+      form.append("rating", rating);
+      form.append("content", reviewContent);
+      if (reviewImage) form.append("image", reviewImage);
+
+      const res = await axios.post(
+        "http://localhost:8000/api/reviews",
+        form,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data?.success) {
+        setRating(0);
+        setReviewContent("");
+        setReviewImage(null);
+        fetchReviews();
+        alert("Đã gửi đánh giá!");
+      }
+    } catch (err) {
+      console.log("Lỗi gửi đánh giá:", err);
+    }
+  };
+  const handleDeleteReview = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn cần đăng nhập!");
+      return;
+    }
+
+    if (!window.confirm("Xóa đánh giá này?")) return;
+
+    try {
+      const res = await axios.delete(
+        `http://localhost:8000/api/reviews/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data?.success) {
+        fetchReviews();
+        alert("Đã xóa đánh giá!");
+      }
+    } catch (err) {
+      console.log("Lỗi xóa đánh giá:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -219,7 +341,6 @@ function ProductDetail() {
       </div>
     );
   }
-
   if (!product) return <p>Không tìm thấy sản phẩm.</p>;
 
   return (
@@ -334,60 +455,153 @@ function ProductDetail() {
           </div>
         </div>
       </div>
-      {/* Form viết bình luận */}
+      {/* Lấy giao diện */}
       <div className="product-comments">
-        <h3>Bình luận sản phẩm</h3>
-        <div className="comment-form">
-          <textarea
-            placeholder="Viết bình luận..."
-            value={commentContent}
-            onChange={(e) => setCommentContent(e.target.value)}
-          ></textarea>
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setCommentImage(e.target.files[0])}
-          />
-          <button onClick={handleSubmitComment}>Gửi bình luận</button>
+        <div className="tabs">
+          <button
+            className={activeTab === "comments" ? "active" : ""}
+            onClick={() => setActiveTab("comments")}
+          >
+            Bình luận
+          </button>
+          <button
+            className={activeTab === "reviews" ? "active" : ""}
+            onClick={() => setActiveTab("reviews")}
+          >
+            Đánh giá
+          </button>
         </div>
-        {/* Loading của bình luận */}
-        {loadingComments ? (
-          <p>Đang tải bình luận...</p>
-        ) : comments.length === 0 ? (
-          <p>Chưa có bình luận nào.</p>
-        ) : (
-          <div className="comment-list">
-            {comments.map((c) => (
-              <div key={c.id} className="comment-item">
+        {activeTab === "comments" && (
+          <>
+            <h3>Bình luận sản phẩm</h3>
+            <div className="comment-form">
+              <textarea
+                placeholder="Viết bình luận..."
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+              ></textarea>
 
-                <div className="comment-header">
-                  <strong>{c.user.name}</strong>
-                  <span>{c.created_at}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setCommentImage(e.target.files[0])}
+              />
+              <button onClick={handleSubmitComment}>Gửi bình luận</button>
+            </div>
+            {loadingComments ? (
+              <p>Đang tải bình luận...</p>
+            ) : comments.length === 0 ? (
+              <p>Chưa có bình luận nào.</p>
+            ) : (
+              <div className="comment-list">
+                {comments.map((c) => (
+                  <div key={c.id} className="comment-item">
+                    <div className="comment-header">
+                      <strong>{c.user.name}</strong>
+                      <span>{c.created_at}</span>
+                    </div>
+
+                    <p>{c.content}</p>
+
+                    {c.image && (
+                      <img
+                        className="comment-image"
+                        src={`http://localhost:8000${c.image}`}
+                        alt="comment"
+                      />
+                    )}
+
+                    {c.is_owner && (
+                      <button
+                        className="delete-comment"
+                        onClick={() => handleDeleteComment(c.id)}
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        {activeTab === "reviews" && (
+          <div className="product-reviews">
+
+            <h3>Đánh giá sản phẩm</h3>
+
+            {/* Form đánh giá */}
+            {canReview ? (
+              <div className="review-form">
+                <p>Chọn số sao:</p>
+                <div className="stars">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <span
+                      key={s}
+                      onClick={() => setRating(s)}
+                      style={{ cursor: "pointer", color: s <= rating ? "gold" : "#ccc" }}
+                    >
+                      ★
+                    </span>
+                  ))}
                 </div>
 
-                <p>{c.content}</p>
+                <textarea
+                  placeholder="Viết đánh giá..."
+                  value={reviewContent}
+                  onChange={(e) => setReviewContent(e.target.value)}
+                ></textarea>
 
-                {c.image && (
-                  <img
-                    className="comment-image"
-                    src={`http://localhost:8000${c.image}`}
-                    alt="comment"
-                  />
-                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setReviewImage(e.target.files[0])}
+                />
 
-                {c.is_owner && (
-                  <button
-                    className="delete-comment"
-                    onClick={() => handleDeleteComment(c.id)}
-                  >
-                    Xóa
-                  </button>
-                )}
+                <button onClick={handleSubmitReview}>Gửi đánh giá</button>
               </div>
-            ))}
+            ) : (
+              <p style={{ color: "red", marginTop: 10 }}>
+                Bạn cần mua sản phẩm để đánh giá.
+              </p>
+            )}
+
+            {/* Danh sách review */}
+            {loadingReviews ? (
+              <p>Đang tải đánh giá...</p>
+            ) : reviews.length === 0 ? (
+              <p>Chưa có đánh giá nào.</p>
+            ) : (
+              <div className="review-list">
+                {reviews.map(r => (
+                  <div className="review-item" key={r.id}>
+                    <strong>{r.user.name}</strong>
+                    <div className="stars">
+                      {"★".repeat(r.rating)}{" "}
+                      {"☆".repeat(5 - r.rating)}
+                    </div>
+                    <p>{r.content}</p>
+
+                    {r.image && (
+                      <img
+                        src={`http://localhost:8000${r.image}`}
+                        alt="review"
+                        className="review-image"
+                      />
+                    )}
+
+                    {r.user.id === JSON.parse(localStorage.getItem("user") || "{}").id && (
+                      <button onClick={() => handleDeleteReview(r.id)}>
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+
       </div>
 
     </div>

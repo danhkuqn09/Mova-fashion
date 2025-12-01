@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\NewController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
@@ -117,6 +118,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
 	// Admin routes
 	Route::middleware('admin')->group(function () {
+		// Dashboard - Thống kê tổng quan
+		Route::get('/admin/dashboard/overview', [DashboardController::class, 'overview']);
+		Route::get('/admin/dashboard/revenue-by-day', [DashboardController::class, 'revenueByDay']);
+		Route::get('/admin/dashboard/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
+		Route::get('/admin/dashboard/revenue-by-year', [DashboardController::class, 'revenueByYear']);
+		Route::get('/admin/dashboard/pending-orders', [DashboardController::class, 'pendingOrders']);
+		Route::get('/admin/dashboard/low-stock-products', [DashboardController::class, 'lowStockProducts']);
+		Route::get('/admin/dashboard/revenue-comparison', [DashboardController::class, 'revenueComparison']);
+
 		//  Quản lí Voucher
 		Route::get('/admin/vouchers', [VoucherController::class, 'adminIndex']);
 		Route::post('/admin/vouchers', [VoucherController::class, 'store']);

@@ -65,9 +65,12 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    // Get reviews qua orders → order_items → reviews
     public function reviews()
     {
-        return $this->hasMany(Review::class);
+        return Review::whereHas('orderItem.order', function($query) {
+            $query->where('user_id', $this->id);
+        });
     }
 
     public function comments()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -213,7 +214,9 @@ class UserController extends Controller
             $cancelledOrders = $user->orders()->where('status', 'cancelled')->count();
 
             $totalComments = $user->comments()->count();
-            $totalReviews = $user->reviews()->count();
+            $totalReviews = Review::whereHas('orderItem.order', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->count();
 
             $totalSpent = $user->orders()
                 ->whereIn('status', ['completed'])
@@ -368,7 +371,9 @@ class UserController extends Controller
             $cancelledOrders = $user->orders()->where('status', 'cancelled')->count();
             $totalSpent = $user->orders()->where('status', 'completed')->sum('final_total');
             $totalComments = $user->comments()->count();
-            $totalReviews = $user->reviews()->count();
+            $totalReviews = Review::whereHas('orderItem.order', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->count();
 
             // Lấy 5 đơn hàng gần nhất
             $recentOrders = $user->orders()

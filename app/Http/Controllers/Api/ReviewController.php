@@ -80,17 +80,18 @@ class ReviewController extends Controller
     /**
      * User: Lấy danh sách review của mình
      */
-    public function myReviews()
+    public function myReviews(Request $request)
     {
         try {
             $user = Auth::user();
+            $perPage = $request->input('per_page', 15);
 
             $reviews = Review::with(['orderItem.order', 'orderItem.productVariant.color.product'])
                 ->whereHas('orderItem.order', function($q) use ($user) {
                     $q->where('user_id', $user->id);
                 })
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate($perPage);
 
             $formattedReviews = $reviews->map(function ($review) {
                 return [
@@ -114,7 +115,15 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy danh sách đánh giá của bạn thành công',
-                'data' => $formattedReviews
+                'data' => [
+                    'reviews' => $formattedReviews,
+                    'pagination' => [
+                        'total' => $reviews->total(),
+                        'per_page' => $reviews->perPage(),
+                        'current_page' => $reviews->currentPage(),
+                        'last_page' => $reviews->lastPage(),
+                    ]
+                ]
             ], 200);
 
         } catch (\Exception $e) {

@@ -123,14 +123,15 @@ class NewController extends Controller
     /**
      * User: Lấy danh sách bài viết của mình
      */
-    public function myNews()
+    public function myNews(Request $request)
     {
         try {
             $user = Auth::user();
+            $perPage = $request->input('per_page', 15);
 
             $news = News::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate($perPage);
 
             $formattedNews = $news->map(function ($item) {
                 return [
@@ -148,7 +149,15 @@ class NewController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Lấy danh sách bài viết của bạn thành công',
-                'data' => $formattedNews
+                'data' => [
+                    'news' => $formattedNews,
+                    'pagination' => [
+                        'total' => $news->total(),
+                        'per_page' => $news->perPage(),
+                        'current_page' => $news->currentPage(),
+                        'last_page' => $news->lastPage(),
+                    ]
+                ]
             ], 200);
 
         } catch (\Exception $e) {

@@ -26,12 +26,25 @@ class Review extends Model
     // Accessor: Lấy user qua order_item → order
     public function getUserAttribute()
     {
+        if ($this->relationLoaded('orderItem') && 
+            $this->orderItem->relationLoaded('order') && 
+            $this->orderItem->order->relationLoaded('user')) {
+            return $this->orderItem->order->user;
+        }
+        
         return $this->orderItem->order->user;
     }
 
     // Accessor: Lấy product qua order_item → product_variant
     public function getProductAttribute()
     {
-        return $this->orderItem->productVariant->product;
+        if ($this->relationLoaded('orderItem') && 
+            $this->orderItem->relationLoaded('productVariant') &&
+            $this->orderItem->productVariant->relationLoaded('color') &&
+            $this->orderItem->productVariant->color->relationLoaded('product')) {
+            return $this->orderItem->productVariant->color->product;
+        }
+        
+        return $this->orderItem->productVariant->color->product;
     }
 }

@@ -118,7 +118,7 @@ class ProductController extends Controller
 
             // Get reviews
             $reviews = $product->reviews()
-                ->with(['user', 'orderItem.productVariant.color'])
+                ->with(['orderItem.order.user', 'orderItem.productVariant.color'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 

@@ -42,9 +42,6 @@ Route::get('/products/{id}', [ProductController::class, 'show']);
 // Review routes (Public - Xem review)
 Route::get('/reviews', [ReviewController::class, 'index']);
 
-// News routes (Public - Xem bài viết)
-Route::get('/news', [NewController::class, 'index']);
-Route::get('/news/{id}', [NewController::class, 'show']);
 
 // Category routes (Public)
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -69,8 +66,8 @@ Route::get('/vouchers', [VoucherController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
 	// Thông tin user
 	Route::get('/profile', [UserController::class, 'getProfile']);
-	Route::post('/profile/update', [UserController::class, 'updateProfile']); 
-	Route::put('/profile/password', [UserController::class, 'updatePassword']); 
+	Route::post('/profile/update', [UserController::class, 'updateProfile']);
+	Route::put('/profile/password', [UserController::class, 'updatePassword']);
 	Route::delete('/profile/avatar', [UserController::class, 'deleteAvatar']);
 	Route::get('/profile/statistics', [UserController::class, 'getStatistics']);
 	Route::post('/logout', [UserController::class, 'logout']);
@@ -107,8 +104,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/news/my-news', [NewController::class, 'myNews']);
 	Route::post('/news', [NewController::class, 'store']);
 	Route::post('/news/{id}', [NewController::class, 'update']);
-	Route::delete('/news/{id}', [NewController::class, 'destroy']);
 	Route::post('/news/{id}/submit', [NewController::class, 'submitForReview']);
+	Route::delete('/news/{id}', [NewController::class, 'destroy']);
 
 	// Comment routes user
 	Route::post('/comments', [CommentController::class, 'store']);
@@ -175,3 +172,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::put('/admin/users/{id}/role', [UserController::class, 'adminChangeRole']);
 	});
 });
+
+// News routes (Public - Xem bài viết)
+Route::get('/news', [NewController::class, 'index']);
+Route::get('/news/{id}', [NewController::class, 'show']);

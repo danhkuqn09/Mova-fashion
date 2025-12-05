@@ -286,7 +286,7 @@ class DashboardController extends Controller
             $perPage = $request->input('per_page', 15);
 
             $orders = Order::where('status', 'pending')
-                ->with(['user:id,name,email,phone', 'orderItems.productVariant.color.product:id,name,image'])
+                ->with(['user:id,name,email,phone', 'items.productVariant.color.product:id,name,image'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 
@@ -300,7 +300,7 @@ class DashboardController extends Controller
                         'email' => $order->user->email,
                         'phone' => $order->user->phone,
                     ],
-                    'items' => $order->orderItems->map(function ($item) {
+                    'items' => $order->items->map(function ($item) {
                         return [
                             'product_name' => $item->productVariant->color->product->name,
                             'color' => $item->productVariant->color->color_name,

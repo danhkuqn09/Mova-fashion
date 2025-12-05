@@ -18,6 +18,7 @@ function ProductSection() {
           : [];
 
         setProducts(productData);
+        console.log(productData)
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm:", error);
       }
@@ -28,15 +29,19 @@ function ProductSection() {
 
   const showMore = () => setVisibleCount((prev) => prev + 10);
 
-  // 👉 Hàm giống ProductDetail.jsx
   const handleBuyNow = (p) => {
-    const price = p.price_after_discount ?? p.price;
+    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
+    if (!firstVariant) {
+      alert("Sản phẩm này chưa có biến thể!");
+      return;
+    }
 
+    const price = firstVariant.price_after_discount ?? firstVariant.price;
     navigate("/checkout", {
       state: {
         buyNow: true,
         item: {
-          product_variant_id: p.id,  // hoặc p.variant_id nếu có biến thể
+          product_variant_id: firstVariant.id,  
           quantity: 1,
           price: price,
           name: p.name,
@@ -45,7 +50,6 @@ function ProductSection() {
       },
     });
   };
-
 
   return (
     <section className="products">

@@ -139,7 +139,7 @@ const Products = () => {
             formData.variants.forEach((v, index) => {
                 form.append(`variants[${index}][size]`, v.size);
                 form.append(`variants[${index}][quantity]`, v.quantity);
-                // if (v.price) form.append(`variants[${index}][price]`, v.price);
+                if (v.price) form.append(`variants[${index}][price]`, v.price);
                 form.append(`variants[${index}][color_index]`, v.color_index);
             });
 
@@ -164,7 +164,8 @@ const Products = () => {
             fetchProducts();
         } catch (error) {
             console.error("❌ Lỗi khi lưu sản phẩm:", error.response?.data);
-            alert(error.response?.data?.message || "Đã xảy ra lỗi");
+            alert(JSON.stringify(error.response?.data, null, 2));
+
         }
     };
 
@@ -336,7 +337,7 @@ const Products = () => {
                                     <input
                                         type="text"
                                         placeholder="Tên màu"
-                                        value={c.name}
+                                        value={c.color_name}
                                         onChange={(e) => {
                                             const updated = [...formData.colors];
                                             updated[index].name = e.target.value;

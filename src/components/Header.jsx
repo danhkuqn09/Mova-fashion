@@ -72,7 +72,7 @@ function Header() {
       <nav className="nav">
         <li><Link to="/">Trang chủ</Link></li>
         <li><Link to="/shop">Cửa hàng</Link></li>
-        <li><Link to="/blog">Giới thiệu</Link></li>
+        <li><Link to="/news">Giới thiệu</Link></li>
         <li><Link to="/contact">Liên hệ</Link></li>
       </nav>
 
@@ -98,10 +98,10 @@ function Header() {
                     Xin chào, <br /> <strong>{user.name}</strong>
                   </li>
                   <Link to="/user" className="dropdown-item">Thông tin cá nhân</Link>
+                  <Link to="/change-password" className="dropdown-item">Đổi mật khẩu</Link>
                   <Link to="/order" className="dropdown-item">Đơn Hàng</Link>
-                  <Link to="/change-password" className="dropdown-item">
-                    Đổi mật khẩu
-                  </Link>
+                  <Link to="/my-news" className="dropdown-item">Bài viết của tôi</Link>
+
                   <button onClick={handleLogout} className="dropdown-item logout-btn">
                     Đăng xuất
                   </button>
@@ -109,6 +109,7 @@ function Header() {
               )}
             </ul>
           )}
+
         </div>
 
         {/* 🔍 Icon search */}

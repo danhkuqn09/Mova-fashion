@@ -15,6 +15,7 @@ const Sidebar = () => {
     { path: "/admin/comments", label: "Bình luận", icon: <FiMessageCircle /> },
     { path: "/admin/voucher", label: "Voucher", icon: <FiGift /> },
     { path: "/admin/news", label: "Tin tức", icon: <FiBook /> },
+    { path: "/admin/reviews", label: "Đánh giá", icon: <FiMessageCircle /> },
     { path: "/login", label: "Đăng Xuất", icon: <FiUser /> },
   ];
 

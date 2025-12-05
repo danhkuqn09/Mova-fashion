@@ -1,0 +1,75 @@
+/* Overlay mờ toàn màn hình */
+.modal-order {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Khung nội dung chính */
+.modal-order .modal-content {
+    background: #fff;
+    padding: 25px;
+    width: 500px;
+    max-height: 85vh;
+    border-radius: 12px;
+    overflow-y: auto;
+    animation: popup 0.25s ease;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Popup animation */
+@keyframes popup {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Select trong modal */
+.modal-order select {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    outline: none;
+}
+.modal-order select:focus {
+    border-color: #4c8bf5;
+    box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.25);
+}
+
+/* Button trong modal */
+.modal-order button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #b88e2f;
+    color: white;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.modal-order button:hover {
+    opacity: 0.9;
+}
+
+/* Nút Xóa đơn */
+.modal-order button:nth-child(3) {
+    background: #ff4747;
+}
+
+/* Nút Đóng */
+.modal-order button:last-child {
+    background: #000;
+}

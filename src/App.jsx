@@ -11,9 +11,9 @@ import ProductDetail from "./components/ProductDetail/ProductDetail";
 import Order from "./components/Order/Order";
 import Cart from "./components/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
-import Blog from "./components/Blog/Blog";
-import BlogDetail from "./components/Blog/BlogDetail";
-import MomoCallbackPage from "./components/Payment/MomoCallbackPage";
+import New from "./components/New/New"
+import MomoCallbackPage from "./components/Payment/MomoCallbackPage"
+
 
 // Auth Forms
 import Register from "./components/Auth/RegisterForm";
@@ -30,8 +30,10 @@ import Orders from "./components/Admin/Page/Order";
 import Comments from "./components/Admin/Page/Comment";
 import Voucher from "./components/Admin/Page/Voucher";
 import News from "./components/Admin/Page/News";
+import MyNews from "./components/New/MyNew";
 import OrderDetail from "./components/Order/OrderDetail";
 import UserProfileFull from "./components/UserProfile/UserProfile"
+import Review from "./components/Admin/Page/Review";
 
 
 // CSS & Libraries
@@ -60,10 +62,12 @@ function App() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/productdetail/:id" element={<ProductDetail />} />
         <Route path="/order" element={<Order />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<BlogDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/news" element={<New/>}/>
+        <Route path="/my-news" element={<MyNews/>}/>
+        <Route path="admin/reviews" element={< Review/>}></Route>
+
 
         {/* Auth */}
         <Route path="/register" element={<Register />} />

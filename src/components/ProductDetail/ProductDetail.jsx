@@ -21,17 +21,7 @@ function ProductDetail() {
   const [commentContent, setCommentContent] = useState("");
   const [commentImage, setCommentImage] = useState(null);
   const [loadingComments, setLoadingComments] = useState(true);
-
-  // ⭐ Review
-  const [reviews, setReviews] = useState([]);
-  const [loadingReviews, setLoadingReviews] = useState(true);
-  const [activeTab, setActiveTab] = useState("comments"); // comments | reviews
-
-  const [rating, setRating] = useState(0);
-  const [reviewContent, setReviewContent] = useState("");
-  const [reviewImage, setReviewImage] = useState(null);
-  const [canReview, setCanReview] = useState(false);
-  const [userOrderItems, setUserOrderItems] = useState([]);
+  const [activeTab, setActiveTab] = useState("comments");
 
 
   useEffect(() => {
@@ -44,6 +34,7 @@ function ProductDetail() {
           res.data.product ||
           res.data;
         console.log("PRODUCT RAW DATA:", data); // <-- thêm dòng này
+
         setProduct(data);
         if (data.image) {
           setMainImg(`http://localhost:8000${data.image}`);
@@ -158,8 +149,7 @@ function ProductDetail() {
   useEffect(() => {
     if (product) {
       fetchComments();
-      fetchReviews();
-      checkCanReview();
+
     }
   }, [product]);
 
@@ -224,114 +214,11 @@ function ProductDetail() {
       console.error("Lỗi xóa bình luận:", error);
     }
   };
-  // Lấy danh sách đánh giá sản phẩm
-  const fetchReviews = async () => {
-    try {
-      setLoadingReviews(true);
-      const res = await axios.get(
-        `http://localhost:8000/api/reviews?product_id=${id}`
-      );
 
-      const data = res.data?.data?.reviews || [];
-      setReviews(data);
-    } catch (error) {
-      console.error("Lỗi load đánh giá:", error);
-    } finally {
-      setLoadingReviews(false);
-    }
-  };
-  //  Kiểm tra user đã mua sản phẩm chưa
-  const checkCanReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
-    try {
-      const res = await axios.get(
-        "http://localhost:8000/api/orders/my-items",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
 
-      const items = res.data?.data || [];
-      setUserOrderItems(items);
 
-      const bought = items.some(item => item.product_id == id);
-      setCanReview(bought);
-    } catch (err) {
-      console.log("Lỗi kiểm tra quyền đánh giá:", err);
-    }
-  };
 
-  const handleSubmitReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để đánh giá!");
-      navigate("/login");
-      return;
-    }
-
-    if (!rating) {
-      alert("Vui lòng chọn số sao!");
-      return;
-    }
-    if (!reviewContent.trim()) {
-      alert("Vui lòng nhập nội dung đánh giá!");
-      return;
-    }
-
-    // Lấy order_item_id của sản phẩm đã mua
-    const orderItem = userOrderItems.find(i => i.product_id == id);
-    if (!orderItem) {
-      alert("Bạn phải mua sản phẩm trước khi đánh giá!");
-      return;
-    }
-
-    try {
-      const form = new FormData();
-      form.append("order_item_id", orderItem.order_item_id);
-      form.append("rating", rating);
-      form.append("content", reviewContent);
-      if (reviewImage) form.append("image", reviewImage);
-
-      const res = await axios.post(
-        "http://localhost:8000/api/reviews",
-        form,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data?.success) {
-        setRating(0);
-        setReviewContent("");
-        setReviewImage(null);
-        fetchReviews();
-        alert("Đã gửi đánh giá!");
-      }
-    } catch (err) {
-      console.log("Lỗi gửi đánh giá:", err);
-    }
-  };
-  const handleDeleteReview = async (id) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập!");
-      return;
-    }
-
-    if (!window.confirm("Xóa đánh giá này?")) return;
-
-    try {
-      const res = await axios.delete(
-        `http://localhost:8000/api/reviews/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data?.success) {
-        fetchReviews();
-        alert("Đã xóa đánh giá!");
-      }
-    } catch (err) {
-      console.log("Lỗi xóa đánh giá:", err);
-    }
-  };
 
   if (loading) {
     return (
@@ -464,12 +351,6 @@ function ProductDetail() {
           >
             Bình luận
           </button>
-          <button
-            className={activeTab === "reviews" ? "active" : ""}
-            onClick={() => setActiveTab("reviews")}
-          >
-            Đánh giá
-          </button>
         </div>
         {activeTab === "comments" && (
           <>
@@ -524,82 +405,6 @@ function ProductDetail() {
               </div>
             )}
           </>
-        )}
-        {activeTab === "reviews" && (
-          <div className="product-reviews">
-
-            <h3>Đánh giá sản phẩm</h3>
-
-            {/* Form đánh giá */}
-            {canReview ? (
-              <div className="review-form">
-                <p>Chọn số sao:</p>
-                <div className="stars">
-                  {[1, 2, 3, 4, 5].map(s => (
-                    <span
-                      key={s}
-                      onClick={() => setRating(s)}
-                      style={{ cursor: "pointer", color: s <= rating ? "gold" : "#ccc" }}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-
-                <textarea
-                  placeholder="Viết đánh giá..."
-                  value={reviewContent}
-                  onChange={(e) => setReviewContent(e.target.value)}
-                ></textarea>
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setReviewImage(e.target.files[0])}
-                />
-
-                <button onClick={handleSubmitReview}>Gửi đánh giá</button>
-              </div>
-            ) : (
-              <p style={{ color: "red", marginTop: 10 }}>
-                Bạn cần mua sản phẩm để đánh giá.
-              </p>
-            )}
-
-            {/* Danh sách review */}
-            {loadingReviews ? (
-              <p>Đang tải đánh giá...</p>
-            ) : reviews.length === 0 ? (
-              <p>Chưa có đánh giá nào.</p>
-            ) : (
-              <div className="review-list">
-                {reviews.map(r => (
-                  <div className="review-item" key={r.id}>
-                    <strong>{r.user.name}</strong>
-                    <div className="stars">
-                      {"★".repeat(r.rating)}{" "}
-                      {"☆".repeat(5 - r.rating)}
-                    </div>
-                    <p>{r.content}</p>
-
-                    {r.image && (
-                      <img
-                        src={`http://localhost:8000${r.image}`}
-                        alt="review"
-                        className="review-image"
-                      />
-                    )}
-
-                    {r.user.id === JSON.parse(localStorage.getItem("user") || "{}").id && (
-                      <button onClick={() => handleDeleteReview(r.id)}>
-                        Xóa
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         )}
 
       </div>

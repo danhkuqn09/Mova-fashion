@@ -12,12 +12,37 @@ function Shop() {
   const [onSale, setOnSale] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const normalizeImage = (img) => {
+    if (!img) return "/no-image.png";
+
+    // Nếu đã là URL đầy đủ → trả về luôn
+    if (img.startsWith("http")) return img;
+
+    // Nếu image bắt đầu bằng "/storage"
+    if (img.startsWith("/storage")) {
+      return `http://localhost:8000${img}`;
+    }
+
+    // Nếu image bắt đầu bằng "storage/"
+    if (img.startsWith("storage/")) {
+      return `http://localhost:8000/${img}`;
+    }
+
+    // Nếu image KHÔNG có storage → thêm vào
+    return `http://localhost:8000/storage/${img}`;
+  };
+
+  // Lọc
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [tag, setTag] = useState("");
+  const [isFiltering, setIsFiltering] = useState(false); // Biến cờ để biết đang lọc
+
   const location = useLocation();
   const navigate = useNavigate();
-  // 🧠 Lấy từ khóa từ URL (ví dụ: /shop?query=áo)
+
   const keyword = new URLSearchParams(location.search).get("keyword") || "";
 
-  // 🔁 Khi thay đổi query → gọi API tìm kiếm
   useEffect(() => {
     if (keyword) {
       handleSearch(keyword);
@@ -39,7 +64,6 @@ function Shop() {
 
       setCategories(resCategories.data.data.categories || []);
 
-      // Giữ nguyên các phần khác
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
@@ -54,6 +78,7 @@ function Shop() {
 
       setProducts([]);
       setSelectedCategory(null);
+      setIsFiltering(false); // Reset cờ lọc
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu:", error);
     } finally {
@@ -61,16 +86,16 @@ function Shop() {
     }
   };
 
-
-  // 🔍 Hàm gọi API tìm kiếm
   const handleSearch = async (term) => {
     setLoading(true);
     setSelectedCategory(null);
+    setIsFiltering(true); // Đang tìm kiếm là đang lọc
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(term)}`
+        `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(
+          term
+        )}`
       );
-
 
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
@@ -80,8 +105,7 @@ function Shop() {
         return [];
       };
 
-      setProducts(getData(res));
-      const productsData = res.data?.data?.data || [];
+      const productsData = getData(res);
       setProducts(productsData);
     } catch (error) {
       console.error("Lỗi khi tìm kiếm sản phẩm:", error);
@@ -90,10 +114,16 @@ function Shop() {
     }
   };
 
-  // Lọc sản phẩm danh mục
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
+    setIsFiltering(true); // Chọn danh mục cũng coi là đang xem danh sách lọc
     setLoading(true);
+
+    // Reset các filter giá/tag khi chuyển danh mục (tùy chọn, để trải nghiệm tốt hơn)
+    setMinPrice("");
+    setMaxPrice("");
+    setTag("");
+
     try {
       const res = await axios.get(
         `http://localhost:8000/api/products/category/${categoryId}`
@@ -107,14 +137,63 @@ function Shop() {
     }
   };
 
+  // --- 2. HÀM XỬ LÝ LỌC GIÁ VÀ TAG ---
+  const handleFilterSubmit = async () => {
+    setLoading(true);
+    setIsFiltering(true);
+
+    try {
+      const params = new URLSearchParams();
+
+      // Nếu đang chọn danh mục, giữ nguyên việc lọc trong danh mục đó
+      if (selectedCategory) {
+        params.append("category_id", selectedCategory);
+      }
+      // Nếu đang có từ khóa tìm kiếm
+      if (keyword) {
+        params.append("search", keyword);
+      }
+
+      if (minPrice) params.append("min_price", minPrice);
+      if (maxPrice) params.append("max_price", maxPrice);
+      if (tag) params.append("tag", tag);
+
+      // Gọi API index của ProductController
+      const res = await axios.get(`http://localhost:8000/api/products?${params.toString()}`);
+
+      // Xử lý dữ liệu trả về từ hàm index (có phân trang)
+      let productsData = [];
+      if (res.data?.data?.products?.data) {
+        productsData = res.data.data.products.data; // Trường hợp có paginate
+      } else if (res.data?.data?.products) {
+        productsData = res.data.data.products; // Trường hợp array thường
+      }
+
+      setProducts(productsData);
+
+    } catch (error) {
+      console.error("Lỗi khi lọc nâng cao:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // ------------------------------------
+
   const handleBuyNow = (p) => {
-    const price = p.price_after_discount ?? p.price;
+    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
+
+    if (!firstVariant) {
+      alert("Sản phẩm này chưa có biến thể!");
+      return;
+    }
+
+    const price = firstVariant.price_after_discount ?? firstVariant.price;
 
     navigate("/checkout", {
       state: {
         buyNow: true,
         item: {
-          product_variant_id: p.id,  // hoặc p.variant_id nếu có biến thể
+          product_variant_id: firstVariant.id,  // ✅ ĐÚNG
           quantity: 1,
           price: price,
           name: p.name,
@@ -123,7 +202,8 @@ function Shop() {
       },
     });
   };
-  // 🌀 Loading spinner
+
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -138,9 +218,10 @@ function Shop() {
       <div className="product-card" key={p.id}>
         <Link to={`/productdetail/${p.id}`}>
           <img
-            src={`http://localhost:8000/storage/${p.image}`}
+            src={normalizeImage(p.image)}
             alt={p.name}
           />
+
         </Link>
         <h3>{p.name}</h3>
         <p>{p.price}₫</p>
@@ -168,15 +249,68 @@ function Shop() {
       <section className="categories">
         <h2>Danh mục sản phẩm</h2>
         <div className="category-list">{renderCategories()}</div>
+
+        <div className="filter-box">
+          <div className="filter-group">
+            <label>Giá từ</label>
+            <input
+              type="number"
+              placeholder="0"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Đến</label>
+            <input
+              type="number"
+              placeholder="0"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Tag</label>
+            <select value={tag} onChange={(e) => setTag(e.target.value)}>
+              <option> Chọn Tag</option>
+              <option value="hot">Hot</option>
+              <option value="new">New</option>
+              <option value="sale">Sale</option>
+            </select>
+          </div>
+
+          <button className="filter-btn" onClick={handleFilterSubmit}>
+            Lọc
+          </button>
+
+          {(minPrice || maxPrice || tag) && (
+            <button
+              className="clear-btn"
+              onClick={() => {
+                setMinPrice("");
+                setMaxPrice("");
+                setTag("");
+                selectedCategory
+                  ? handleCategoryClick(selectedCategory)
+                  : fetchAllData();
+              }}
+            >
+              Xóa
+            </button>
+          )}
+        </div>
+
       </section>
 
-      {/* Nếu đang tìm kiếm hoặc lọc danh mục */}
-      {keyword || selectedCategory ? (
+      {/*  hiển thị: Nếu có keyword HOẶC đang chọn danh mục HOẶC đang lọc giá/tag (biến isFiltering) */}
+      {keyword || selectedCategory || isFiltering ? (
         <section className="products">
           <h2>
             {keyword
               ? `Kết quả tìm kiếm cho "${keyword}"`
-              : "Sản phẩm theo danh mục"}
+              : "Danh sách sản phẩm"}
           </h2>
           <div className="shop-grid">
             {products.length > 0 ? (

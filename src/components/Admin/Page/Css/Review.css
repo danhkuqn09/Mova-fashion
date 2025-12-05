@@ -1,0 +1,66 @@
+/* ==== TABLE ONLY ==== */
+
+.review-stats {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    color: #000;
+}
+
+.review-stats p {
+    margin: 6px 0;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+/* TABLE */
+.rating-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.rating-table th {
+    background: #f5f5f5;
+    padding: 10px 12px;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+}
+
+.rating-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    color: #000;
+}
+
+/* Hover row effect giống hover input/select */
+.rating-table tr:hover td {
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Border & bo góc tổng thể */
+.rating-table {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+
+/* Product & Review Images */
+.product-image,
+.review-image {
+    width: 80px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Line-break text clean */
+.review-table td {
+    word-wrap: break-word;
+    white-space: normal;
+}

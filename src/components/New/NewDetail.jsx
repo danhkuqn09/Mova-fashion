@@ -2,8 +2,8 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 import Footer from "../Footer";
-import BlogCart from "./BlogCart";
-import "./BlogDetail.css";
+import BlogCart from "./NewCart";
+import "./NewDetail.css";
 
 const BlogDetail = () => {
   const { id } = useParams();

@@ -1,7 +1,7 @@
 // src/components/Blog/BlogCart.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import "./BlogCart.css";
+import "./NewCart.css";
 
 const BlogCart = ({ post }) => {
   return (

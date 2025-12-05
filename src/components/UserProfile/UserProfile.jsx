@@ -4,7 +4,7 @@ import "./UserProfile.css";
 
 const UserProfile = () => {
   const [profile, setProfile] = useState({});
-  const [statistics, setStatistics] = useState({});
+  // const [statistics, setStatistics] = useState({});
   const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -14,6 +14,19 @@ const UserProfile = () => {
     email: "",
     phone: "",
   });
+
+  const [statistics, setStatistics] = useState({
+    orders: {
+      total: 0,
+      pending: 0,
+      processing: 0,
+      completed: 0,
+      cancelled: 0,
+    },
+    total_spent: 0,
+    comments: 0,
+  });
+
 
   const token = localStorage.getItem("token");
 
@@ -166,13 +179,13 @@ const UserProfile = () => {
       </div>
 
       <div className="stats-card">
-        <h2>Thống kê đơn hàng</h2>
-        <p><b>Tổng đơn:</b> {statistics.orders.total || 0}</p>
-        <p><b>Chưa xử lý: </b>{statistics.orders.pending || 0}</p>
-        <p><b>Đã xứ lý: </b>{statistics.orders.processing}</p>
-        <p><b>Đã hoàn thành:</b> {statistics.orders.completed || 0}</p>
-        <p><b>Đã hủy:</b> {statistics.orders.cancelled || 0}</p>
+        <p><b>Tổng đơn:</b> {statistics.orders?.total || 0}</p>
+        <p><b>Chưa xử lý: </b>{statistics.orders?.pending || 0}</p>
+        <p><b>Đã xử lý: </b>{statistics.orders?.processing || 0}</p>
+        <p><b>Đã hoàn thành:</b> {statistics.orders?.completed || 0}</p>
+        <p><b>Đã hủy:</b> {statistics.orders?.cancelled || 0}</p>
         <p><b>Tổng chi tiêu:</b> {statistics.total_spent?.toLocaleString() || 0}₫</p>
+
       </div>
       <div className="stats-comment">
         <h2>Thống kê bình luận</h2>

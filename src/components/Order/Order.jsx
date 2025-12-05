@@ -46,7 +46,8 @@ const OrderPage = () => {
         alert("Đã hủy đơn hàng!");
         setOrders((prev) =>
           prev.map((order) =>
-            order.id === id ? { ...order, status: "cancelled" } : order
+            order.id === id
+              ? { ...order, status: "cancelled", justCancelled: true } : order
           )
         );
       }
@@ -56,24 +57,24 @@ const OrderPage = () => {
     }
   };
 
-  const handleDeleteOrder = async (id) => {
-    const token = localStorage.getItem("token");
-    if (!window.confirm("Bạn có chắc muốn xóa đơn hàng này?")) return;
+  // const handleDeleteOrder = async (id) => {
+  //   const token = localStorage.getItem("token");
+  //   if (!window.confirm("Bạn có chắc muốn xóa đơn hàng này?")) return;
 
-    try {
-      const res = await axios.delete(
-        `http://localhost:8000/api/orders/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (res.data.success) {
-        alert("Đã xóa đơn hàng!");
-        setOrders((prev) => prev.filter((order) => order.id !== id));
-      }
-    } catch (error) {
-      console.error("Lỗi xóa đơn:", error);
-      alert("Không thể xóa đơn hàng!");
-    }
-  };
+  //   try {
+  //     const res = await axios.delete(
+  //       `http://localhost:8000/api/orders/${id}`,
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     if (res.data.success) {
+  //       alert("Đã xóa đơn hàng!");
+  //       setOrders((prev) => prev.filter((order) => order.id !== id));
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi xóa đơn:", error);
+  //     alert("Không thể xóa đơn hàng!");
+  //   }
+  // };
   // Tính giảm giá từ voucher
   const getDiscountAmount = (order) => {
     if (!order.voucher) return 0;
@@ -120,10 +121,10 @@ const OrderPage = () => {
                 return (
                   <tr key={item.id}>
                     <td>
-                      {item.product?.image ? (
+                      {item.product_variant?.product?.image ? (
                         <img
-                          src={`http://localhost:8000${item.product.image}`}
-                          alt={item.product.name}
+                          src={`http://localhost:8000/storage/${item.product_variant?.product?.image}`}
+                          alt={item.product_variant?.product?.name}
                           className="product-thumb"
                         />
 
@@ -167,11 +168,13 @@ const OrderPage = () => {
                   Hủy mua
                 </button>
               )}
-              {(order.status === "cancelled" || order.status === "completed") && (
+              {/* {order.status === "cancelled" || order.status === "completed" ? (
                 <button onClick={() => handleDeleteOrder(order.id)} className="delete-btn">
                   Xóa đơn
                 </button>
-              )}
+              ) : null} */}
+
+
               <Link to={`/order/${order.id}`}>
                 <button className="detail-btn">Xem chi tiết</button>
               </Link>

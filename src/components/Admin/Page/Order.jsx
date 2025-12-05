@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
-import "../admin.css";
+import "./Css/Order.css";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);

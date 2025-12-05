@@ -21,15 +21,9 @@ const Users = () => {
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [detailUser, setDetailUser] = useState(null);
 
-
     // Change Role
     const [roleToChange, setRoleToChange] = useState("");
     const [showRoleModal, setShowRoleModal] = useState(false);
-
-    // Delete User
-    // const [userToDelete, setUserToDelete] = useState(null);
-    // const [showDeleteModal, setShowDeleteModal] = useState(false);
-
     // Fetch list
     const fetchUsers = async (page = 1) => {
         try {
@@ -54,6 +48,7 @@ const Users = () => {
         } catch (err) {
             console.error(err);
             alert("Lỗi khi load danh sách user");
+
         } finally {
             setLoading(false);
         }
@@ -110,24 +105,6 @@ const Users = () => {
 
         }
     };
-
-
-    // Delete
-    // const confirmDelete = (user) => {
-    //     setUserToDelete(user);
-    //     setShowDeleteModal(true);
-    // };
-
-    // const deleteUser = async () => {
-    //     try {
-    //         await axios.delete(`http://localhost:8000/api/admin/users/${userToDelete.id}`);
-    //         alert("Xóa user thành công!");
-    //         setShowDeleteModal(false);
-    //         fetchUsers();
-    //     } catch (err) {
-    //         console.error("Lỗi khi xóa user", err);
-    //     }
-    // };
 
     return (
         <div className="admin-container">

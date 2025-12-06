@@ -141,6 +141,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		// Quản lí Review (Admin)
 		Route::get('/admin/reviews', [ReviewController::class, 'adminIndex']);
 		Route::get('/admin/reviews/statistics', [ReviewController::class, 'adminStatistics']);
+		Route::get('/admin/reviews/{id}', [ReviewController::class, 'adminShow']);
 
 		// Quản lí News (Admin - Duyệt bài viết)
 		Route::get('/admin/news', [NewController::class, 'adminIndex']);

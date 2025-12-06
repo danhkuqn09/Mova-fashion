@@ -1308,7 +1308,7 @@ class OrderController extends Controller
 
         $orderCode = (int) ($order->id . time()); // PayOS yêu cầu số nguyên
         $amount = (int) $order->final_total;
-        $description = "Thanh toan don hang Mova Fashion";
+        $description = "Mova thanh toan " . number_format($order->final_total); // Max 25 ký tự
 
         // Tạo items trước
         $items = [];

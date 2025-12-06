@@ -402,6 +402,71 @@ class ReviewController extends Controller
     }
 
     /**
+     * Admin: Xem chi tiết đánh giá
+     */
+    public function adminShow($id)
+    {
+        try {
+            $review = Review::with([
+                'orderItem.order.user',
+                'orderItem.productVariant.color.product',
+                'orderItem.productVariant.color'
+            ])->find($id);
+
+            if (!$review) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy đánh giá'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lấy chi tiết đánh giá thành công',
+                'data' => [
+                    'id' => $review->id,
+                    'rating' => $review->rating,
+                    'content' => $review->content,
+                    'image' => $review->image ? Storage::url($review->image) : null,
+                    'user' => [
+                        'id' => $review->user->id,
+                        'name' => $review->user->name,
+                        'email' => $review->user->email,
+                        'phone' => $review->user->phone,
+                        'avatar' => $review->user->avatar,
+                    ],
+                    'product' => [
+                        'id' => $review->product->id,
+                        'name' => $review->product->name,
+                        'image' => $review->product->image ? Storage::url($review->product->image) : null,
+                        'price' => $review->product->price,
+                    ],
+                    'variant' => [
+                        'color' => $review->orderItem->productVariant->color->color_name ?? null,
+                        'color_code' => $review->orderItem->productVariant->color->color_code ?? null,
+                        'size' => $review->orderItem->productVariant->size ?? null,
+                    ],
+                    'order' => [
+                        'id' => $review->orderItem->order->id,
+                        'order_code' => $review->orderItem->order->order_code,
+                        'status' => $review->orderItem->order->status,
+                        'created_at' => $review->orderItem->order->created_at->format('d/m/Y H:i'),
+                    ],
+                    'created_at' => $review->created_at->format('d/m/Y H:i'),
+                    'updated_at' => $review->updated_at->format('d/m/Y H:i'),
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy chi tiết đánh giá',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Admin: Thống kê reviews
      */
     public function adminStatistics()

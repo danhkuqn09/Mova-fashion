@@ -401,7 +401,7 @@ class NewController extends Controller
     public function adminIndex(Request $request)
     {
         try {
-            $perPage = $request->input('per_page', 15);
+            $perPage = $request->input('per_page', 5);
             $status = $request->input('status');
             $search = $request->input('search');
 

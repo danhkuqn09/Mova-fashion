@@ -1,0 +1,121 @@
+.banner {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.top-images-slider {
+  width: 100%;
+  max-width: 1280px;
+  height: 700px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.top-images-slider img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.top-images-slider .swiper-button-next,
+.top-images-slider .swiper-button-prev {
+    /* Đặt chiều cao cố định cho nút (Ví dụ: 120px) */
+    height: 120px; 
+    width: 60px; 
+    
+    /* Căn giữa nút theo chiều dọc (Rất quan trọng!) */
+    top: 50%; 
+    transform: translateY(-50%); /* Dịch chuyển ngược lại 50% chiều cao của nút */
+    
+    color: transparent; 
+    background-color: transparent; 
+    z-index: 10; 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Loại bỏ 'margin: 0' khỏi các đoạn trước */
+    margin-top: 0; 
+}
+
+/* 2. Tạo hình dáng Vòng cung/Elip cho nền */
+.top-images-slider .swiper-button-next::after,
+.top-images-slider .swiper-button-prev::after {
+    /* Chiều cao của hình elip bằng chiều cao của khu vực nút (120px) */
+    height: 120px; 
+    width: 60px; 
+    
+    font-size: 24px;
+    font-weight: bold;
+    color: #333; 
+    
+    content: ''; 
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    /* Căn giữa mũi tên icon bên trong hình elip */
+    line-height: 120px; 
+    text-align: center;
+}
+
+/* 3. Định vị và Bo góc Elip cho nút PREV (Bên trái) */
+.top-images-slider .swiper-button-prev {
+    left: 0;
+    justify-content: flex-start; 
+}
+
+.top-images-slider .swiper-button-prev::after {
+    content: '\276E'; 
+    /* Bo góc tròn theo chiều cao 120px */
+    border-radius: 0 60px 60px 0; 
+    left: 0; 
+}
+
+/* 4. Định vị và Bo góc Elip cho nút NEXT (Bên phải) */
+.top-images-slider .swiper-button-next {
+    right: 0;
+    justify-content: flex-end;
+}
+
+.top-images-slider .swiper-button-next::after {
+    content: '\276F'; 
+    /* Bo góc tròn theo chiều cao 120px */
+    border-radius: 60px 0 0 60px; 
+    right: 0; 
+}
+
+/* 5. Hiệu ứng Hover */
+.top-images-slider .swiper-button-next:hover::after,
+.top-images-slider .swiper-button-prev:hover::after {
+    background-color: #ffe02f6c; 
+    color: #fff; 
+}
+
+/* ------------------------------------------- */
+/* Các phần còn lại của Banner (Giữ nguyên) */
+/* ------------------------------------------- */
+
+.banner-text {
+  margin: 40px 0;
+}
+
+.image-categories {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+.image-categories div {
+  text-align: center;
+}
+
+.image-categories img {
+  width: 300px;
+  height: 380px;
+  border-radius: 15px;
+  object-fit: cover;
+}

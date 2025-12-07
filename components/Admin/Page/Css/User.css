@@ -1,0 +1,78 @@
+td button edit-btn,
+td button delete-btn {
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 8px;
+    font-weight: 500;
+}
+
+/* .pagination button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 0 4px;
+    font-size: 14px;
+
+} */
+
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.filters input[type="text"] {
+    min-width: 320px;
+}
+
+
+.filters input,
+.filters select {
+    padding: 5px 14px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 180px;
+    background: #fff;
+    transition: all 0.2s ease;
+    outline: none;
+    color: #000;
+}
+
+.filters input:hover,
+.filters select:hover {
+    border-color: #999;
+}
+
+.filters input:focus,
+.filters select:focus {
+    border-color: #4c8bf5;
+    box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.25);
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 15px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.modal-content select option {
+    border-radius: 5px;
+}
+
+.modal select:focus {
+    border-color: #4c8bf5;
+    box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.2);
+}
+
+.modal button {
+    padding: 10px 16px;
+    border-radius: 8px;
+}

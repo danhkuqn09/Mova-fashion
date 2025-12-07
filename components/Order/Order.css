@@ -1,0 +1,80 @@
+.order-table-container {
+  border: 3px solid #ddd;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.status-badge.pending {
+  background-color: orange;
+}
+.status-badge.cancelled {
+  background-color: red;
+}
+.status-badge.completed {
+  background-color: green;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.order-table th,
+.order-table td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.product-thumb {
+  /* width: 50px;
+  height: 50px;
+  object-fit: cover; */
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.order-actions button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: red;
+  color: #fff;
+  border: none;
+}
+
+.delete-btn {
+  background-color: gray;
+  color: #fff;
+  border: none;
+}
+
+.detail-btn {
+  background-color: #00aaff;
+  color: #fff;
+  border: none;
+}

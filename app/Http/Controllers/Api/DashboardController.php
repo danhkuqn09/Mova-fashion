@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
             // Đơn hàng chờ xác nhận
             $pendingOrders = Order::where('status', 'pending')
-                ->with(['user:id,name,email', 'orderItems.productVariant.color.product'])
+                ->with(['user:id,name,email', 'items.productVariant.color.product'])
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get()
@@ -46,7 +46,7 @@ class DashboardController extends Controller
                         'final_total' => $order->final_total,
                         'payment_method' => $order->payment_method,
                         'shipping_address' => $order->shipping_address,
-                        'items_count' => $order->orderItems->count(),
+                        'items_count' => $order->items->count(),
                         'created_at' => $order->created_at->format('d/m/Y H:i'),
                     ];
                 });

@@ -22,7 +22,7 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ChangePassword from "./components/Auth/ChangePassword";
 import LoginSuccess from "./components/Auth/LoginSuccess";
-import Dashboard from "./components/Admin/Page/DashBoard";
+import Dashboard from "./components/Admin/Page/Dashboard";
 import Users from "./components/Admin/Page/Users";
 import Products from "./components/Admin/Page/Product";
 import Categories from "./components/Admin/Page/Categories";
@@ -34,6 +34,7 @@ import MyNews from "./components/New/MyNew";
 import OrderDetail from "./components/Order/OrderDetail";
 import UserProfileFull from "./components/UserProfile/UserProfile"
 import Review from "./components/Admin/Page/Review";
+import AddProduct from "./components/Admin/Page/AddProduct";
 
 
 // CSS & Libraries
@@ -100,6 +101,7 @@ function App() {
         <Route path="/admin/voucher" element={<Voucher />} />
         <Route path="/admin/news" element={<News />} />
         <Route path="/order/:id" element={<OrderDetail />} />
+        <Route path="/admin/products/add" element={<AddProduct/>}/>
 
       </Routes>
       <Footer />

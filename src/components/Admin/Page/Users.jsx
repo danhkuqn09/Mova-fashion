@@ -45,6 +45,10 @@ const Users = () => {
 
             setUsers(res.data.data.data);
             setPagination(res.data.data);
+            console.log("Users list:", users);
+            console.log("📌 FULL API RESPONSE:", res.data);
+
+
         } catch (err) {
             console.error(err);
             alert("Lỗi khi load danh sách user");
@@ -166,8 +170,8 @@ const Users = () => {
                                     <tr key={u.id}>
                                         <td>{u.id}</td>
                                         <td>
-                                            {u.avatar ? (
-                                                <img src={u.avatar} className="user-avatar" />
+                                            {u.avatars ? (
+                                                <img src={`http://localhost:8000${u.avatars}`} className="user-avatar" />
                                             ) : "Không có"}
                                         </td>
                                         <td>{u.name}</td>

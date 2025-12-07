@@ -128,7 +128,6 @@
 }
 
 .mynew-item img {
-  display: block;
   margin-bottom: 10px;
   border-radius: 4px;
 }
@@ -152,4 +151,87 @@
 
 .mynew-item button:hover {
   opacity: 0.85;
+}
+.submit-review-btn {
+  background: #b88e2f;
+}
+/* Popup */
+/* --- Popup overlay làm mờ toàn bộ trang --- */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45); /* làm tối */
+    backdrop-filter: blur(6px);    /* làm mờ nền */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* --- Khung popup nổi lên giữa màn hình --- */
+.popup-box {
+    background: #fff;
+    width: 550px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    animation: fadeInScale 0.25s ease;
+}
+
+/* --- Animation xuất hiện mượt mà --- */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* --- Thumbnail trong popup --- */
+.popup-thumb {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- Ô nhập lý do --- */
+.reason-box {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    resize: vertical;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin: 10px 0 20px 0;
+    font-size: 15px;
+}
+
+/* --- Nút hành động dưới popup --- */
+.popup-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-close {
+    background: #999;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-close:hover {
+    background: #777;
 }

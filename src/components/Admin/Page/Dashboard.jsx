@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
-import "./Css/Dashboard.css"
-
+import "./Css/Dashboard.css";
 
 const Dashboard = () => {
   const [overview, setOverview] = useState(null);
@@ -49,7 +48,7 @@ const Dashboard = () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/pending-orders`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    setPendingOrders(res.data.data.data); // do paginate
+    setPendingOrders(res.data.data.data);
   };
 
   const loadLowStockProducts = async () => {
@@ -96,27 +95,50 @@ const Dashboard = () => {
       <div className="admin-main">
         <Topbar />
         <div className="admin-page">
+          <div className="stats-grid">
+            <div className="stats-card">
+              <div className="label">Tổng đơn hàng</div>
+              <div className="value">{overview.overview.total_orders}</div>
+            </div>
 
-          {/* ================== OVERVIEW ================== */}
-          <h2 className="admin-section-title">Thống kê tổng quan</h2>
+            <div className="stats-card">
+              <div className="label">Tổng sản phẩm</div>
+              <div className="value">{overview.overview.total_products}</div>
+            </div>
+
+            <div className="stats-card">
+              <div className="label">Người dùng</div>
+              <div className="value">{overview.overview.total_users}</div>
+            </div>
+
+            <div className="stats-card">
+              <div className="label">Doanh thu</div>
+              <div className="value">
+                {overview.overview.total_revenue.toLocaleString()} đ
+              </div>
+            </div>
+          </div>
+          <h2 className="admin-section-title">Đơn hàng chờ xác nhận</h2>
           <div className="dashboard-table">
             <table>
+              <thead>
+                <tr>
+                  <th>Mã đơn</th>
+                  <th>Người dùng</th>
+                  <th>Tổng tiền</th>
+                </tr>
+              </thead>
               <tbody>
-                <tr><th>Tổng đơn hàng</th>
-                <td>{overview.overview.total_orders}</td></tr>
-                <tr><th>Người dùng</th>
-                <td>{overview.overview.total_users}</td></tr>
-                <tr><th>Sản phẩm</th>
-                <td>{overview.overview.total_products}</td></tr>
-                <tr><th>Tổng doanh thu</th>
-                <td>{overview.overview.total_revenue.toLocaleString()} đ</td></tr>
-                <tr><th>User mới 30 ngày</th>
-                <td>{overview.overview.new_users_last_30_days}</td></tr>
+                {pendingOrders.map(order => (
+                  <tr key={order.id}>
+                    <td>#{order.order_code}</td>
+                    <td>{order.user.name}</td>
+                    <td>{order.final_total.toLocaleString()} đ</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-
-          {/* ================== DOANH THU NGÀY ================== */}
           <h2 className="admin-section-title">Doanh thu theo ngày</h2>
           <div className="dashboard-table">
             <table>
@@ -138,8 +160,6 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
-
-          {/* ================== DOANH THU THÁNG ================== */}
           <h2 className="admin-section-title">Doanh thu theo tháng</h2>
           <div className="dashboard-table">
             <table>
@@ -161,8 +181,6 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
-
-          {/* ================== DOANH THU NĂM ================== */}
           <h2 className="admin-section-title">Doanh thu theo năm</h2>
           <div className="dashboard-table">
             <table>
@@ -185,30 +203,6 @@ const Dashboard = () => {
             </table>
           </div>
 
-          {/* ================== ĐƠN HÀNG CHỜ ================== */}
-          <h2 className="admin-section-title">Đơn hàng chờ xác nhận</h2>
-          <div className="dashboard-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mã đơn</th>
-                  <th>Người dùng</th>
-                  <th>Tổng tiền</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingOrders.map(order => (
-                  <tr key={order.id}>
-                    <td>#{order.order_code}</td>
-                    <td>{order.user.name}</td>
-                    <td>{order.final_total.toLocaleString()} đ</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* ================== SẢN PHẨM SẮP HẾT HÀNG ================== */}
           <h2 className="admin-section-title">Sản phẩm sắp hết hàng</h2>
           <div className="dashboard-table">
             <table>
@@ -228,8 +222,6 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
-
-          {/* ================== SO SÁNH DOANH THU ================== */}
           <h2 className="admin-section-title">So sánh doanh thu</h2>
           <div className="dashboard-table">
             <table>
@@ -255,7 +247,6 @@ const Dashboard = () => {
           </div>
 
         </div>
-
       </div>
     </div>
   );

@@ -3,12 +3,16 @@ import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import "./Css/Product.css";
+import { useNavigate } from "react-router-dom";
+
+
 
 const Products = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         name: "",
@@ -187,15 +191,16 @@ const Products = () => {
 
     return (
         <div className="admin-container">
-            <Sidebar />
+       
             <div className="admin-main">
-                <Topbar />
+               
                 <div className="admin-page">
                     <div className="admin-header">
                         <h1>Quản lý sản phẩm</h1>
-                        <button className="add-btn" onClick={() => openModal()}>
+                        <button className="add-btn" onClick={() => navigate("/admin/products/addproduct")}>
                             ➕ Thêm sản phẩm
                         </button>
+
                     </div>
 
                     {loading ? (

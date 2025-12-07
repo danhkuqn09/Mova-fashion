@@ -9,10 +9,10 @@ const News = () => {
     const [pagination, setPagination] = useState({});
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("");
-
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
 
+    const [selectedNews, setSelectedNews] = useState(null);
 
     const fetchNews = async () => {
         setLoading(true);
@@ -29,9 +29,10 @@ const News = () => {
                 },
             });
 
-
             setNews(res.data.data.news);
             setPagination(res.data.data.pagination);
+            console.log(res.data.data.news);
+            
         } catch (error) {
             console.error("Lỗi khi tải news:", error);
         } finally {
@@ -43,12 +44,29 @@ const News = () => {
         fetchNews();
     }, [page]);
 
-    // APPROVE NEWS
-    const handleApprove = async (id) => {
-        if (!window.confirm("Xác nhận duyệt bài viết?")) return;
+    // Mở popup
+    const openPopup = (item) => {
+        setSelectedNews(item);
+    };
 
+    const closePopup = () => {
+        setSelectedNews(null);
+    };
+
+    // APPROVE
+    const handleApprove = async () => {
         try {
-            await axios.post(`http://localhost:8000/api/admin/news/${id}/approve`);
+            await axios.post(
+                `http://localhost:8000/api/admin/news/${selectedNews.id}/approve`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            closePopup();
             fetchNews();
         } catch (err) {
             console.error(err);
@@ -56,12 +74,20 @@ const News = () => {
         }
     };
 
-    // REJECT NEWS
-    const handleReject = async (id) => {
-        if (!window.confirm("Xác nhận từ chối bài viết?")) return;
-
+    // REJECT — backend không nhận reason → không gửi
+    const handleReject = async () => {
         try {
-            await axios.post(`http://localhost:8000/api/admin/news/${id}/reject`);
+            await axios.post(
+                `http://localhost:8000/api/admin/news/${selectedNews.id}/reject`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            closePopup();
             fetchNews();
         } catch (err) {
             console.error(err);
@@ -69,12 +95,19 @@ const News = () => {
         }
     };
 
-    // DELETE NEWS
-    const handleDelete = async (id) => {
-        if (!window.confirm("Bạn chắc chắn muốn xóa bài viết?")) return;
-
+    // DELETE — backend không nhận reason → không gửi
+    const handleDelete = async () => {
         try {
-            await axios.delete(`http://localhost:8000/api/admin/news/${id}`);
+            await axios.delete(
+                `http://localhost:8000/api/admin/news/${selectedNews.id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+
+            closePopup();
             fetchNews();
         } catch (err) {
             console.error(err);
@@ -90,6 +123,8 @@ const News = () => {
 
                 <div className="admin-page">
                     <h1>Quản lý Bài Viết</h1>
+
+                    {/* Bộ lọc */}
                     <div className="filters">
                         <input
                             type="text"
@@ -100,6 +135,7 @@ const News = () => {
                                 setSearch(e.target.value);
                             }}
                         />
+
                         <select
                             value={status}
                             onChange={(e) => {
@@ -112,20 +148,13 @@ const News = () => {
                             <option value="published">Đã duyệt</option>
                             <option value="rejected">Bị từ chối</option>
                         </select>
-                        <button
-                            className="btn-search"
-                            onClick={() => {
-                                setPage(1);
-                                fetchNews();
-                            }}
-                        >
+
+                        <button className="btn-search" onClick={fetchNews}>
                             Tìm kiếm
                         </button>
-
                     </div>
 
-
-                    {/* DANH SÁCH NEWS */}
+                    {/* DANH SÁCH */}
                     {loading ? (
                         <p>Đang tải...</p>
                     ) : (
@@ -150,10 +179,11 @@ const News = () => {
                                             {n.thumbnail ? (
                                                 <img
                                                     src={`http://localhost:8000${n.thumbnail}`}
-                                                    alt=""
                                                     className="thumb"
                                                 />
-                                            ) : "—"}
+                                            ) : (
+                                                "—"
+                                            )}
                                         </td>
                                         <td>{n.title}</td>
                                         <td>{n.author.name}</td>
@@ -161,17 +191,11 @@ const News = () => {
                                         <td>{n.view_count}</td>
                                         <td>{n.created_at}</td>
                                         <td>
-                                            {n.status === "pending" && (
-                                                <>
-                                                    <button onClick={() => handleApprove(n.id)} className="btn-approve">Duyệt</button>
-                                                    <button onClick={() => handleReject(n.id)} className="btn-reject">Từ chối</button>
-                                                </>
-                                            )}
                                             <button
-                                                onClick={() => handleDelete(n.id)}
-                                                className="btn-delete"
+                                                onClick={() => openPopup(n)}
+                                                className="btn-view"
                                             >
-                                                Xóa
+                                                Xem chi tiết
                                             </button>
                                         </td>
                                     </tr>
@@ -182,18 +206,64 @@ const News = () => {
 
                     {/* PHÂN TRANG */}
                     <div className="pagination">
-                        {Array.from({ length: pagination.last_page || 1 }, (_, i) => (
-                            <button
-                                key={i}
-                                className={page === i + 1 ? "active" : ""}
-                                onClick={() => setPage(i + 1)}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
+                        {Array.from(
+                            { length: pagination.last_page || 1 },
+                            (_, i) => (
+                                <button
+                                    key={i}
+                                    className={page === i + 1 ? "active" : ""}
+                                    onClick={() => setPage(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* POPUP */}
+            {selectedNews && (
+                <div className="popup-overlay">
+                    <div className="popup-box">
+                        <h2>Chi tiết bài viết #{selectedNews.id}</h2>
+
+                        {selectedNews.thumbnail && (
+                            <img
+                                src={`http://localhost:8000${selectedNews.thumbnail}`}
+                                className="popup-thumb"
+                            />
+                        )}
+
+                        <p><b>Tiêu đề: </b> {selectedNews.title}</p>
+                        <p><b>Tác giả: </b> {selectedNews.author.name}</p>
+                        <p><b>Tóm tắt: </b> {selectedNews.summary}</p>
+                        <p><b>Nội dung: </b>{selectedNews.content}</p>
+                        <p><b>Trạng thái: </b> {selectedNews.status_text}</p>
+                        <p><b>Ngày tạo: </b> {selectedNews.created_at}</p>
+
+                        {/* Không còn ô nhập lý do */}
+
+                        <div className="popup-actions">
+                            <button className="btn-approve" onClick={handleApprove}>
+                                Duyệt
+                            </button>
+
+                            <button className="btn-reject" onClick={handleReject}>
+                                Từ chối
+                            </button>
+
+                            <button className="btn-delete" onClick={handleDelete}>
+                                Xóa
+                            </button>
+
+                            <button className="btn-close" onClick={closePopup}>
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

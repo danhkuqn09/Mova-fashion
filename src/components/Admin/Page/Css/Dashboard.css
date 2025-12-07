@@ -1,53 +1,126 @@
-/* ==== WRAPPER ==== */
-.dashboard-table {
-  width: 100%;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #e4e4e4;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 25px;
+.admin-page {
+  padding: 20px;
+  background: #f5f7fb;
 }
 
-/* ==== TABLE RESET ==== */
+/* Tiêu đề */
+.admin-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 20px 0 10px;
+  color: #333;
+}
+
+/* Bảng chung */
+.dashboard-table {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 25px;
+  overflow-x: auto;
+}
+
 .dashboard-table table {
   width: 100%;
-  border-collapse: collapse; /* Quan trọng: fix khoảng trống th */
-  table-layout: fixed;       /* Giúp th không bị giãn dài lung tung */
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-/* ==== TABLE HEADER ==== */
+.dashboard-table thead tr {
+  background: #f0f2f7;
+}
+
 .dashboard-table th {
-  background: #f3f4f6;
   padding: 12px 14px;
+  color: #000;
+  font-size: 15px;
   font-weight: 600;
-  text-align: center;
-  border-bottom: 1px solid #e4e4e4;
-  width: 30%;                     
-  white-space: nowrap;            
+  background-color: #b88e2f;
+
 }
 
-/* ==== TABLE BODY ==== */
 .dashboard-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid #f1f1f1;
-  
+  font-size: 15px;
+  border-bottom: 1px solid #eee;
 }
 
-/* Bỏ border cuối */
-.dashboard-table tr:last-child td {
-  border-bottom: none;
+/* Hàng hover */
+.dashboard-table tbody tr:hover {
+  background: #f9fafc;
 }
 
-/* Hover đẹp */
-.dashboard-table tr:hover {
-  background: #fafafa;
+/* Card thống kê (Tổng đơn – Sản phẩm – User – Doanh thu) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
 }
 
-/* ==== TITLES ==== */
-.admin-section-title {
-  margin-top: 30px;
-  margin-bottom: 15px;
-  font-size: 20px;
+.stats-card {
+  padding: 22px;
+  background: #b88e2f;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.stats-card .label {
+  font-size: 15px;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.stats-card .value {
+  font-size: 26px;
   font-weight: 700;
+  color: #000;
+}
+
+.stats-icon {
+  float: right;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf3ff;
+  color: #3a6ff8;
+  font-size: 24px;
+}
+
+/* Badge trạng thái */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge.pending {
+  background: #fff7d6;
+  color: #c7a400;
+}
+
+.badge.cancel {
+  background: #ffe2e2;
+  color: #d9534f;
+}
+
+.badge.success {
+  background: #d7f7e4;
+  color: #2eac68;
+}
+
+.badge.shipping {
+  background: #e0eaff;
+  color: #2e6ce6;
+}
+
+.badge.processing {
+  background: #e7f4ff;
+  color: #1c74d8;
 }

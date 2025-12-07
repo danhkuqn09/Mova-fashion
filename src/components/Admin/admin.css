@@ -237,7 +237,7 @@ body, html {
 
 .nav-menu a:hover,
 .nav-menu a.active {
-  background: #fff;
+  background: #b88e2f;
   color: #111;
   font-weight: 600;
 }

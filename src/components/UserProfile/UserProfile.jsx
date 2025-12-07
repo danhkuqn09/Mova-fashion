@@ -178,7 +178,7 @@ const UserProfile = () => {
 
       </div>
 
-      <div className="stats-card">
+      <div className="stats-card-profile">
         <p><b>Tổng đơn:</b> {statistics.orders?.total || 0}</p>
         <p><b>Chưa xử lý: </b>{statistics.orders?.pending || 0}</p>
         <p><b>Đã xử lý: </b>{statistics.orders?.processing || 0}</p>

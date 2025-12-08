@@ -89,30 +89,32 @@ function Shop() {
   const handleSearch = async (term) => {
     setLoading(true);
     setSelectedCategory(null);
-    setIsFiltering(true); // Đang tìm kiếm là đang lọc
+    setIsFiltering(true);
+
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(
-          term
-        )}`
+        `http://localhost:8000/api/products?search=${encodeURIComponent(term)}`
       );
 
-      const getData = (res) => {
-        if (Array.isArray(res.data)) return res.data;
-        if (Array.isArray(res.data.data)) return res.data.data;
-        if (Array.isArray(res.data.data?.products?.data))
-          return res.data.data.products.data;
-        return [];
-      };
+      let productsData = [];
 
-      const productsData = getData(res);
+      if (res.data?.data?.products?.data) {
+        productsData = res.data.data.products.data; // paginate
+      } else if (res.data?.data?.products) {
+        productsData = res.data.data.products; // array
+      } else if (Array.isArray(res.data?.data)) {
+        productsData = res.data.data; // fallback
+      }
+
       setProducts(productsData);
+
     } catch (error) {
       console.error("Lỗi khi tìm kiếm sản phẩm:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
@@ -217,18 +219,15 @@ function Shop() {
     list.map((p) => (
       <div className="product-card" key={p.id}>
         <Link to={`/productdetail/${p.id}`}>
-          <img
-            src={normalizeImage(p.image)}
-            alt={p.name}
-          />
-
+          <img src={normalizeImage(p.image)} alt={p.name} />
         </Link>
-        <h3>{p.name}</h3>
-        <p>{p.price}₫</p>
-        <button className="buy-btn" onClick={() => handleBuyNow(p)}>
-          Mua Ngay
-        </button>
+        <div className="product-info">
+          <h3>{p.name}</h3>
+          <p>{p.price}₫</p>
+          <div className="buy-btn" onClick={() => handleBuyNow(p)}>Mua Ngay</div>
+        </div>
       </div>
+
     ));
 
   const renderCategories = () =>

@@ -3,6 +3,7 @@ import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
 import "./Css/News.css";
+import { useNavigate } from "react-router-dom";
 
 const News = () => {
     const [news, setNews] = useState([]);
@@ -11,8 +12,7 @@ const News = () => {
     const [status, setStatus] = useState("");
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
-
-    const [selectedNews, setSelectedNews] = useState(null);
+    const navigate = useNavigate();
 
     const fetchNews = async () => {
         setLoading(true);
@@ -31,8 +31,7 @@ const News = () => {
 
             setNews(res.data.data.news);
             setPagination(res.data.data.pagination);
-            console.log(res.data.data.news);
-            
+
         } catch (error) {
             console.error("Lỗi khi tải news:", error);
         } finally {
@@ -42,78 +41,7 @@ const News = () => {
 
     useEffect(() => {
         fetchNews();
-    }, [page]);
-
-    // Mở popup
-    const openPopup = (item) => {
-        setSelectedNews(item);
-    };
-
-    const closePopup = () => {
-        setSelectedNews(null);
-    };
-
-    // APPROVE
-    const handleApprove = async () => {
-        try {
-            await axios.post(
-                `http://localhost:8000/api/admin/news/${selectedNews.id}/approve`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
-            );
-
-            closePopup();
-            fetchNews();
-        } catch (err) {
-            console.error(err);
-            alert("Không thể duyệt bài viết");
-        }
-    };
-
-    // REJECT — backend không nhận reason → không gửi
-    const handleReject = async () => {
-        try {
-            await axios.post(
-                `http://localhost:8000/api/admin/news/${selectedNews.id}/reject`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
-            );
-
-            closePopup();
-            fetchNews();
-        } catch (err) {
-            console.error(err);
-            alert("Không thể từ chối bài viết");
-        }
-    };
-
-    // DELETE — backend không nhận reason → không gửi
-    const handleDelete = async () => {
-        try {
-            await axios.delete(
-                `http://localhost:8000/api/admin/news/${selectedNews.id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                }
-            );
-
-            closePopup();
-            fetchNews();
-        } catch (err) {
-            console.error(err);
-            alert("Không thể xóa bài viết");
-        }
-    };
+    }, [page]); // chỉ load khi đổi trang
 
     return (
         <div className="admin-container">
@@ -186,13 +114,13 @@ const News = () => {
                                             )}
                                         </td>
                                         <td>{n.title}</td>
-                                        <td>{n.author.name}</td>
+                                        <td>{n.author?.name}</td>
                                         <td>{n.status_text}</td>
                                         <td>{n.view_count}</td>
                                         <td>{n.created_at}</td>
                                         <td>
                                             <button
-                                                onClick={() => openPopup(n)}
+                                                onClick={() => navigate(`/admin/news/${n.id}`)}
                                                 className="btn-view"
                                             >
                                                 Xem chi tiết
@@ -221,49 +149,6 @@ const News = () => {
                     </div>
                 </div>
             </div>
-
-            {/* POPUP */}
-            {selectedNews && (
-                <div className="popup-overlay">
-                    <div className="popup-box">
-                        <h2>Chi tiết bài viết #{selectedNews.id}</h2>
-
-                        {selectedNews.thumbnail && (
-                            <img
-                                src={`http://localhost:8000${selectedNews.thumbnail}`}
-                                className="popup-thumb"
-                            />
-                        )}
-
-                        <p><b>Tiêu đề: </b> {selectedNews.title}</p>
-                        <p><b>Tác giả: </b> {selectedNews.author.name}</p>
-                        <p><b>Tóm tắt: </b> {selectedNews.summary}</p>
-                        <p><b>Nội dung: </b>{selectedNews.content}</p>
-                        <p><b>Trạng thái: </b> {selectedNews.status_text}</p>
-                        <p><b>Ngày tạo: </b> {selectedNews.created_at}</p>
-
-                        {/* Không còn ô nhập lý do */}
-
-                        <div className="popup-actions">
-                            <button className="btn-approve" onClick={handleApprove}>
-                                Duyệt
-                            </button>
-
-                            <button className="btn-reject" onClick={handleReject}>
-                                Từ chối
-                            </button>
-
-                            <button className="btn-delete" onClick={handleDelete}>
-                                Xóa
-                            </button>
-
-                            <button className="btn-close" onClick={closePopup}>
-                                Đóng
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

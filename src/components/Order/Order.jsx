@@ -164,7 +164,7 @@ const OrderPage = () => {
 
             <div className="order-actions">
               {(order.status === "pending" || order.status === "new") && (
-                <button onClick={() => handleCancelOrder(order.id)} className="cancel-btn">
+                <button onClick={() => handleCancelOrder(order.id)} className="ordercancel-btn">
                   Hủy mua
                 </button>
               )}
@@ -176,7 +176,7 @@ const OrderPage = () => {
 
 
               <Link to={`/order/${order.id}`}>
-                <button className="detail-btn">Xem chi tiết</button>
+                <button className="orderdetail-btn">Xem chi tiết</button>
               </Link>
             </div>
           </div>

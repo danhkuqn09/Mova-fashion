@@ -3,12 +3,15 @@ import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
 import "./Css/Voucher.css";
+import { useNavigate } from "react-router-dom";
+
 
 const Voucher = () => {
     const [vouchers, setVouchers] = useState([]);
     const [search, setSearch] = useState("");
     const [showAddForm, setShowAddForm] = useState(false);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
     const [newVoucher, setNewVoucher] = useState({
         code: "",
         discount_percent: "",
@@ -142,7 +145,7 @@ const Voucher = () => {
                             />
                         </div>
 
-                        <button className="add-btn" onClick={() => setShowAddForm(true)}>
+                        <button className="add-btn" onClick={() => navigate("/admin/voucher/add")}>
                             + Thêm voucher
                         </button>
                     </div>

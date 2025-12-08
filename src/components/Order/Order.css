@@ -1,81 +1,195 @@
-.order-table-container {
-  border: 3px solid #ddd;
-  margin-bottom: 20px;
-  padding: 10px;
+/* ============================= */
+/*       CONTAINER & TITLE       */
+/* ============================= */
+.order-page {
+  max-width: 1000px;
+  margin: 30px auto;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
 }
 
+.order-page h2 {
+  font-size: 26px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* ============================= */
+/*       ORDER CARD STYLE        */
+/* ============================= */
+.order-table-container {
+  background: #fff;
+  padding: 18px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* ============================= */
+/*          HEADER ORDER         */
+/* ============================= */
 .order-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-weight: bold;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+/* ============================= */
+/*         STATUS BADGE          */
+/* ============================= */
 .status-badge {
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
-.status-badge.pending {
-  background-color: orange;
+.status-badge.pending,
+.status-badge.new {
+  background-color: #ff9800;
 }
-.status-badge.cancelled {
-  background-color: red;
-}
-.status-badge.completed {
-  background-color: green;
-}
+
 .status-badge.processing {
-  background-color: #FFFF00;
+  background-color: #2196f3;
 }
 
+.status-badge.completed {
+  background-color: #4caf50;
+}
+
+.status-badge.cancelled {
+  background-color: #e53935;
+}
+
+/* ============================= */
+/*        PRODUCT TABLE          */
+/* ============================= */
 .order-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
-.order-table th,
-.order-table td {
-  border: 1px solid #ddd;
-  padding: 5px;
+.order-table th {
   text-align: left;
-  vertical-align: middle;
+  padding: 12px 8px;
+  background: #fafafa;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #eee;
 }
 
-tbody tr td  img {
-  width: 100px;
+.order-table td {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 15px;
 }
 
+.product-thumb {
+  width: 75px;
+  height: 75px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+/* ============================= */
+/*          ORDER FOOTER         */
+/* ============================= */
 .order-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+}
+
+.order-footer span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-footer div span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* ============================= */
+/*       BUTTON STYLING          */
+/* ============================= */
+.order-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .order-actions button {
-  margin-left: 5px;
-  padding: 5px 10px;
+  padding: 9px 15px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
   cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: 600;
 }
 
-.cancel-btn {
-  background-color: red;
-  color: #fff;
-  border: none;
+/* Hủy đơn */
+.ordercancel-btn {
+  background-color: #e53935;
+  color: white;
+}
+.ordercancel-btn:hover {
+  background-color: #c62828;
 }
 
+/* Xóa đơn (nếu mở lại) */
 .delete-btn {
-  background-color: gray;
+  background-color: #9e9e9e;
   color: #fff;
-  border: none;
+}
+.delete-btn:hover {
+  background-color: #757575;
 }
 
-.detail-btn {
-  background-color: #00aaff;
-  color: #fff;
-  border: none;
+/* Xem chi tiết */
+.orderdetail-btn {
+  background-color: #b88e2f;
+  color: white;
+}
+.orderdetail-btn:hover {
+  background-color: #b88e2f;
+}
+
+/* ============================= */
+/*        RESPONSIVE MOBILE      */
+/* ============================= */
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .order-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .order-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .product-thumb {
+    width: 60px;
+    height: 60px;
+  }
 }

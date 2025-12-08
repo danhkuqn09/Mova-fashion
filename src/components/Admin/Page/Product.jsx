@@ -191,13 +191,13 @@ const Products = () => {
 
     return (
         <div className="admin-container">
-       
+            <Sidebar />
             <div className="admin-main">
-               
+                <Topbar />
                 <div className="admin-page">
                     <div className="admin-header">
                         <h1>Quản lý sản phẩm</h1>
-                        <button className="add-btn" onClick={() => navigate("/admin/products/addproduct")}>
+                        <button className="add-btn" onClick={() => navigate("/admin/products/add")}>
                             ➕ Thêm sản phẩm
                         </button>
 

@@ -35,7 +35,9 @@ import OrderDetail from "./components/Order/OrderDetail";
 import UserProfileFull from "./components/UserProfile/UserProfile"
 import Review from "./components/Admin/Page/Review";
 import AddProduct from "./components/Admin/Page/AddProduct";
-
+import AddVoucher from "./components/Admin/Page/AddVoucher";
+import AddCategories from "./components/Admin/Page/AddCategories";
+import NewDetail from "./components/Admin/Page/NewDetail";
 
 // CSS & Libraries
 import "./App.css";
@@ -46,7 +48,7 @@ function App() {
   return (
     <>
       < Header />
-  
+
       <Routes>
         {/* Trang chủ */}
         <Route
@@ -65,9 +67,9 @@ function App() {
         <Route path="/order" element={<Order />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/news" element={<New/>}/>
-        <Route path="/my-news" element={<MyNews/>}/>
-        <Route path="admin/reviews" element={< Review/>}></Route>
+        <Route path="/news" element={<New />} />
+        <Route path="/my-news" element={<MyNews />} />
+        <Route path="admin/reviews" element={< Review />}></Route>
 
 
         {/* Auth */}
@@ -85,11 +87,11 @@ function App() {
             )
           }
         />
-         
-        
+
+
         <Route path="/auth/google/callback" element={<LoginSuccess />} />
         <Route path="/payment/callback" element={<MomoCallbackPage />} />
-        <Route path="/user" element={<UserProfileFull/>}></Route>
+        <Route path="/user" element={<UserProfileFull />}></Route>
 
         {/* Admin */}
         <Route path="/admin" element={<Dashboard />} />
@@ -101,7 +103,10 @@ function App() {
         <Route path="/admin/voucher" element={<Voucher />} />
         <Route path="/admin/news" element={<News />} />
         <Route path="/order/:id" element={<OrderDetail />} />
-        <Route path="/admin/products/add" element={<AddProduct/>}/>
+        <Route path="/admin/products/add" element={<AddProduct />} />
+        <Route path="/admin/voucher/add" element={<AddVoucher />} />
+        <Route path="/admin/categories/add" element={<AddCategories />} />
+        <Route path="/admin/news/:id" element={<NewDetail />} />
 
       </Routes>
       <Footer />

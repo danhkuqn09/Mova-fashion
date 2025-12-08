@@ -1,112 +1,132 @@
+/* ===================== */
+/*    CONTAINER + TITLE  */
+/* ===================== */
 .profile-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 30px auto;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
 }
 
 .profile-container h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 28px;
+    text-align: left;
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    padding-left: 5px;
 }
 
+/* ===================== */
+/*       PROFILE CARD    */
+/* ===================== */
 .profile-card {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    background: #f8f8f8;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    gap: 25px;
+    background: #fff;
+    padding: 28px;
+    border-radius: 14px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
+/* ===================== */
+/*    AVATAR SECTION     */
+/* ===================== */
 .avatar-section {
     flex: 1;
-    min-width: 200px;
     text-align: center;
 }
 
 .avatar-section img {
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
     object-fit: cover;
     border-radius: 50%;
     margin-bottom: 15px;
-    border: 2px solid #ccc;
+    border: 3px solid #f0f0f0;
+    transition: 0.25s ease;
+}
+
+.avatar-section img:hover {
+    transform: scale(1.05);
 }
 
 .avatar-section input[type="file"] {
-    margin: 10px 0;
+    margin-top: 10px;
 }
 
 .avatar-section button {
     display: block;
-    margin: 5px auto;
-    padding: 8px 15px;
-    border: 1px solid #999;
-    background: none;
-    color: #333;
-    border-radius: 6px;
+    width: 80%;
+    margin: 8px auto;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: #f4f4f4;
+    color: #000;
+    border: 1px solid #ddd;
     cursor: pointer;
     font-size: 14px;
+    transition: 0.2s ease;
 }
 
 .avatar-section button:hover {
     background: #b88e2f;
+    color: white;
+    border-color: #b88e2f;
 }
 
+/* ===================== */
+/*     INFO SECTION      */
+/* ===================== */
 .info-section {
     flex: 2;
-    min-width: 250px;
 }
 
 .info-section p {
+    margin-bottom: 12px;
     font-size: 16px;
-    margin-bottom: 10px;
 }
 
 .info-section input[type="text"] {
     width: 100%;
-    padding: 8px 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    background: #fafafa;
     font-size: 15px;
-    background: #fff;
-    color: #000;
 }
 
+/* Buttons */
 .info-section button {
-    padding: 8px 15px;
-    margin-right: 10px;
-    border: 1px solid #999;
-    background: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
     color: #000;
-    border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+    margin-right: 10px;
+    transition: 0.2s ease;
 }
 
 .info-section button:hover {
     background: #b88e2f;
+    color: white;
+    border-color: #b88e2f;
 }
 
+/* ===================== */
+/*       STATISTICS      */
+/* ===================== */
 .stats-card-profile,
 .stats-comment {
-    margin-top: 20px;
-    background: #f8f8f8;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-}
-
-.stats-card-profile h2,
-.stats-comment h2 {
-    color: #b88e2f;
-    font-size: 20px;
-    margin-bottom: 15px;
-
+    margin-top: 25px;
+    background: #fff;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 .stats-card-profile p,
@@ -115,14 +135,28 @@
     margin-bottom: 8px;
 }
 
-/* Responsive */
-@media (max-width: 700px) {
+.stats-card-profile h2,
+.stats-comment h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #b88e2f;
+    font-weight: 600;
+}
+
+/* ===================== */
+/*       RESPONSIVE      */
+/* ===================== */
+@media (max-width: 768px) {
     .profile-card {
         flex-direction: column;
-        align-items: center;
+        text-align: center;
     }
 
     .info-section {
         width: 100%;
+    }
+
+    .avatar-section button {
+        width: 90%;
     }
 }

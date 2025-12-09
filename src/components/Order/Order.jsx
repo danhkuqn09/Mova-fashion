@@ -7,6 +7,26 @@ const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Hàm chuyển trạng thái sang tiếng Việt
+  const getStatusText = (status) => {
+    const statusMap = {
+      'pending': 'Chờ xác nhận',
+      'processing': 'Đang xử lý',
+      'shipping': 'Đang giao hàng',
+      'completed': 'Hoàn thành',
+      'cancelled': 'Đã hủy'
+    };
+    return statusMap[status?.toLowerCase()] || status;
+  };
+
+  // Hàm format tiền VNĐ
+  const formatMoney = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount || 0);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -99,9 +119,9 @@ const OrderPage = () => {
         <div key={order.id} className="order-table-container">
           <div className="order-header">
             <span>Đơn hàng #{order.id}</span>
-            <span>Ngày đặt: {new Date(order.created_at).toLocaleString()}</span>
+            <span>Ngày đặt: {new Date(order.created_at).toLocaleString('vi-VN')}</span>
             <span className={`status-badge ${order.status.toLowerCase()}`}>
-              {order.status}
+              {getStatusText(order.status)}
             </span>
           </div>
 
@@ -140,9 +160,9 @@ const OrderPage = () => {
                       <br />
                       <small>Size: {item.product_variant.size || "Không có size"}</small>
                     </td>
-                    <td>{Number(item.price).toLocaleString("vi-VN")} ₫</td>
+                    <td>{formatMoney(item.price)}</td>
                     <td>{item.quantity}</td>
-                    <td>{Number(order.original_total || order.pricing?.original_total || 0)} ₫</td>
+                    <td>{formatMoney(item.price * item.quantity)}</td>
                   </tr>
                 );
               })}
@@ -153,13 +173,12 @@ const OrderPage = () => {
             {order.voucher && (
               <div>
                 <span>
-                  Voucher ({order.voucher.code}): -
-                  {getDiscountAmount(order).toLocaleString("vi-VN")} ₫
+                  Voucher ({order.voucher.code}): -{formatMoney(getDiscountAmount(order))}
                 </span>
               </div>
             )}
             <span>
-              Thành tiền: {Number(order.final_total || order.pricing?.final_total || 0)} ₫
+              Thành tiền: {formatMoney(order.final_total || order.pricing?.final_total || 0)}
             </span>
 
             <div className="order-actions">

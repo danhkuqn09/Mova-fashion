@@ -50,6 +50,9 @@ const LoginForm = () => {
         localStorage.setItem("token", res.data.data.access_token);
         localStorage.setItem("user", JSON.stringify(res.data.data.user));
 
+        // ✅ Trigger event để Header cập nhật
+        window.dispatchEvent(new Event("loginSuccess"));
+
         // ✅ Chuyển hướng về trang chủ
         setTimeout(() => {
           navigate("/");

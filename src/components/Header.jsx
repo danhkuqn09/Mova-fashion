@@ -11,15 +11,56 @@ function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Parse user error:", error);
+    const verifyToken = async () => {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      
+      if (!token) {
+        // Không có token, xóa user info
         localStorage.removeItem("user");
+        setUser(null);
+        return;
       }
-    }
+      
+      // Nếu có storedUser, hiển thị ngay để UX tốt hơn
+      if (storedUser && storedUser !== "undefined") {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error("Parse user error:", e);
+        }
+      }
+      
+      try {
+        // Verify token với backend
+        const response = await axios.get("http://localhost:8000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Token hợp lệ, cập nhật user info
+        setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        // Token không hợp lệ hoặc hết hạn
+        console.error("Token verification failed:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      }
+    };
+    
+    verifyToken();
+    
+    // Lắng nghe sự kiện login từ các component khác
+    const handleLoginSuccess = () => {
+      verifyToken();
+    };
+    
+    window.addEventListener("loginSuccess", handleLoginSuccess);
+    
+    return () => {
+      window.removeEventListener("loginSuccess", handleLoginSuccess);
+    };
   }, []);
 
   const toggleUserMenu = (e) => {

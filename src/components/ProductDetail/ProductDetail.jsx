@@ -63,9 +63,15 @@ function ProductDetail() {
   const selectedVariant = useMemo(() => {
     if (!product || !selectedColor || !selectedSize) return null;
 
-    return product.variants.find(
+    const variant = product.variants.find(
       (v) => v.size === selectedSize && v.color_id === selectedColor.id
     );
+    
+    console.log('Selected Variant:', variant);
+    console.log('Selected Color:', selectedColor);
+    console.log('Selected Size:', selectedSize);
+    
+    return variant;
   }, [product, selectedColor, selectedSize]);
   // thêm giỏ hàng
   const handleAddToCart = async () => {
@@ -122,6 +128,8 @@ function ProductDetail() {
       quantity: quantity,
       price: selectedVariant.sale_price || selectedVariant.price || product.price,
       image: selectedVariant.image || product.image,
+      color: selectedVariant.color?.name || selectedColor?.name || null,
+      size: selectedVariant.size || null,
     };
 
     navigate("/checkout", {

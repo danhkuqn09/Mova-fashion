@@ -225,3 +225,83 @@
   font-weight: 600;
   margin-top: 5px;
 }
+
+/* Payment Card Styles */
+.payment-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  position: relative;
+}
+
+.payment-card:hover {
+  border-color: #b88e2f;
+  box-shadow: 0 4px 12px rgba(184, 142, 47, 0.1);
+  transform: translateY(-2px);
+}
+
+.payment-card.selected {
+  border-color: #b88e2f;
+  background: #fff9f0;
+  box-shadow: 0 4px 12px rgba(184, 142, 47, 0.15);
+}
+
+.payment-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.payment-text {
+  flex: 1;
+}
+
+.payment-card .fa-check-circle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+}
+
+/* Order Item Card */
+.order-item-card {
+  transition: all 0.2s ease;
+}
+
+.order-item-card:hover {
+  background: #f8f9fa !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Sticky Summary */
+@media (min-width: 992px) {
+  .sticky-top {
+    position: sticky;
+    top: 20px;
+    z-index: 1020;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .payment-card {
+    padding: 15px;
+  }
+  
+  .payment-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .order-item-card img {
+    width: 50px !important;
+    height: 50px !important;
+  }
+}

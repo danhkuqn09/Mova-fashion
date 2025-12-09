@@ -67,10 +67,6 @@ function ProductDetail() {
       (v) => v.size === selectedSize && v.color_id === selectedColor.id
     );
     
-    console.log('Selected Variant:', variant);
-    console.log('Selected Color:', selectedColor);
-    console.log('Selected Size:', selectedSize);
-    
     return variant;
   }, [product, selectedColor, selectedSize]);
   // thêm giỏ hàng
@@ -82,6 +78,7 @@ function ProductDetail() {
 
     const token = localStorage.getItem("token");
     if (!token) {
+      localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
       alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
       navigate("/login");
       return;
@@ -107,6 +104,7 @@ function ProductDetail() {
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       if (error.response?.status === 401) {
+        localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
         alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
         navigate("/login");
       } else {
@@ -186,9 +184,10 @@ function ProductDetail() {
     console.log("Checking auth:", { hasToken: !!token, hasUser: !!user });
     
     if (!token || !user) {
-      alert("Bạn cần đăng nhập để bình luận!");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+      alert("Bạn cần đăng nhập để bình luận!");
       navigate("/login");
       return;
     }
@@ -237,9 +236,10 @@ function ProductDetail() {
       console.error("Error response:", error.response?.data);
       
       if (error.response?.status === 401) {
-        alert("Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+        alert("Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại.");
         navigate("/login");
       } else if (error.response?.data?.message) {
         alert("Lỗi: " + error.response.data.message);

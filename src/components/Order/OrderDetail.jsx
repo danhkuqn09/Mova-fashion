@@ -50,8 +50,6 @@ const OrderDetail = () => {
         const res = await axios.get(`http://localhost:8000/api/orders/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('Order data:', res.data.data);
-        console.log('Items:', res.data.data.items);
         setOrder(res.data.data);
       } catch (err) {
         console.error(err);

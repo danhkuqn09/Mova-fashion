@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { AiOutlineGoogle } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 // import Header from "./Header";
 import Footer from "../Footer";
 import { FaFacebookF, FaApple } from "react-icons/fa";
@@ -14,6 +14,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
   const handleGoogleLogin = async () => {
     try {
       const res = await axios.get("http://localhost:8000/api/auth/google");
@@ -44,19 +45,21 @@ const LoginForm = () => {
 
       // ✅ Kiểm tra đăng nhập thành công
       if (res.data.success) {
-        setMessage(res.data.message || "Đăng nhập thành công! Đang chuyển hướng...");
-
         // ✅ Lưu token và user vào localStorage
         localStorage.setItem("token", res.data.data.access_token);
         localStorage.setItem("user", JSON.stringify(res.data.data.user));
 
+        // ✅ Lấy URL redirect trước khi xóa
+        const redirectTo = localStorage.getItem("redirectAfterLogin") || location.state?.from || "/";
+        
+        // ✅ Xóa redirectAfterLogin khỏi localStorage
+        localStorage.removeItem("redirectAfterLogin");
+
         // ✅ Trigger event để Header cập nhật
         window.dispatchEvent(new Event("loginSuccess"));
 
-        // ✅ Chuyển hướng về trang chủ
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+        // ✅ Chuyển hướng ngay lập tức
+        navigate(redirectTo, { replace: true });
       } else {
         setMessage(res.data.message || "Đăng nhập thất bại!");
       }

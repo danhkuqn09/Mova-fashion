@@ -1,5 +1,5 @@
 import "./Header.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -9,6 +9,7 @@ function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -142,7 +143,13 @@ function Header() {
             <ul className="user-dropdown-menu">
               {!user ? (
                 <>
-                  <Link to="/login" className="dropdown-item">Đăng nhập</Link>
+                  <Link 
+                    to="/login" 
+                    state={{ from: location.pathname }}
+                    className="dropdown-item"
+                  >
+                    Đăng nhập
+                  </Link>
                   <Link to="/register" className="dropdown-item">Đăng ký</Link>
                 </>
               ) : (

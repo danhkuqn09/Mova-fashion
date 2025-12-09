@@ -62,6 +62,7 @@ const CheckoutPage = () => {
 
     const token = localStorage.getItem("token");
     if (!token) {
+      localStorage.setItem("redirectAfterLogin", "/checkout");
       alert("Bạn cần đăng nhập để đặt hàng!");
       navigate("/login");
       return;
@@ -133,6 +134,7 @@ const CheckoutPage = () => {
   const handleApplyVoucher = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
+      localStorage.setItem("redirectAfterLogin", "/checkout");
       alert("Bạn cần đăng nhập để sử dụng voucher!");
       navigate("/login");
       return;

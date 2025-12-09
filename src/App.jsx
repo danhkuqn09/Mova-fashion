@@ -14,6 +14,10 @@ import Checkout from "./components/Checkout/Checkout";
 import New from "./components/New/New"
 import MomoCallbackPage from "./components/Payment/MomoCallbackPage"
 
+// ⭐️ ĐÃ SỬA: Dùng đường dẫn tương đối (./) cho Contact và About
+import Contact from "./components/contact/Contact"; 
+import About from "./components/About/About"; // Điều chỉnh dựa trên cấu trúc thư mục của bạn
+
 
 // Auth Forms
 import Register from "./components/Auth/RegisterForm";
@@ -46,75 +50,79 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
 const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  return (
-    <>
-      {!isAdminRoute && <Header />}
+ const isAdminRoute = location.pathname.startsWith('/admin');
+ return (
+  <>
+   {!isAdminRoute && <Header />}
 
-      <Routes>
-        {/* Trang chủ */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Banner />
-              <Product />
-            </>
-          }
-        />
+   <Routes>
+    {/* Trang chủ */}
+    <Route
+     path="/"
+     element={
+      <>
+       <Banner />
+       <Product />
+      </>
+     }
+    />
 
-        {/* Các trang khác */}
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/productdetail/:id" element={<ProductDetail />} />
-        <Route path="/order" element={<Order />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/news" element={<New />} />
-        <Route path="/my-news" element={<MyNews />} />
-        <Route path="admin/reviews" element={< Review />}></Route>
-
-
-        {/* Auth */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route
-          path="/change-password"
-          element={
-            localStorage.getItem("token") ? (
-              <ChangePassword />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+    {/* Các trang khác */}
+    <Route path="/shop" element={<Shop />} />
+    <Route path="/productdetail/:id" element={<ProductDetail />} />
+    <Route path="/order" element={<Order />} />
+    <Route path="/cart" element={<Cart />} />
+    <Route path="/checkout" element={<Checkout />} />
+    <Route path="/news" element={<New />} />
+    <Route path="/my-news" element={<MyNews />} />
+    <Route path="admin/reviews" element={< Review />}></Route>
+        
+        {/* ROUTE LIÊN HỆ VÀ THÔNG TIN VỀ CHÚNG TÔI */}
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
 
 
-        <Route path="/auth/google/callback" element={<LoginSuccess />} />
-        <Route path="/payment/callback" element={<MomoCallbackPage />} />
-        <Route path="/user" element={<UserProfileFull />}></Route>
+    {/* Auth */}
+    <Route path="/register" element={<Register />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password" element={<ResetPassword />} />
+    <Route
+     path="/change-password"
+     element={
+      localStorage.getItem("token") ? (
+       <ChangePassword />
+      ) : (
+       <Navigate to="/login" replace />
+      )
+     }
+    />
 
-        {/* Admin */}
-        <Route path="/admin" element={<Dashboard />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/products" element={<Products />} />
-        <Route path="/admin/categories" element={<Categories />} />
-        <Route path="/admin/orders" element={<Orders />} />
-        <Route path="/admin/comments" element={<Comments />} />
-        <Route path="/admin/voucher" element={<Voucher />} />
-        <Route path="/admin/news" element={<News />} />
-        <Route path="/order/:id" element={<OrderDetail />} />
-        <Route path="/admin/products/add" element={<AddProduct />} />
-        <Route path="/admin/voucher/add" element={<AddVoucher />} />
-        <Route path="/admin/categories/add" element={<AddCategories />} />
-        <Route path="/admin/news/:id" element={<NewDetail />} />
-        <Route path="/admin/products/edit/:id" element={<EditProduct />} />
 
-      </Routes>
-      {!isAdminRoute && <Footer />}
-    </>
-  );
+    <Route path="/auth/google/callback" element={<LoginSuccess />} />
+    <Route path="/payment/callback" element={<MomoCallbackPage />} />
+    <Route path="/user" element={<UserProfileFull />}></Route>
+
+    {/* Admin */}
+    <Route path="/admin" element={<Dashboard />} />
+    <Route path="/admin/users" element={<Users />} />
+    <Route path="/admin/products" element={<Products />} />
+    <Route path="/admin/categories" element={<Categories />} />
+    <Route path="/admin/orders" element={<Orders />} />
+    <Route path="/admin/comments" element={<Comments />} />
+    <Route path="/admin/voucher" element={<Voucher />} />
+    <Route path="/admin/news" element={<News />} />
+    <Route path="/order/:id" element={<OrderDetail />} />
+    <Route path="/admin/products/add" element={<AddProduct />} />
+    <Route path="/admin/voucher/add" element={<AddVoucher />} />
+    <Route path="/admin/categories/add" element={<AddCategories />} />
+    <Route path="/admin/news/:id" element={<NewDetail />} />
+    <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+
+   </Routes>
+   {!isAdminRoute && <Footer />}
+  </>
+ );
 }
 
 export default App;

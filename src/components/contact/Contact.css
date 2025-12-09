@@ -1,0 +1,100 @@
+.contact-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: rgba(207, 172, 89, 0.116);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.contact-page h1 {
+    text-align: center;
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 25px;
+    background-color: rgba(184, 143, 47, 0.611);
+    border-bottom: 3px solid #040252;
+    padding-bottom: 15px;
+    border-radius: 10px;
+}
+
+/* --- Phần Thông tin liên hệ --- */
+.contact-info {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #eaf6ff; /* Màu nền nhẹ nhàng */
+    border-left: 5px solid #007bff;
+    border-radius: 8px;
+}
+
+.contact-info h2 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+.contact-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-info li {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+/* --- Phần Form --- */
+.contact-form-section h2 {
+    color: rgb(184, 142, 47);
+    margin-bottom: 20px;
+}
+
+.contact-form-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: rgb(89, 62, 0);
+}
+
+.contact-form-section input[type="text"],
+.contact-form-section input[type="email"],
+.contact-form-section textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.contact-form-section input:focus,
+.contact-form-section textarea:focus {
+    border-color: #ffbf00;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.contact-form-section textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.contact-form-section button[type="submit"] {
+    display: block;
+    width: 100%;
+    background-color: rgba(184, 143, 47, 0.562);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form-section button[type="submit"]:hover {
+    background-color: rgb(184, 142, 47);
+}

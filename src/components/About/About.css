@@ -1,0 +1,73 @@
+/* src/components/About/About.css */
+
+.about-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fcfcfc;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    line-height: 1.7;
+    color: #000000;
+}
+
+.about-page h1 {
+    text-align: center;
+    color: rgb(184, 142, 47); /* Màu xanh teal/cyan */
+    font-size: 3em;
+    margin-bottom: 30px;
+}
+
+.about-page section {
+    margin-bottom: 35px;
+    padding: 25px;
+    background-color: rgba(184, 143, 47, 0.073);
+    border-radius: 10px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.about-page h2 {
+    color: rgb(233, 171, 27);
+    border-bottom: 2px solid #e0f7fa;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+/* --- Phần Đội ngũ --- */
+.about-team {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.team-member {
+    flex: 1 1 calc(50% - 20px); /* Chia làm 2 cột */
+    padding: 20px;
+    background-color: #fff8e1; /* Màu vàng nhạt */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-member h3 {
+    color: #094c98; /* Màu vàng đậm */
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.4em;
+}
+
+/* --- Phần Giá trị Cốt lõi --- */
+.about-values ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.about-values li {
+    background-color: #f1f8e9; /* Màu xanh lá nhạt */
+    margin-bottom: 10px;
+    padding: 12px;
+    border-left: 4px solid #4caf50; /* Màu xanh lá cây */
+    border-radius: 4px;
+    font-weight: 500;
+}

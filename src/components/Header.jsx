@@ -126,6 +126,7 @@ function Header() {
               <li className="nav-item"><Link to="/shop" className="nav-link">Cửa hàng</Link></li>
               <li className="nav-item"><Link to="/news" className="nav-link">Giới thiệu</Link></li>
               <li className="nav-item"><Link to="/contact" className="nav-link">Liên hệ</Link></li>
+              <li className="nav-item"><Link to="/about" className="nav-link">Chúng Tôi</Link></li>
             </ul>
           </nav>
 

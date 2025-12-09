@@ -23,6 +23,10 @@ class AuthController extends Controller
     /**
      * Đăng ký người dùng với xác thực OTP qua email
      */
+    public function __construct()
+    {
+        // Middleware có thể được thêm ở đây nếu cần
+    }
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [

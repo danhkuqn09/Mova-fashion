@@ -6,11 +6,17 @@
 }
 
 body {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   background-color: #ffffff;
   color: #333;
   margin: 0;
-  padding:0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Container chính */
@@ -18,7 +24,24 @@ body {
   max-width: none; 
   margin: 0; 
   width: 100%; 
-  text-align: center;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b88e2f;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9a7628;
 }
 
 /* Icon */

@@ -89,32 +89,30 @@ function Shop() {
   const handleSearch = async (term) => {
     setLoading(true);
     setSelectedCategory(null);
-    setIsFiltering(true);
-
+    setIsFiltering(true); // Đang tìm kiếm là đang lọc
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/products?search=${encodeURIComponent(term)}`
+        `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(
+          term
+        )}`
       );
 
-      let productsData = [];
+      const getData = (res) => {
+        if (Array.isArray(res.data)) return res.data;
+        if (Array.isArray(res.data.data)) return res.data.data;
+        if (Array.isArray(res.data.data?.products?.data))
+          return res.data.data.products.data;
+        return [];
+      };
 
-      if (res.data?.data?.products?.data) {
-        productsData = res.data.data.products.data; // paginate
-      } else if (res.data?.data?.products) {
-        productsData = res.data.data.products; // array
-      } else if (Array.isArray(res.data?.data)) {
-        productsData = res.data.data; // fallback
-      }
-
+      const productsData = getData(res);
       setProducts(productsData);
-
     } catch (error) {
       console.error("Lỗi khi tìm kiếm sản phẩm:", error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
@@ -217,17 +215,49 @@ function Shop() {
 
   const renderProducts = (list) =>
     list.map((p) => (
-      <div className="product-card" key={p.id}>
-        <Link to={`/productdetail/${p.id}`}>
-          <img src={normalizeImage(p.image)} alt={p.name} />
-        </Link>
-        <div className="product-info">
-          <h3>{p.name}</h3>
-          <p>{p.price}₫</p>
-          <div className="buy-btn" onClick={() => handleBuyNow(p)}>Mua Ngay</div>
+      <div className="col" key={p.id}>
+        <div className="card h-100 border-0 shadow-sm product-card">
+          <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
+            <div className="position-relative overflow-hidden">
+              <img
+                src={normalizeImage(p.image)}
+                alt={p.name}
+                className="card-img-top"
+                style={{ height: '280px', objectFit: 'cover' }}
+              />
+              {p.tag && (
+                <span className={`position-absolute top-0 end-0 badge m-2 ${
+                  p.tag === 'sale' ? 'bg-danger' : p.tag === 'new' ? 'bg-success' : 'bg-warning text-dark'
+                }`}>
+                  {p.tag === 'sale' ? '💰 SALE' : p.tag === 'new' ? '✨ NEW' : '🔥 HOT'}
+                </span>
+              )}
+            </div>
+          </Link>
+          <div className="card-body d-flex flex-column">
+            <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+              {p.name}
+            </h5>
+            <div className="mt-auto">
+              {p.price_after_discount ? (
+                <div className="mb-2">
+                  <span className="text-danger fw-bold fs-6 me-2">
+                    {Number(p.price_after_discount).toLocaleString('vi-VN')}₫
+                  </span>
+                  <span className="text-muted text-decoration-line-through" style={{ fontSize: '0.85rem' }}>
+                    {Number(p.price).toLocaleString('vi-VN')}₫
+                  </span>
+                </div>
+              ) : (
+                <p className="text-primary fw-bold fs-6 mb-2">{Number(p.price).toLocaleString('vi-VN')}₫</p>
+              )}
+              <button className="btn btn-dark w-100 btn-sm" onClick={() => handleBuyNow(p)}>
+                <i className="fas fa-shopping-cart me-2"></i>Mua Ngay
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
     ));
 
   const renderCategories = () =>
@@ -235,7 +265,8 @@ function Shop() {
       <button
         key={c.id}
         onClick={() => handleCategoryClick(c.id)}
-        className={`category-btn ${selectedCategory === c.id ? "active" : ""}`}
+        className={`btn btn-sm ${selectedCategory === c.id ? 'btn-primary' : 'btn-outline-primary'}`}
+        style={{ borderRadius: '20px', padding: '8px 20px', transition: 'all 0.3s' }}
       >
         {c.name}
       </button>
@@ -245,95 +276,129 @@ function Shop() {
     <div className="shop">
       <Banner />
 
-      <section className="categories">
-        <h2>Danh mục sản phẩm</h2>
-        <div className="category-list">{renderCategories()}</div>
-
-        <div className="filter-box">
-          <div className="filter-group">
-            <label>Giá từ</label>
-            <input
-              type="number"
-              placeholder="0"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-            />
+      <section className="categories py-5 bg-light">
+        <div className="container">
+          <h2 className="text-center mb-4 fw-bold">Danh mục sản phẩm</h2>
+          <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
+            {renderCategories()}
           </div>
 
-          <div className="filter-group">
-            <label>Đến</label>
-            <input
-              type="number"
-              placeholder="0"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-            />
+          <div className="filter-box card shadow-sm p-4 mx-auto" style={{ maxWidth: '900px' }}>
+            <div className="row g-3 align-items-end">
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">Giá từ</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="0"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">Đến</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="0"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold">Tag</label>
+                <select className="form-select" value={tag} onChange={(e) => setTag(e.target.value)}>
+                  <option value="">Chọn Tag</option>
+                  <option value="hot">🔥 Nổi bật</option>
+                  <option value="new">✨ Mới</option>
+                  <option value="sale">💰 Giảm giá</option>
+                </select>
+              </div>
+
+              <div className="col-md-3 d-flex gap-2">
+                <button className="btn btn-primary flex-grow-1" onClick={handleFilterSubmit}>
+                  <i className="fas fa-filter me-2"></i>Lọc
+                </button>
+
+                {(minPrice || maxPrice || tag) && (
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={() => {
+                      setMinPrice("");
+                      setMaxPrice("");
+                      setTag("");
+                      selectedCategory
+                        ? handleCategoryClick(selectedCategory)
+                        : fetchAllData();
+                    }}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-
-          <div className="filter-group">
-            <label>Tag</label>
-            <select value={tag} onChange={(e) => setTag(e.target.value)}>
-              <option> Chọn Tag</option>
-              <option value="hot">Hot</option>
-              <option value="new">New</option>
-              <option value="sale">Sale</option>
-            </select>
-          </div>
-
-          <button className="filter-btn" onClick={handleFilterSubmit}>
-            Lọc
-          </button>
-
-          {(minPrice || maxPrice || tag) && (
-            <button
-              className="clear-btn"
-              onClick={() => {
-                setMinPrice("");
-                setMaxPrice("");
-                setTag("");
-                selectedCategory
-                  ? handleCategoryClick(selectedCategory)
-                  : fetchAllData();
-              }}
-            >
-              Xóa
-            </button>
-          )}
         </div>
-
       </section>
 
-      {/*  hiển thị: Nếu có keyword HOẶC đang chọn danh mục HOẶC đang lọc giá/tag (biến isFiltering) */}
       {keyword || selectedCategory || isFiltering ? (
-        <section className="products">
-          <h2>
-            {keyword
-              ? `Kết quả tìm kiếm cho "${keyword}"`
-              : "Danh sách sản phẩm"}
-          </h2>
-          <div className="shop-grid">
-            {products.length > 0 ? (
-              renderProducts(products)
-            ) : (
-              <p>Không tìm thấy sản phẩm phù hợp.</p>
-            )}
+        <section className="products py-5">
+          <div className="container">
+            <h2 className="text-center mb-4 fw-bold">
+              {keyword
+                ? `🔍 Kết quả tìm kiếm cho "${keyword}"`
+                : "📦 Danh sách sản phẩm"}
+            </h2>
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+              {products.length > 0 ? (
+                renderProducts(products)
+              ) : (
+                <div className="col-12 text-center py-5">
+                  <i className="fas fa-search fa-3x text-muted mb-3"></i>
+                  <p className="text-muted fs-5">Không tìm thấy sản phẩm phù hợp.</p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       ) : (
         <>
-          <section className="products">
-            <h2>Sản phẩm nổi bật</h2>
-            <div className="product-grid">{renderProducts(featured)}</div>
+          <section className="products py-5 bg-white">
+            <div className="container">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold">⭐ Sản phẩm nổi bật</h2>
+                <p className="text-muted">Những sản phẩm được xem nhiều nhất</p>
+              </div>
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+                {renderProducts(featured)}
+              </div>
+            </div>
           </section>
 
-          <section className="products">
-            <h2>Hàng mới về</h2>
-            <div className="product-grid">{renderProducts(newArrivals)}</div>
+          <section className="products py-5 bg-light">
+            <div className="container">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold">✨ Hàng mới về</h2>
+                <p className="text-muted">Cập nhật xu hướng thời trang mới nhất</p>
+              </div>
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+                {renderProducts(newArrivals)}
+              </div>
+            </div>
           </section>
 
-          <section className="products">
-            <h2>Đang giảm giá</h2>
-            <div className="product-grid">{renderProducts(onSale)}</div>
+          <section className="products py-5 bg-white">
+            <div className="container">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold">🔥 Đang giảm giá</h2>
+                <p className="text-muted">Ưu đãi hấp dẫn - Không thể bỏ lỡ</p>
+              </div>
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+                {renderProducts(onSale)}
+              </div>
+            </div>
           </section>
         </>
       )}

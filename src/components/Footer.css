@@ -1,50 +1,44 @@
 .footer {
-    background: rgb(255, 255, 255); 
-    /* box-shadow: 0 -4px 32px 0 rgba(0, 176, 240, 0.229);  */
-    padding: 40px 0;
-    font-family: 'Times New Roman', Times, serif;
-    border-top: 1px solid rgba(255, 255, 255, 0.4); 
-    color: #1d3557;
-    width: 100% !important;
-    max-width: none !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    margin-top: 60px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    margin-top: 80px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    border-top: 3px solid #b88e2f;
 }
 
-.footer-container {
-    display: grid;
-    text-align: left;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 50px;
-    margin-bottom: 30px;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 80px;
-}
-.footer-container > .footer-column {
-    text-align: left; 
-}
-.footer-container > .footer-column:nth-child(4) {
-    text-align: left; /* Giữ căn trái cho nội dung chính */
-}
-/* 2. Màu sắc và Typography */
 .footer-logo {
-    font-size: 37px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    color: #b88e2f !important;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
 }
 
-.footer-column h4 {
-    font-size: 14px;
-    margin-bottom: 15px;
-    color: #1d3557; /* Màu đậm */
+.footer-link {
+    transition: all 0.3s ease;
 }
 
-.footer-column ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.footer-link:hover {
+    color: #b88e2f !important;
+    padding-left: 5px;
+}
+
+.social-icons a {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.social-icons a:hover {
+    color: #b88e2f !important;
+    transform: translateY(-3px);
+}
+
+.newsletter-form .form-control:focus {
+    border-color: #b88e2f;
+    box-shadow: 0 0 0 0.2rem rgba(184, 142, 47, 0.25);
+}
+
+.newsletter-form button:hover {
+    background-color: #9a7628 !important;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
 }
 
 .footer-column ul li {

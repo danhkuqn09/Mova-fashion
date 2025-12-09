@@ -52,45 +52,77 @@ function ProductSection() {
   };
 
   return (
-    <section className="products">
-      <h2>Sản phẩm của chúng tôi</h2>
+    <section className="products py-5 bg-light">
+      <div className="container">
+        <div className="text-center mb-5">
+          <h2 className="display-5 fw-bold">Sản phẩm của chúng tôi</h2>
+          <p className="text-muted">Khám phá bộ sưu tập thời trang cao cấp</p>
+        </div>
 
-      <div className="product-grid">
-        {products.slice(0, visibleCount).map((p) => (
-          <div className="product-card" key={p.id}>
-            <Link to={`/productdetail/${p.id}`}>
-              <img
-                src={`http://localhost:8000${p.image}`}
-                alt={p.name}
-              />
-            </Link>
-            <h3>{p.name}</h3>
-            {p.price_after_discount ? (
-              <p>
-                <span className="price-discount">
-                  {p.price_after_discount.toLocaleString()}đ
-                </span>
-                <span className="price-original">
-                  {p.price.toLocaleString()}đ
-                </span>
-              </p>
-            ) : (
-              <p>{p.price.toLocaleString()}đ</p>
-            )}
-            <button className="buy-btn" onClick={() => handleBuyNow(p)}>
-              Mua Ngay
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+          {products.slice(0, visibleCount).map((p) => (
+            <div className="col" key={p.id}>
+              <div className="card h-100 border-0 shadow-sm product-card">
+                <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
+                  <div className="position-relative overflow-hidden">
+                    <img
+                      src={`http://localhost:8000${p.image}`}
+                      alt={p.name}
+                      className="card-img-top"
+                      style={{ height: '280px', objectFit: 'cover', transition: 'transform 0.3s' }}
+                    />
+                    {p.price_after_discount && (
+                      <span className="position-absolute top-0 end-0 badge bg-danger m-2">SALE</span>
+                    )}
+                  </div>
+                </Link>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px' }}>{p.name}</h5>
+                  <div className="mt-auto">
+                    {p.price_after_discount ? (
+                      <div className="mb-2">
+                        <span className="text-danger fw-bold fs-6 me-2">
+                          {Number(p.price_after_discount).toLocaleString('vi-VN')}₫
+                        </span>
+                        <span className="text-muted text-decoration-line-through" style={{ fontSize: '0.85rem' }}>
+                          {Number(p.price).toLocaleString('vi-VN')}₫
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-primary fw-bold fs-6 mb-2">{Number(p.price).toLocaleString('vi-VN')}₫</p>
+                    )}
+                    <button 
+                      className="btn btn-dark w-100 btn-sm" 
+                      onClick={() => handleBuyNow(p)}
+                    >
+                      <i className="fas fa-shopping-cart me-2"></i>Mua Ngay
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {visibleCount < products.length && (
+          <div className="text-center mt-5">
+            <button 
+              className="btn btn-lg px-5" 
+              onClick={showMore}
+              style={{ 
+                backgroundColor: '#b88e2f', 
+                color: 'white', 
+                border: 'none',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#9a7628'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#b88e2f'}
+            >
+              Hiển thị thêm <i className="fas fa-chevron-down ms-2"></i>
             </button>
           </div>
-        ))}
+        )}
       </div>
-
-      {visibleCount < products.length && (
-        <div className="show-more-container">
-          <button className="show-more-btn" onClick={showMore}>
-            Hiển thị thêm
-          </button>
-        </div>
-      )}
     </section>
   );
 }

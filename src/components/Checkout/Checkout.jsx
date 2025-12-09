@@ -10,7 +10,8 @@ const formatCurrency = (amount) =>
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { buyNow = false, item = null, cartItems = [], subtotal = 0 } = location.state || {};
+ const { buyNow = false, item = null, cartItems = [], subtotal = 0 } = location.state || {};
+
 
 
 
@@ -213,13 +214,15 @@ const CheckoutPage = () => {
           {buyNow && item ? (
             <div className="checkout-summary-row">
               <span>{item.name} × {item.quantity}</span>
-              <span>{formatCurrency(item.price * item.quantity)}</span>
+             <span>{formatCurrency(item.price * item.quantity)}</span>
+
             </div>
           ) : (
             cartItems.map((item) => (
               <div key={item.id} className="checkout-summary-row">
                 <span>{item.product?.name || item.name} × {item.quantity}</span>
                 <span>{formatCurrency(item.price * item.quantity)}</span>
+
               </div>
             ))
           )}

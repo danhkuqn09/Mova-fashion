@@ -1,38 +1,29 @@
 .banner {
-  margin-top: 20px;
-  text-align: center;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
 }
 
-.top-images {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
+.text-shadow {
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
 }
 
-.top-images img {
-  border-radius: 20px;
-  width: 1280px;
-  height: 700px;
-  object-fit: cover;
+.category-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.banner-text {
-  margin: 40px 0;
+.category-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 }
 
-.image-categories {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
+.category-card img {
+  transition: transform 0.3s ease;
 }
 
-.image-categories div {
-  text-align: center;
+.category-card:hover img {
+  transform: scale(1.05);
 }
 
-.image-categories img {
-  width: 300px;
-  height: 380px;
-  border-radius: 15px;
-  object-fit: cover;
+.rounded-4 {
+  border-radius: 1.5rem !important;
 }

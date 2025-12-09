@@ -12,8 +12,13 @@ function Header() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (storedUser && storedUser !== "undefined") {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Parse user error:", error);
+        localStorage.removeItem("user");
+      }
     }
   }, []);
 
@@ -61,22 +66,29 @@ function Header() {
   };
 
   return (
-    <header className="header">
-      <div className="logo">
-        <Link to="/">
-          <span>MOVACLOTHES</span>
-        </Link>
-        <img src="/Image/LogoHome.png" alt="MovaClothes Logo" />
-      </div>
+    <header className="header shadow-sm">
+      <div className="container-fluid">
+        <div className="row align-items-center">
+          <div className="col-md-3">
+            <div className="logo">
+              <Link to="/" className="d-flex align-items-center text-decoration-none">
+                <img src="/Image/LogoHome.png" alt="MovaClothes Logo" className="me-2" />
+                <span className="fw-bold">MOVACLOTHES</span>
+              </Link>
+            </div>
+          </div>
 
-      <nav className="nav">
-        <li><Link to="/">Trang chủ</Link></li>
-        <li><Link to="/shop">Cửa hàng</Link></li>
-        <li><Link to="/news">Giới thiệu</Link></li>
-        <li><Link to="/contact">Liên hệ</Link></li>
-      </nav>
+          <nav className="col-md-6">
+            <ul className="nav justify-content-center">
+              <li className="nav-item"><Link to="/" className="nav-link">Trang chủ</Link></li>
+              <li className="nav-item"><Link to="/shop" className="nav-link">Cửa hàng</Link></li>
+              <li className="nav-item"><Link to="/news" className="nav-link">Giới thiệu</Link></li>
+              <li className="nav-item"><Link to="/contact" className="nav-link">Liên hệ</Link></li>
+            </ul>
+          </nav>
 
-      <div className="icons">
+          <div className="col-md-3">
+            <div className="icons d-flex justify-content-end align-items-center gap-3">
         {/* 👤 User */}
         <div className="user-menu-container">
           <i
@@ -135,14 +147,14 @@ function Header() {
             </form>
           )}
         </div>
-
-
-        <i className="fas fa-heart"></i>
         <i
           className="fas fa-shopping-cart"
           onClick={() => navigate("/cart")}
           style={{ cursor: "pointer" }}
         ></i>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );

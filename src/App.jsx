@@ -1,5 +1,5 @@
 // import React, { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 // Components
 import Header from "./components/Header";
@@ -38,16 +38,18 @@ import AddProduct from "./components/Admin/Page/AddProduct";
 import AddVoucher from "./components/Admin/Page/AddVoucher";
 import AddCategories from "./components/Admin/Page/AddCategories";
 import NewDetail from "./components/Admin/Page/NewDetail";
+import EditProduct from "./components/Admin/Page/EditProduct";
 
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
-
+const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   return (
     <>
-      < Header />
+      {!isAdminRoute && <Header />}
 
       <Routes>
         {/* Trang chủ */}
@@ -107,9 +109,10 @@ function App() {
         <Route path="/admin/voucher/add" element={<AddVoucher />} />
         <Route path="/admin/categories/add" element={<AddCategories />} />
         <Route path="/admin/news/:id" element={<NewDetail />} />
+        <Route path="/admin/products/edit/:id" element={<EditProduct />} />
 
       </Routes>
-      <Footer />
+      {!isAdminRoute && <Footer />}
     </>
   );
 }

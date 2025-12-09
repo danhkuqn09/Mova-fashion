@@ -1,29 +1,29 @@
 .header {
   width: 100%;
-  background-color: #ededed;
-  border-bottom: 1px solid #eee;
-  border-bottom-left-radius: 30px;
-  border-bottom-right-radius: 30px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 80px;
-
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-bottom: 1px solid #ddd;
+  padding: 15px 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 
 .icons {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 18px;
+  font-size: 1.3rem;
+}
+
+.icons i {
+  color: #333;
+  transition: all 0.3s ease;
   cursor: pointer;
-  margin: 0;
-  padding: 0;
+}
+
+.icons i:hover {
+  color: #b88e2f;
+  transform: scale(1.2);
 }
 
 .logo {
@@ -50,50 +50,57 @@
 }
 
 .logo img {
-  width: 80px;
-  height: auto;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.nav {
-  display: flex;
-  gap: 40px;
+.logo img:hover {
+  transform: scale(1.1);
 }
 
-.nav a {
-  color: #000;
-  text-decoration: none;
-  font-size: 20px;
-  transition: color 0.3s ease;
+.logo span {
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.logo span:hover {
+  color: #b88e2f;
+  letter-spacing: 2px;
+}
+
+.nav .nav-link {
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
   position: relative;
-  transition: 0.3s;
-
+  transition: all 0.3s ease;
 }
 
-.nav a::after {
+.nav .nav-link::after {
   content: '';
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: -3px;
-  left: 0;
-  background-color: #ccc12d;
-  transition: width 0.3s ease-out;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #b88e2f;
+  transition: width 0.3s ease;
 }
 
-.nav a:hover {
+.nav .nav-link:hover {
   color: #b88e2f;
-  letter-spacing: 1px;
-  transition: 0.3s;
 }
 
-.nav a:hover::after {
-  width: 100%
-}
-
-.nav li {
-  text-decoration: none;
-  list-style: none;
+.nav .nav-link:hover::after {
+  width: 80%;
 }
 
 .icons {
@@ -259,7 +266,7 @@
         display: block; 
         padding: 15px 20px;
         font-size: 16px;
-        color: #1d3557;
+        color: #b88e2f;
         width: auto; 
     }
     
@@ -269,7 +276,7 @@
     
     .nav a:hover {
         background-color: rgba(69, 123, 157, 0.1);
-        color: #457b9d;
+        color: #b88e2f;
         letter-spacing: normal;
     }
     

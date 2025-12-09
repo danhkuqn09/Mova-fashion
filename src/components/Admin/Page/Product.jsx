@@ -238,9 +238,13 @@ const Products = () => {
                                             <td>{prod.price}₫</td>
                                             <td>{prod.description || "Không có mô tả"}</td>
                                             <td>
-                                                <button className="btn-edit" onClick={() => openModal(prod)}>
+                                                <button
+                                                    className="btn-edit"
+                                                    onClick={() => navigate(`/admin/products/edit/${prod.id}`)}
+                                                >
                                                     Sửa
                                                 </button>
+
                                                 <button className="btn-delete" onClick={() => handleDelete(prod.id)}>
                                                     Xóa
                                                 </button>

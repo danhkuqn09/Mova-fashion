@@ -1229,6 +1229,12 @@ class OrderController extends Controller
                     'payment_status' => $order->payment_status,
                     'transaction_id' => $request->transId ?? null,
                 ]);
+                Log::info('Momo callback payment successful', [
+                    'order_id' => $order->id,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                    'transaction_id' => $request->transId ?? null,
+                ]);
 
                 return response()->json([
                     'success' => true,

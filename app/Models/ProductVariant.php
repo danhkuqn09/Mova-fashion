@@ -17,7 +17,6 @@ class ProductVariant extends Model
         'price',
         'sale_price',
         'quantity',
-        'image',
     ];
 
     protected $casts = [

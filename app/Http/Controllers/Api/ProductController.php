@@ -213,7 +213,7 @@ class ProductController extends Controller
                             'size' => $variant->size,
                             'quantity' => $variant->quantity,
                             'in_stock' => $variant->quantity > 0,
-                            'image' => $variant->image ? Storage::url($variant->image) : null,
+                            'image' => $variant->color && $variant->color->image ? Storage::url($variant->color->image) : null,
                             
                             // Pricing
                             'price' => $variant->price,

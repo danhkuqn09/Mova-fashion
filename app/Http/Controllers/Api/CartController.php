@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class CartController extends Controller
 {
@@ -60,7 +61,7 @@ class CartController extends Controller
                         'color' => $variant->color->color_name ?? null,
                         'color_code' => $variant->color->color_code ?? null,
                         'color_hex' => $variant->color->color_code ?? null,
-                        'image' => $variant->image,
+                        'image' => $variant->color && $variant->color->image ? Storage::url($variant->color->image) : null,
                         'quantity' => $variant->quantity,
                         'price' => $variant->price,
                         'sale_price' => $variant->sale_price,

@@ -1218,12 +1218,25 @@ class OrderController extends Controller
 
             // Momo resultCode = 0 là thành công
             if ($request->resultCode == 0) {
+                // Cập nhật trạng thái thanh toán
+                $order->payment_status = 'paid';
+                $order->status = 'processing';
+                $order->save();
+
+                Log::info('Momo callback payment successful', [
+                    'order_id' => $order->id,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                    'transaction_id' => $request->transId ?? null,
+                ]);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Thanh toán thành công',
                     'data' => [
                         'order_id' => $order->id,
                         'status' => $order->status,
+                        'payment_status' => $order->payment_status,
                         'amount' => $order->final_total,
                         'transaction_id' => $request->transId ?? null,
                     ]

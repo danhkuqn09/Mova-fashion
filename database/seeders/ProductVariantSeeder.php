@@ -52,7 +52,6 @@ class ProductVariantSeeder extends Seeder
                         'price' => $pricingData['price'],
                         'sale_price' => $pricingData['sale_price'],
                         'quantity' => rand(5, 50),
-                        'image' => null,
                     ]);
                 }
             }

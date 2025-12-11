@@ -1223,7 +1223,6 @@ class OrderController extends Controller
                 $order->status = 'processing';
                 $order->save();
 
-<<<<<<< HEAD
                 Log::info('Momo callback payment successful', [
                     'order_id' => $order->id,
                     'status' => $order->status,
@@ -1231,8 +1230,6 @@ class OrderController extends Controller
                     'transaction_id' => $request->transId ?? null,
                 ]);
 
-=======
->>>>>>> 57f2d6041a8715ac90cd5a740e2fbb56b2d1aaef
                 return response()->json([
                     'success' => true,
                     'message' => 'Thanh toán thành công',

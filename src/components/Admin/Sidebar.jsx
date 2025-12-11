@@ -21,7 +21,8 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <h2>MOVA Clothes</h2>
+
+      <h2><a href="/">MOVA Clothes</a></h2>
       <nav className="nav-menu"> 
         {links.map(link => (
           <Link

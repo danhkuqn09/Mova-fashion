@@ -1,0 +1,26 @@
+.user-detail-page {
+    padding: 20px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 16px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.detail-box {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.order-item {
+    background: #f7f7f7;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}

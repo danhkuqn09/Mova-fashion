@@ -3,12 +3,14 @@ import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
 import "./Css/User.css";
+import { useNavigate } from "react-router-dom";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem("token");
+    const navigate = useNavigate();
 
     // Filters
     const [search, setSearch] = useState("");
@@ -16,14 +18,6 @@ const Users = () => {
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
 
-    // User detail
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [showDetailModal, setShowDetailModal] = useState(false);
-    const [detailUser, setDetailUser] = useState(null);
-
-    // Change Role
-    const [roleToChange, setRoleToChange] = useState("");
-    const [showRoleModal, setShowRoleModal] = useState(false);
     // Fetch list
     const fetchUsers = async (page = 1) => {
         try {
@@ -35,24 +29,18 @@ const Users = () => {
                     role: roleFilter,
                     sort_by: sortBy,
                     sort_order: sortOrder,
-                    page
+                    page,
                 },
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
-
 
             setUsers(res.data.data.data);
             setPagination(res.data.data);
-            console.log("Users list:", users);
-            console.log("📌 FULL API RESPONSE:", res.data);
-
-
         } catch (err) {
             console.error(err);
             alert("Lỗi khi load danh sách user");
-
         } finally {
             setLoading(false);
         }
@@ -61,54 +49,6 @@ const Users = () => {
     useEffect(() => {
         fetchUsers();
     }, [search, roleFilter, sortBy, sortOrder]);
-
-    // Show user detail
-    const openUserDetail = async (id) => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await axios.get(`http://localhost:8000/api/admin/users/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setDetailUser(res.data.data);   // ⭐ dùng detailUser
-            setShowDetailModal(true);
-        } catch (err) {
-            console.error("Lỗi khi lấy thông tin user", err);
-            alert("Không thể lấy thông tin user. Vui lòng đăng nhập lại.");
-        }
-    };
-
-    // Change role
-    const openRoleModal = (user) => {
-        setSelectedUser(user);
-        setRoleToChange(user.role);
-        setShowRoleModal(true);
-    };
-
-    const changeRole = async () => {
-        try {
-            const token = localStorage.getItem("token");
-
-            await axios.put(
-                `http://localhost:8000/api/admin/users/${selectedUser.id}/role`,
-                { role: roleToChange },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            alert("Cập nhật role thành công!");
-            setShowRoleModal(false);
-            fetchUsers();
-        } catch (err) {
-            console.error("Lỗi khi đổi role", err);
-            alert("Không thể đổi role! Bạn không có quyền hoặc token đã hết hạn.");
-
-        }
-    };
 
     return (
         <div className="admin-container">
@@ -171,8 +111,13 @@ const Users = () => {
                                         <td>{u.id}</td>
                                         <td>
                                             {u.avatars ? (
-                                                <img src={`http://localhost:8000${u.avatars}`} className="user-avatar" />
-                                            ) : "Không có"}
+                                                <img
+                                                    src={`http://localhost:8000${u.avatars}`}
+                                                    className="user-avatar"
+                                                />
+                                            ) : (
+                                                "Không có"
+                                            )}
                                         </td>
                                         <td>{u.name}</td>
                                         <td>{u.email}</td>
@@ -181,8 +126,12 @@ const Users = () => {
                                         <td>{u.total_orders}</td>
                                         <td>{u.total_spent.toLocaleString()}₫</td>
                                         <td>
-                                            <button className="btn-edit" onClick={() => openUserDetail(u.id)}>Xem</button>
-                                            <button className="btn-delete" onClick={() => openRoleModal(u)}>Đổi role</button>
+                                            <button
+                                                className="btn-edit"
+                                                onClick={() => navigate(`/admin/users/${u.id}`)}
+                                            >
+                                                Xem
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -202,44 +151,6 @@ const Users = () => {
                                     {i + 1}
                                 </button>
                             ))}
-                        </div>
-                    )}
-
-                    {/* Detail Modal */}
-                    {showDetailModal && detailUser && (
-                        <div className="modal-user">
-                            <div className="modal-content">
-                                <h2>Thông tin User</h2>
-                                <p><b>Tên:</b> {detailUser.user.name}</p>
-                                <p><b>Email:</b> {detailUser.user.email}</p>
-                                <p><b>Đã xác thực:</b> {detailUser.user.email_verified_at || "Chưa"}</p>
-                                <p><b>Tổng đơn:</b> {detailUser.statistics.total_orders}</p>
-                                <p><b>Chi tiêu:</b> {detailUser.statistics.total_spent.toLocaleString()}₫</p>
-
-                                <h3>5 đơn gần nhất</h3>
-                                {detailUser.recent_orders.map(o => (
-                                    <p key={o.id}>{o.order_code} - {o.final_total.toLocaleString()}₫</p>
-                                ))}
-
-                                <button onClick={() => setShowDetailModal(false)}>Đóng</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Role Modal */}
-                    {showRoleModal && selectedUser && (
-                        <div className="modal-user">
-                            <div className="modal-content">
-                                <h2>Đổi role cho {selectedUser.name}</h2>
-
-                                <select value={roleToChange} onChange={(e) => setRoleToChange(e.target.value)}>
-                                    <option value="user">User</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-
-                                <button onClick={changeRole}>Lưu</button>
-                                <button onClick={() => setShowRoleModal(false)}>Hủy</button>
-                            </div>
                         </div>
                     )}
                 </div>

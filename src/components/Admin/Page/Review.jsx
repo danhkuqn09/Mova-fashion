@@ -3,12 +3,14 @@ import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import "./Css/Review.css";
+import { useNavigate } from "react-router-dom";
 
 const Review = () => {
   const [reviews, setReviews] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [ratingFilter, setRatingFilter] = useState("");
@@ -20,20 +22,6 @@ const Review = () => {
   });
 
   const token = localStorage.getItem("token");
-
-  // Modal chi tiết
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openDetail = (review) => {
-    setSelectedReview(review);
-    setIsModalOpen(true);
-  };
-
-  const closeDetail = () => {
-    setSelectedReview(null);
-    setIsModalOpen(false);
-  };
 
   // Lấy danh sách review
   const fetchReviews = async (page = 1) => {
@@ -50,13 +38,10 @@ const Review = () => {
       });
       setReviews(res.data.data.reviews);
       setPagination(res.data.data.pagination);
-      console.log(res.data.data.reviews);
 
     } catch (err) {
       console.log(err);
       setError("Không thể tải danh sách đánh giá.");
-
-
     } finally {
       setLoading(false);
     }
@@ -162,7 +147,7 @@ const Review = () => {
                   <tr key={r.id}>
                     <td>{r.id}</td>
                     <td>
-                      {r.user.name} <br />({r.user.email})
+                      {r.user.name} <br /> ({r.user.email})
                     </td>
                     <td>
                       {r.product.name} <br />
@@ -179,7 +164,7 @@ const Review = () => {
                     <td>
                       <button
                         className="detail-btn"
-                        onClick={() => openDetail(r)}
+                        onClick={() => navigate(`/admin/reviews/${r.id}`)}
                       >
                         Xem
                       </button>
@@ -199,7 +184,7 @@ const Review = () => {
                 Trước
               </button>
             )}
-            {/* Phân trang */}
+
             <div className="pagination">
               {[...Array(pagination.last_page)].map((_, i) => (
                 <button
@@ -211,57 +196,10 @@ const Review = () => {
                 </button>
               ))}
             </div>
-
           </div>
+
         </div>
       </div>
-
-      {/* MODAL CHI TIẾT */}
-      {isModalOpen && selectedReview && (
-        <div className="modal-overlay" onClick={closeDetail}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Chi tiết đánh giá #{selectedReview.id}</h3>
-
-            <p>
-              <strong>Người dùng:</strong> {selectedReview.user.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedReview.user.email}
-            </p>
-            <p>
-              <strong>Sản phẩm:</strong> {selectedReview.product.name}
-            </p>
-            <p>
-              <strong>Số sao:</strong> {selectedReview.rating}
-            </p>
-            <p>
-              <strong>Nội dung:</strong> {selectedReview.content}
-            </p>
-            <p>
-              <strong>Ngày tạo:</strong> {selectedReview.created_at}
-            </p>
-
-            {/* ẢNH REVIEW */}
-            {selectedReview.images?.length > 0 ? (
-              <div className="review-images">
-                {selectedReview.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={`http://localhost:8000/storage/reviews/${img}`}
-                    className="review-image-item"
-                  />
-                ))}
-              </div>
-            ) : (
-              <p>Không có hình ảnh đánh giá.</p>
-            )}
-
-            <button className="close-btn" onClick={closeDetail}>
-              Đóng
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,0 +1,107 @@
+/* Vùng tổng quát */
+.admin-page h1 {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    background: #ddd;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: 0.2s;
+}
+
+.back-btn:hover {
+    background: #ccc;
+}
+
+/* Hộp chi tiết đơn hàng */
+.order-detail-box {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    max-width: 900px;
+}
+
+.order-detail-box p {
+    font-size: 15px;
+    margin: 6px 0;
+}
+
+.order-detail-box h3 {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    border-left: 4px solid #007bff;
+    padding-left: 10px;
+}
+
+/* Danh sách item */
+.order-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.item-card {
+    background: #fafafa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: 0.2s;
+}
+
+.item-card:hover {
+    background: #f1f1f1;
+    border-color: #ccc;
+}
+
+.item-card p {
+    font-weight: bold;
+    margin: 3px 0;
+    font-size: 14px;
+}
+
+/* Hành động cập nhật */
+.order-action {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.order-action select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.order-action button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.order-action button:hover {
+    opacity: 0.85;
+}
+
+.order-action button:nth-child(2) {
+    background: #b88e2f;
+    color: white;
+}
+
+.btn-delete {
+    background: #e63946 !important;
+    color: white;
+}

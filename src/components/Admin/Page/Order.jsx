@@ -3,6 +3,7 @@ import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
 import "./Css/Order.css";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -10,10 +11,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [statusToChange, setStatusToChange] = useState("");
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const fetchOrders = async (page = 1) => {
@@ -42,49 +40,6 @@ const Orders = () => {
   useEffect(() => {
     fetchOrders();
   }, [statusFilter, search]);
-
-  const openDetailModal = async (orderId) => {
-    try {
-      const res = await axios.get(`http://localhost:8000/api/admin/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSelectedOrder(res.data.data);
-      setStatusToChange(res.data.data.status);
-      setShowDetailModal(true);
-    } catch (err) {
-      console.error("Lỗi khi lấy chi tiết đơn hàng", err);
-    }
-  };
-
-  const changeStatus = async () => {
-    try {
-      await axios.put(
-        `http://localhost:8000/api/admin/orders/${selectedOrder.id}/status`,
-        { status: statusToChange },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("Cập nhật trạng thái thành công!");
-      setShowDetailModal(false);
-      fetchOrders();
-    } catch (err) {
-      console.error("Lỗi khi đổi trạng thái", err);
-      alert("Lỗi khi cập nhật trạng thái");
-    }
-  };
-
-  const deleteOrder = async () => {
-    try {
-      await axios.delete(`http://localhost:8000/api/admin/orders/${selectedOrder.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Xóa đơn hàng thành công!");
-      setShowDetailModal(false);
-      fetchOrders();
-    } catch (err) {
-      console.error("Lỗi khi xóa đơn hàng", err);
-      alert(err.response?.data?.message || "Lỗi khi xóa đơn hàng");
-    }
-  };
 
   return (
     <div className="admin-container">
@@ -140,7 +95,12 @@ const Orders = () => {
                     <td>{o.status}</td>
                     <td>{o.payment_method}</td>
                     <td>
-                      <button className="btn-edit" onClick={() => openDetailModal(o.id)}>Xem</button>
+                      <button
+                        className="btn-edit"
+                        onClick={() => navigate(`/admin/orders/${o.id}`)}
+                      >
+                        Xem
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -160,40 +120,6 @@ const Orders = () => {
                   {i + 1}
                 </button>
               ))}
-            </div>
-          )}
-
-          {/* Detail Modal */}
-          {showDetailModal && selectedOrder && (
-            <div className="modal-order">
-              <div className="modal-content">
-                <h2>Chi tiết đơn hàng #{selectedOrder.id}</h2>
-                <p><b>User:</b> {selectedOrder.user?.name || selectedOrder.user?.email}</p>
-                <p><b>Trạng thái:</b> {selectedOrder.status}</p>
-                <p><b>Thanh toán:</b> {selectedOrder.payment_method}</p>
-                <p><b>Tổng tiền:</b> {selectedOrder.final_total.toLocaleString()}₫</p>
-                <p><b>Discount:</b> {selectedOrder.discount_amount?.toLocaleString() || 0}₫</p>
-
-                <h3>Items</h3>
-                {selectedOrder.items.map((item) => (
-                  <p key={item.id}>
-                    {item.productVariant?.product?.name || "Sản phẩm"} x {item.quantity} = {item.price.toLocaleString()}₫
-                  </p>
-                ))}
-
-                <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
-                  <select value={statusToChange} onChange={(e) => setStatusToChange(e.target.value)}>
-                    <option value="pending">Chờ xác nhận</option>
-                    <option value="processing">Đang xử lý</option>
-                    <option value="shipping">Đang giao hàng</option>
-                    <option value="completed">Hoàn thành</option>
-                    <option value="cancelled">Đã hủy</option>
-                  </select>
-                  <button onClick={changeStatus}>Cập nhật trạng thái</button>
-                  {selectedOrder.status === "cancelled" && <button onClick={deleteOrder}>Xóa đơn</button>}
-                  <button onClick={() => setShowDetailModal(false)}>Đóng</button>
-                </div>
-              </div>
             </div>
           )}
         </div>

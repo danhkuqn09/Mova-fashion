@@ -13,8 +13,6 @@ import Cart from "./components/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
 import New from "./components/New/New"
 import MomoCallbackPage from "./components/Payment/MomoCallbackPage"
-
-// ⭐️ ĐÃ SỬA: Dùng đường dẫn tương đối (./) cho Contact và About
 import Contact from "./components/contact/Contact"; 
 import About from "./components/About/About"; // Điều chỉnh dựa trên cấu trúc thư mục của bạn
 
@@ -43,7 +41,11 @@ import AddVoucher from "./components/Admin/Page/AddVoucher";
 import AddCategories from "./components/Admin/Page/AddCategories";
 import NewDetail from "./components/Admin/Page/NewDetail";
 import EditProduct from "./components/Admin/Page/EditProduct";
-
+import ReviewDetail from "./components/Admin/Page/ReviewDetail";
+import OrderDetailAdmin from "./components/Admin/Page/OrderDetail";
+import EditCategory from "./components/Admin/Page/EditCategories";
+import UserDetail from "./components/Admin/Page/UserDetail";
+import CommentDetail from "./components/Admin/Page/CommentDetail";
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -118,6 +120,12 @@ const location = useLocation();
     <Route path="/admin/categories/add" element={<AddCategories />} />
     <Route path="/admin/news/:id" element={<NewDetail />} />
     <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+    <Route path="/admin/reviews/:id" element={<ReviewDetail />} />
+    <Route path="/admin/orders/:id" element={<OrderDetailAdmin />} />
+    <Route path="/admin/categories/edit/:id" element={<EditCategory />} />
+    <Route path="/admin/users/:id" element={<UserDetail />} />
+    <Route path="/admin/comments/:id" element={<CommentDetail />} />
+
 
    </Routes>
    {!isAdminRoute && <Footer />}

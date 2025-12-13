@@ -19,7 +19,7 @@ const EditProduct = () => {
         category_id: "",
         image: null,
         colors: [],
-        variants: []
+        variants: [],
     });
 
     const [categories, setCategories] = useState([]);
@@ -64,14 +64,16 @@ const EditProduct = () => {
                 category_id: prod.category?.id || "",
                 image: null,
 
+                // Load màu
                 colors: prod.colors
-                    ? prod.colors.map(c => ({
+                    ? prod.colors.map((c) => ({
                         name: c.name,
                         color_code: c.color_code || c.hex_code || "#000000",
                         image: null
                     }))
                     : [],
 
+                // Load variants
                 variants: prod.variants
                     ? prod.variants.map((v, idx) => {
                         // Tìm color_index dựa vào color_id
@@ -86,16 +88,16 @@ const EditProduct = () => {
                     })
                     : [],
             });
-
         } catch (error) {
             console.error("Lỗi load sản phẩm:", error);
-        } 
+        }
     };
 
     useEffect(() => {
         fetchProduct();
     }, []);
 
+    // ================= SUBMIT =================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -127,10 +129,13 @@ const EditProduct = () => {
                 form.append("image", formData.image);
             }
 
-            formData.colors.forEach((c, index) => {
-                form.append(`colors[${index}][name]`, c.name);
-                form.append(`colors[${index}][color_code]`, c.color_code);
-                if (c.image instanceof File) form.append(`colors[${index}][image]`, c.image);
+            // COLORS
+            formData.colors.forEach((c, i) => {
+                form.append(`colors[${i}][name]`, c.name);
+                form.append(`colors[${i}][color_code]`, c.color_code);
+                if (c.image instanceof File) {
+                    form.append(`colors[${i}][image]`, c.image);
+                }
             });
 
             formData.variants.forEach((v, index) => {
@@ -146,20 +151,20 @@ const EditProduct = () => {
                 form.append(`variants[${index}][color_index]`, v.color_index);
             });
 
+
             await axios.post(
                 `http://localhost:8000/api/admin/products/${id}`,
                 form,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data"
-                    }
+                        "Content-Type": "multipart/form-data",
+                    },
                 }
             );
 
             alert("✔ Sửa sản phẩm thành công!");
             navigate("/admin/products");
-
         } catch (error) {
             console.error("Lỗi lưu:", error.response?.data);
             const errorMsg = error.response?.data?.message || "Lỗi khi sửa sản phẩm!";
@@ -173,13 +178,46 @@ const EditProduct = () => {
         }
     };
 
-    // if (loading) return <p>Đang tải dữ liệu...</p>;
+    // ================= ADD / REMOVE COLORS =================
+    const addColor = () => {
+        setFormData({
+            ...formData,
+            colors: [...formData.colors, { name: "", color_code: "#000000", image: null }],
+        });
+    };
 
+    const removeColor = (idx) => {
+        setFormData({
+            ...formData,
+            colors: formData.colors.filter((_, i) => i !== idx),
+        });
+    };
+
+    // ================= ADD / REMOVE VARIANTS =================
+    const addVariant = () => {
+        setFormData({
+            ...formData,
+            variants: [
+                ...formData.variants,
+                { id: null, size: "", quantity: 0, price: "", color_index: 0 },
+            ],
+        });
+    };
+
+    const removeVariant = (idx) => {
+        setFormData({
+            ...formData,
+            variants: formData.variants.filter((_, i) => i !== idx),
+        });
+    };
+
+    // ===========================================================
     return (
         <div className="admin-container">
             <Sidebar />
             <div className="admin-main">
                 <Topbar />
+
                 <div className="admin-page">
                     <h1>✏️ Sửa sản phẩm</h1>
 

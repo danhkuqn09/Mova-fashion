@@ -177,7 +177,6 @@ function Shop() {
       setLoading(false);
     }
   };
-  // ------------------------------------
 
   const handleBuyNow = (p) => {
     const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
@@ -226,9 +225,8 @@ function Shop() {
                 style={{ height: '280px', objectFit: 'cover' }}
               />
               {p.tag && (
-                <span className={`position-absolute top-0 end-0 badge m-2 ${
-                  p.tag === 'sale' ? 'bg-danger' : p.tag === 'new' ? 'bg-success' : 'bg-warning text-dark'
-                }`}>
+                <span className={`position-absolute top-0 end-0 badge m-2 ${p.tag === 'sale' ? 'bg-danger' : p.tag === 'new' ? 'bg-success' : 'bg-warning text-dark'
+                  }`}>
                   {p.tag === 'sale' ? '💰 SALE' : p.tag === 'new' ? '✨ NEW' : '🔥 HOT'}
                 </span>
               )}

@@ -1,0 +1,33 @@
+.review-detail-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.review-product-image {
+  width: 120px;
+  border-radius: 6px;
+  margin: 10px auto;   /* ⬅️ canh giữa */
+  display: block;      /* ⬅️ giúp margin auto hoạt động */
+}
+
+
+.review-detail-images {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-image-item {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-bottom: 15px;
+  color: #007bff;
+}

@@ -312,7 +312,15 @@ const Dashboard = () => {
                       <i className="fas fa-arrow-trend-up" style={{ color: '#b88e2f' }}></i>
                       <h6 className="mb-0 text-muted ms-2">Xu hướng</h6>
                     </div>
-                    <h4 className="mb-0 fw-bold" style={{ color: '#b88e2f' }}>{comparison.comparison.revenue_trend}</h4>
+                    <h4 className="mb-0 fw-bold" style={{ color: '#b88e2f' }}>
+                      {(() => {
+                        const trend = comparison.comparison.revenue_trend;
+                        if (trend === 'increase' || trend === 'increasing') return 'Tăng';
+                        if (trend === 'decrease' || trend === 'decreasing') return 'Giảm';
+                        if (trend === 'stable') return 'Ổn định';
+                        return trend;
+                      })()}
+                    </h4>
                   </div>
                 </div>
               </div>

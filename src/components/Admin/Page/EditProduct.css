@@ -51,7 +51,7 @@
 .save-btn {
   width: 180px;
   padding: 10px;
-  background: #28a745;
+  background: #b88e2f;
   color: white;
   border: none;
   border-radius: 8px;
@@ -62,7 +62,7 @@
 }
 
 .save-btn:hover {
-  background: #218838;
+  background: #b88e2f;
 }
 
 .cancel-btn {

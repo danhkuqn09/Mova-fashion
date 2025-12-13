@@ -27,7 +27,7 @@ const About = () => {
         <div className="team-member">
           <h3>Phạm Minh Quân</h3>
           <p>Vai trò: CEO & Sáng lập viên</p>
-          <p>Sở thích: Lập trình ReactJS và làm vườn.</p>
+          <p>Sở thích: làm vườn.</p>
         </div>
         <div className="team-member">
           <h3>Nguyễn Thành Danh</h3>

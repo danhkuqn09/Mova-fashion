@@ -498,10 +498,10 @@ const CheckoutPage = () => {
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
                           <img 
-                            src={item.image ? `http://localhost:8000/storage/${item.image}` : '/Image/default.png'} 
+                            src={item.image ? `http://localhost:8000${item.image}` : '/Image/default.png'} 
                             alt={item.name}
                             className="rounded"
-                            style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                            style={{ width: '60px', objectFit: 'cover' }}
                           />
                         </div>
                         <div className="flex-grow-1 ms-3">

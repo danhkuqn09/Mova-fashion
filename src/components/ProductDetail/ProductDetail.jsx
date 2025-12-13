@@ -349,7 +349,7 @@ function ProductDetail() {
 
               {/* Thumbnails */}
               <div className="d-flex gap-2 justify-content-center">
-                {[product.image, ...product.variants.map((v) => v.image)]
+                {[...new Set([product.image, ...product.variants.map((v) => v.image)])]
                   .filter(Boolean)
                   .map((img, i) => (
                     <img

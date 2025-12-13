@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
@@ -17,7 +17,33 @@ const AddProduct = () => {
         variants: [],
     });
 
+    const [categories, setCategories] = useState([]);
     const token = localStorage.getItem("token");
+
+    // Fetch danh sách danh mục
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get("http://localhost:8000/api/categories");
+                const catData = res.data.data?.categories || res.data.categories || [];
+                setCategories(catData);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh mục:", error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Format giá tiền VND
+    const formatPrice = (value) => {
+        if (!value) return "";
+        return Number(value).toLocaleString("vi-VN");
+    };
+
+    // Parse giá từ format về number
+    const parsePrice = (value) => {
+        return value.replace(/\D/g, "");
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -98,21 +124,23 @@ const AddProduct = () => {
 
                         <div className="two-col">
                             <div className="form-group">
-                                <label>Giá</label>
+                                <label>Giá (₫)</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     required
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    value={formatPrice(formData.price)}
+                                    onChange={(e) => setFormData({ ...formData, price: parsePrice(e.target.value) })}
+                                    placeholder="0"
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label>Giá khuyến mãi</label>
+                                <label>Giá khuyến mãi (₫)</label>
                                 <input
-                                    type="number"
-                                    value={formData.sale_price}
-                                    onChange={(e) => setFormData({ ...formData, sale_price: e.target.value })}
+                                    type="text"
+                                    value={formatPrice(formData.sale_price)}
+                                    onChange={(e) => setFormData({ ...formData, sale_price: parsePrice(e.target.value) })}
+                                    placeholder="0"
                                 />
                             </div>
                         </div>
@@ -132,13 +160,19 @@ const AddProduct = () => {
                             </div>
 
                             <div className="form-group">
-                                <label>ID danh mục</label>
-                                <input
-                                    type="number"
+                                <label>Danh mục</label>
+                                <select
                                     required
                                     value={formData.category_id}
                                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                                />
+                                >
+                                    <option value="">-- Chọn danh mục --</option>
+                                    {Array.isArray(categories) && categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -216,13 +250,13 @@ const AddProduct = () => {
                         </button>
 
                         {/* VARIANTS */}
-                        <h3 className="section-title">📦 Danh sách biến thể</h3>
+                        <h3 className="section-title">📦 Danh sách biến thể ({formData.variants.length} biến thể, Tổng SL: {formData.variants.reduce((sum, v) => sum + (parseInt(v.quantity) || 0), 0)})</h3>
 
                         {formData.variants.map((v, index) => (
                             <div className="variant-row" key={index}>
                                 <input
                                     type="text"
-                                    placeholder="Size"
+                                    placeholder="Size (S, M, L, XL...)"
                                     value={v.size}
                                     onChange={(e) => {
                                         const arr = [...formData.variants];
@@ -243,12 +277,12 @@ const AddProduct = () => {
                                 />
 
                                 <input
-                                    type="number"
-                                    placeholder="Giá riêng"
-                                    value={v.price}
+                                    type="text"
+                                    placeholder="Giá riêng (nếu có)"
+                                    value={formatPrice(v.price)}
                                     onChange={(e) => {
                                         const arr = [...formData.variants];
-                                        arr[index].price = e.target.value;
+                                        arr[index].price = parsePrice(e.target.value);
                                         setFormData({ ...formData, variants: arr });
                                     }}
                                 />

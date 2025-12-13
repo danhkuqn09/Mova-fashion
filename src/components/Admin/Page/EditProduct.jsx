@@ -22,7 +22,34 @@ const EditProduct = () => {
         variants: [],
     });
 
-    // ================= LOAD PRODUCT =================
+    const [categories, setCategories] = useState([]);
+
+    // Fetch danh sách danh mục
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get("http://localhost:8000/api/categories");
+                const catData = res.data.data?.categories || res.data.categories || [];
+                setCategories(catData);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh mục:", error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Format giá tiền VND
+    const formatPrice = (value) => {
+        if (!value) return "";
+        return Number(value).toLocaleString("vi-VN");
+    };
+
+    // Parse giá từ format về number
+    const parsePrice = (value) => {
+        return value.replace(/\D/g, "");
+    };
+
+    // Load chi tiết sản phẩm
     const fetchProduct = async () => {
         try {
             const res = await axios.get(`http://localhost:8000/api/products/${id}`);
@@ -31,7 +58,7 @@ const EditProduct = () => {
             setFormData({
                 name: prod.name,
                 description: prod.description || "",
-                price: prod.price || 0,
+                price: prod.price,
                 sale_price: prod.sale_price || "",
                 tag: prod.tag_id || "",
                 category_id: prod.category?.id || "",
@@ -42,21 +69,25 @@ const EditProduct = () => {
                     ? prod.colors.map((c) => ({
                         id: c.id,
                         name: c.name,
-                        color_code: c.color_code,
-                        image: null,
+                        color_code: c.color_code || c.hex_code || "#000000",
+                        image: null
                     }))
                     : [],
 
 
                 // Load variants
                 variants: prod.variants
-                    ? prod.variants.map((v) => ({
-                        id: v.id,       // rất quan trọng khi edit
-                        size: v.size,
-                        quantity: v.quantity,
-                        price: v.price,
-                        color_index: v.color_index ?? 0,
-                    }))
+                    ? prod.variants.map((v, idx) => {
+                        // Tìm color_index dựa vào color_id
+                        const colorIdx = prod.colors?.findIndex(c => c.id === v.color_id) ?? 0;
+                        return {
+                            id: v.id,
+                            size: v.size,
+                            quantity: v.quantity,
+                            price: v.price || "",
+                            color_index: colorIdx >= 0 ? colorIdx : 0
+                        };
+                    })
                     : [],
             });
         } catch (error) {
@@ -76,8 +107,22 @@ const EditProduct = () => {
             const form = new FormData();
             form.append("name", formData.name);
             form.append("description", formData.description);
-            form.append("price", formData.price);
-            form.append("sale_price", formData.sale_price);
+            
+            // Parse price về số nguyên và validate
+            let priceValue = typeof formData.price === 'string' 
+                ? parsePrice(formData.price) 
+                : formData.price;
+            priceValue = Math.min(parseInt(priceValue) || 0, 2147483647);
+            form.append("price", priceValue);
+            
+            if (formData.sale_price) {
+                let salePriceValue = typeof formData.sale_price === 'string'
+                    ? parsePrice(formData.sale_price)
+                    : formData.sale_price;
+                salePriceValue = Math.min(parseInt(salePriceValue) || 0, 2147483647);
+                form.append("sale_price", salePriceValue);
+            }
+            
             form.append("tag", formData.tag);
             form.append("category_id", formData.category_id);
 
@@ -97,17 +142,17 @@ const EditProduct = () => {
                 }
             });
 
-
-            // VARIANTS
-            formData.variants.forEach((v, i) => {
-                if (v.id) {
-                    form.append(`variants[${i}][id]`, v.id); // chỉ gửi nếu có
+            formData.variants.forEach((v, index) => {
+                if (v.id) form.append(`variants[${index}][id]`, v.id);
+                form.append(`variants[${index}][size]`, v.size);
+                form.append(`variants[${index}][quantity]`, v.quantity);
+                if (v.price) {
+                    const variantPrice = typeof v.price === 'string'
+                        ? parsePrice(v.price)
+                        : v.price;
+                    form.append(`variants[${index}][price]`, variantPrice);
                 }
-
-                form.append(`variants[${i}][size]`, v.size);
-                form.append(`variants[${i}][quantity]`, v.quantity);
-                form.append(`variants[${i}][price]`, v.price);
-                form.append(`variants[${i}][color_index]`, v.color_index);
+                form.append(`variants[${index}][color_index]`, v.color_index);
             });
 
 
@@ -126,7 +171,14 @@ const EditProduct = () => {
             navigate("/admin/products");
         } catch (error) {
             console.error("Lỗi lưu:", error.response?.data);
-            alert("❌ Lỗi khi sửa sản phẩm!");
+            const errorMsg = error.response?.data?.message || "Lỗi khi sửa sản phẩm!";
+            const errors = error.response?.data?.errors;
+            if (errors) {
+                const errorList = Object.entries(errors).map(([key, val]) => `${key}: ${val[0]}`).join("\n");
+                alert(`Lỗi:\n${errorMsg}\n\n${errorList}`);
+            } else {
+                alert(errorMsg);
+            }
         }
     };
 
@@ -175,53 +227,92 @@ const EditProduct = () => {
 
                     <form className="edit-form" onSubmit={handleSubmit}>
                         {/* BASIC INFO */}
-                        <label>Tên</label>
-                        <input
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
+                        <div className="form-group">
+                            <label>Tên sản phẩm</label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+                        </div>
 
-                        <label>Mô tả</label>
-                        <textarea
-                            value={formData.description}
-                            onChange={(e) =>
-                                setFormData({ ...formData, description: e.target.value })
-                            }
-                        />
+                        <div className="form-group">
+                            <label>Mô tả</label>
+                            <textarea
+                                rows="4"
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            />
+                        </div>
 
-                        <label>Giá</label>
-                        <input
-                            type="number"
-                            value={formData.price}
-                            onChange={(e) =>
-                                setFormData({ ...formData, price: e.target.value })
-                            }
-                        />
+                        <div className="two-col">
+                            <div className="form-group">
+                                <label>Giá (₫)</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formatPrice(formData.price)}
+                                    onChange={(e) => setFormData({ ...formData, price: parsePrice(e.target.value) })}
+                                    placeholder="0"
+                                />
+                            </div>
 
-                        <label>Giá khuyến mãi</label>
-                        <input
-                            type="number"
-                            value={formData.sale_price}
-                            onChange={(e) =>
-                                setFormData({ ...formData, sale_price: e.target.value })
-                            }
-                        />
+                            <div className="form-group">
+                                <label>Giá khuyến mãi (₫)</label>
+                                <input
+                                    type="text"
+                                    value={formatPrice(formData.sale_price)}
+                                    onChange={(e) => setFormData({ ...formData, sale_price: parsePrice(e.target.value) })}
+                                    placeholder="0"
+                                />
+                            </div>
+                        </div>
 
-                        <label>ID danh mục</label>
-                        <input
-                            type="number"
-                            value={formData.category_id}
-                            onChange={(e) =>
-                                setFormData({ ...formData, category_id: e.target.value })
-                            }
-                        />
+                        <div className="two-col">
+                            <div className="form-group">
+                                <label>Tag</label>
+                                <select
+                                    value={formData.tag}
+                                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                                >
+                                    <option value="">-- Chọn tag --</option>
+                                    <option value="new">New</option>
+                                    <option value="hot">Hot</option>
+                                    <option value="sale">Sale</option>
+                                </select>
+                            </div>
 
-                        {/* ================= COLORS ================= */}
-                        <h3>🎨 Màu sắc</h3>
+                            <div className="form-group">
+                                <label>Danh mục</label>
+                                <select
+                                    required
+                                    value={formData.category_id}
+                                    onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                                >
+                                    <option value="">-- Chọn danh mục --</option>
+                                    {Array.isArray(categories) && categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
 
+                        <div className="form-group">
+                            <label>Ảnh sản phẩm (nếu muốn đổi)</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                            />
+                        </div>
+
+                        {/* COLORS */}
+                        <h3 className="section-title">🎨 Danh sách màu ({formData.colors.length})</h3>
                         {formData.colors.map((c, index) => (
-                            <div key={index} className="color-box">
+                            <div className="color-row" key={index}>
                                 <input
                                     type="text"
                                     placeholder="Tên màu"
@@ -245,6 +336,7 @@ const EditProduct = () => {
 
                                 <input
                                     type="file"
+                                    accept="image/*"
                                     onChange={(e) => {
                                         const arr = [...formData.colors];
                                         arr[index].image = e.target.files[0];
@@ -255,27 +347,38 @@ const EditProduct = () => {
                                 <button
                                     type="button"
                                     className="remove-btn"
-                                    onClick={() => removeColor(index)}
+                                    onClick={() => {
+                                        setFormData({
+                                            ...formData,
+                                            colors: formData.colors.filter((_, i) => i !== index),
+                                        });
+                                    }}
                                 >
-                                    ❌
+                                    X
                                 </button>
                             </div>
                         ))}
 
-                        <button type="button" className="add-btn" onClick={addColor}>
-                            ➕ Thêm màu
+                        <button
+                            type="button"
+                            className="add-small-btn"
+                            onClick={() =>
+                                setFormData({
+                                    ...formData,
+                                    colors: [...formData.colors, { name: "", color_code: "#000000", image: null }],
+                                })
+                            }
+                        >
+                            + Thêm màu
                         </button>
 
-                        <hr />
-
-                        {/* ================= VARIANTS ================= */}
-                        <h3>📦 Biến thể (Size – SL – Giá – Màu)</h3>
-
+                        {/* VARIANTS */}
+                        <h3 className="section-title">📦 Danh sách biến thể ({formData.variants.length} biến thể, Tổng SL: {formData.variants.reduce((sum, v) => sum + (parseInt(v.quantity) || 0), 0)})</h3>
                         {formData.variants.map((v, index) => (
-                            <div key={index} className="variant-box">
+                            <div className="variant-row" key={index}>
                                 <input
                                     type="text"
-                                    placeholder="Size"
+                                    placeholder="Size (S, M, L, XL...)"
                                     value={v.size}
                                     onChange={(e) => {
                                         const arr = [...formData.variants];
@@ -296,12 +399,12 @@ const EditProduct = () => {
                                 />
 
                                 <input
-                                    type="number"
-                                    placeholder="Giá riêng"
-                                    value={v.price}
+                                    type="text"
+                                    placeholder="Giá riêng (nếu có)"
+                                    value={formatPrice(v.price)}
                                     onChange={(e) => {
                                         const arr = [...formData.variants];
-                                        arr[index].price = e.target.value;
+                                        arr[index].price = parsePrice(e.target.value);
                                         setFormData({ ...formData, variants: arr });
                                     }}
                                 />
@@ -324,38 +427,41 @@ const EditProduct = () => {
                                 <button
                                     type="button"
                                     className="remove-btn"
-                                    onClick={() => removeVariant(index)}
+                                    onClick={() =>
+                                        setFormData({
+                                            ...formData,
+                                            variants: formData.variants.filter((_, i) => i !== index),
+                                        })
+                                    }
                                 >
-                                    ❌
+                                    X
                                 </button>
                             </div>
                         ))}
 
-                        <button type="button" className="add-btn" onClick={addVariant}>
-                            ➕ Thêm biến thể
-                        </button>
-
-                        <hr />
-
-                        {/* IMAGE */}
-                        <label>Ảnh mới (nếu muốn đổi)</label>
-                        <input
-                            type="file"
-                            onChange={(e) =>
-                                setFormData({ ...formData, image: e.target.files[0] })
-                            }
-                        />
-
-                        <button type="submit" className="save-btn">
-                            Lưu sản phẩm
-                        </button>
                         <button
                             type="button"
-                            className="cancel-btn"
-                            onClick={() => navigate("/admin/products")}
+                            className="add-small-btn"
+                            onClick={() =>
+                                setFormData({
+                                    ...formData,
+                                    variants: [...formData.variants, { size: "", quantity: 0, price: "", color_index: 0 }],
+                                })
+                            }
                         >
-                            Hủy
+                            + Thêm biến thể
                         </button>
+
+                        <div className="form-actions">
+                            <button type="submit" className="save-btn">💾 Lưu sản phẩm</button>
+                            <button
+                                type="button"
+                                className="cancel-btn"
+                                onClick={() => navigate("/admin/products")}
+                            >
+                                Hủy
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

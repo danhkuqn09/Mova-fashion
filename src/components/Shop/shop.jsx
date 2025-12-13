@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Banner from "./Banner";
 import "./shop.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation} from "react-router-dom";
 
 function Shop() {
   const [categories, setCategories] = useState([]);
@@ -39,7 +39,7 @@ function Shop() {
   const [isFiltering, setIsFiltering] = useState(false); // Biến cờ để biết đang lọc
 
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const keyword = new URLSearchParams(location.search).get("keyword") || "";
 
@@ -63,7 +63,8 @@ function Shop() {
         ]);
 
       setCategories(resCategories.data.data.categories || []);
-
+      console.log(resCategories.data.data.categories);
+    
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
@@ -178,29 +179,29 @@ function Shop() {
     }
   };
 
-  const handleBuyNow = (p) => {
-    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
+  // const handleBuyNow = (p) => {
+  //   const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
 
-    if (!firstVariant) {
-      alert("Sản phẩm này chưa có biến thể!");
-      return;
-    }
+  //   if (!firstVariant) {
+  //     alert("Sản phẩm này chưa có biến thể!");
+  //     return;
+  //   }
 
-    const price = firstVariant.price_after_discount ?? firstVariant.price;
+  //   const price = firstVariant.price_after_discount ?? firstVariant.price;
 
-    navigate("/checkout", {
-      state: {
-        buyNow: true,
-        item: {
-          product_variant_id: firstVariant.id,  // ✅ ĐÚNG
-          quantity: 1,
-          price: price,
-          name: p.name,
-        },
-        subtotal: price,
-      },
-    });
-  };
+  //   navigate("/checkout", {
+  //     state: {
+  //       buyNow: true,
+  //       item: {
+  //         product_variant_id: firstVariant.id,  // ✅ ĐÚNG
+  //         quantity: 1,
+  //         price: price,
+  //         name: p.name,
+  //       },
+  //       subtotal: price,
+  //     },
+  //   });
+  // };
 
 
   if (loading) {
@@ -249,9 +250,14 @@ function Shop() {
               ) : (
                 <p className="text-primary fw-bold fs-6 mb-2">{Number(p.price).toLocaleString('vi-VN')}₫</p>
               )}
-              <button className="btn btn-dark w-100 btn-sm" onClick={() => handleBuyNow(p)}>
-                <i className="fas fa-shopping-cart me-2"></i>Mua Ngay
-              </button>
+              <Link
+  to={`/productdetail/${p.id}`}
+  className="btn btn-dark w-100 btn-sm text-decoration-none"
+>
+  <i className="fas fa-eye me-2"></i>
+  Xem Chi Tiết
+</Link>
+
             </div>
           </div>
         </div>

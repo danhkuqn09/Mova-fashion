@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
-import "./EditCategories.css";
+import "./Css/EditCategories.css";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditCategory = () => {

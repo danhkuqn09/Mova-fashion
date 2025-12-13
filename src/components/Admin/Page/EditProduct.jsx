@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
-import "./EditProduct.css";
+import "./Css/EditProduct.css";
 
 const EditProduct = () => {
     const { id } = useParams();

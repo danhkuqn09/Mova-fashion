@@ -286,7 +286,7 @@ const Dashboard = () => {
               </h5>
             </div>
             <div className="card-body">
-              <Line
+              <Bar
                 data={{
                   labels: revenueDay.map((i) => i.date),
                   datasets: [

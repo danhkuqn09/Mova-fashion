@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Product.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 function ProductSection() {
   const [products, setProducts] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -29,27 +29,27 @@ function ProductSection() {
 
   const showMore = () => setVisibleCount((prev) => prev + 10);
 
-  const handleBuyNow = (p) => {
-    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
-    if (!firstVariant) {
-      alert("Sản phẩm này chưa có biến thể!");
-      return;
-    }
+  // const handleBuyNow = (p) => {
+  //   const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
+  //   if (!firstVariant) {
+  //     alert("Sản phẩm này chưa có biến thể!");
+  //     return;
+  //   }
 
-    const price = firstVariant.price_after_discount ?? firstVariant.price;
-    navigate("/checkout", {
-      state: {
-        buyNow: true,
-        item: {
-          product_variant_id: firstVariant.id,  
-          quantity: 1,
-          price: price,
-          name: p.name,
-        },
-        subtotal: price,
-      },
-    });
-  };
+  //   const price = firstVariant.price_after_discount ?? firstVariant.price;
+  //   navigate("/checkout", {
+  //     state: {
+  //       buyNow: true,
+  //       item: {
+  //         product_variant_id: firstVariant.id,
+  //         quantity: 1,
+  //         price: price,
+  //         name: p.name,
+  //       },
+  //       subtotal: price,
+  //     },
+  //   });
+  // };
 
   return (
     <section className="products py-5 bg-light">
@@ -91,12 +91,13 @@ function ProductSection() {
                     ) : (
                       <p className="text-primary fw-bold fs-6 mb-2">{Number(p.price).toLocaleString('vi-VN')}₫</p>
                     )}
-                    <button 
-                      className="btn btn-dark w-100 btn-sm" 
-                      onClick={() => handleBuyNow(p)}
+                    <Link
+                      to={`/productdetail/${p.id}`}
+                      className="btn btn-dark w-100 btn-sm"
                     >
-                      <i className="fas fa-shopping-cart me-2"></i>Mua Ngay
-                    </button>
+                      <i className="fas fa-eye me-2"></i>Xem Chi Tiết
+                    </Link>
+
                   </div>
                 </div>
               </div>
@@ -106,12 +107,12 @@ function ProductSection() {
 
         {visibleCount < products.length && (
           <div className="text-center mt-5">
-            <button 
-              className="btn btn-lg px-5" 
+            <button
+              className="btn btn-lg px-5"
               onClick={showMore}
-              style={{ 
-                backgroundColor: '#b88e2f', 
-                color: 'white', 
+              style={{
+                backgroundColor: '#b88e2f',
+                color: 'white',
                 border: 'none',
                 transition: 'all 0.3s'
               }}

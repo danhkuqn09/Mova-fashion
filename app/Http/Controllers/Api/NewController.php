@@ -472,6 +472,55 @@ class NewController extends Controller
     }
 
     /**
+     * Admin: Xem chi tiết bài viết (trừ draft của user)
+     */
+    public function adminShow($id)
+    {
+        try {
+            $news = News::with('user')
+                ->whereIn('status', ['pending', 'published', 'rejected'])
+                ->find($id);
+
+            if (!$news) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy bài viết'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lấy chi tiết bài viết thành công',
+                'data' => [
+                    'id' => $news->id,
+                    'title' => $news->title,
+                    'thumbnail' => $news->thumbnail ? Storage::url($news->thumbnail) : null,
+                    'summary' => $news->summary,
+                    'content' => $news->content,
+                    'author' => [
+                        'id' => $news->user->id,
+                        'name' => $news->user->name,
+                        'email' => $news->user->email,
+                    ],
+                    'status' => $news->status,
+                    'status_text' => $this->getStatusText($news->status),
+                    'view_count' => $news->view_count,
+                    'created_at' => $news->created_at->format('d/m/Y H:i'),
+                    'updated_at' => $news->updated_at->format('d/m/Y H:i'),
+                    'created_at_human' => $news->created_at->diffForHumans(),
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy chi tiết bài viết',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Admin: Duyệt bài viết
      */
     public function approve($id)

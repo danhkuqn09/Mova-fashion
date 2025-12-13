@@ -145,6 +145,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 		// Quản lí News (Admin - Duyệt bài viết)
 		Route::get('/admin/news', [NewController::class, 'adminIndex']);
+		Route::get('/admin/news/{id}', [NewController::class, 'adminShow']);
 		Route::post('/admin/news/{id}/approve', [NewController::class, 'approve']);
 		Route::post('/admin/news/{id}/reject', [NewController::class, 'reject']);
 		Route::delete('/admin/news/{id}', [NewController::class, 'adminDestroy']);

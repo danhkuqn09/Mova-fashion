@@ -33,6 +33,12 @@ const Products = () => {
     });
     const token = localStorage.getItem("token");
 
+    // Format giá tiền VND
+    const formatPrice = (value) => {
+        if (!value) return "0";
+        return Number(value).toLocaleString("vi-VN") + "₫";
+    };
+
     // Lấy danh sách sản phẩm
     const fetchProducts = async (page = 1) => {
         setLoading(true);
@@ -235,7 +241,17 @@ const Products = () => {
                                                 />
                                             </td>
                                             <td>{prod.name}</td>
-                                            <td>{prod.price}₫</td>
+                                            <td>
+                                                {prod.sale_price ? (
+                                                    <>
+                                                        <del className="text-muted">{formatPrice(prod.price)}</del>
+                                                        <br />
+                                                        <strong className="text-danger">{formatPrice(prod.sale_price)}</strong>
+                                                    </>
+                                                ) : (
+                                                    formatPrice(prod.price)
+                                                )}
+                                            </td>
                                             <td>{prod.description || "Không có mô tả"}</td>
                                             <td>
                                                 <button

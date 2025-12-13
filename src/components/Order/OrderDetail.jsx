@@ -191,7 +191,7 @@ const OrderDetail = () => {
         <div className="info-col">
           <h3>Thông tin đơn hàng</h3>
           <p><strong>Mã đơn:</strong> {order.order_code}</p>
-          <p><strong>Ngày đặt:</strong> {new Date(order.created_at).toLocaleString('vi-VN')}</p>
+          <p><strong>Ngày đặt:</strong> {order.created_at}</p>
           <p>
             <strong>Phương thức thanh toán:</strong> {order.payment_method_text || getPaymentMethodText(order.payment_method)}
           </p>

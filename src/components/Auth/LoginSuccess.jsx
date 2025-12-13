@@ -20,10 +20,15 @@ function LoginSuccess() {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(decodedUser));
 
-        console.log("✅ Đăng nhập Google thành công:", decodedUser);
+        // 🔹 Lấy URL redirect từ localStorage
+        const redirectTo = localStorage.getItem("redirectAfterLogin") || "/";
+        localStorage.removeItem("redirectAfterLogin");
 
-        // 🔹 Reload lại toàn trang để Header đọc được localStorage
-        window.location.href = "/";
+        // 🔹 Trigger event để Header cập nhật
+        window.dispatchEvent(new Event("loginSuccess"));
+
+        // 🔹 Redirect về trang trước đó hoặc trang chủ
+        window.location.href = redirectTo;
       } catch (error) {
         console.error("❌ Lỗi khi giải mã user:", error);
         window.location.href = "/login";

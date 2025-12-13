@@ -1,0 +1,30 @@
+.news-detail .box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.news-thumb {
+    max-width: 100%;
+    margin: 15px 0;
+    border-radius: 6px;
+}
+
+.meta {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.news-content {
+    margin-top: 20px;
+    line-height: 1.7;
+}
+
+.btn-back {
+    margin-top: 20px;
+    padding: 8px 14px;
+    background: #555;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}

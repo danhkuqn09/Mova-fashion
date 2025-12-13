@@ -17,6 +17,8 @@ const Users = () => {
     const [roleFilter, setRoleFilter] = useState("");
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
+const formatVND = (value) =>
+    Number(value || 0).toLocaleString("vi-VN") + "₫";
 
     // Fetch list
     const fetchUsers = async (page = 1) => {
@@ -124,7 +126,7 @@ const Users = () => {
                                         <td>{u.phone}</td>
                                         <td>{u.role}</td>
                                         <td>{u.total_orders}</td>
-                                        <td>{u.total_spent.toLocaleString()}₫</td>
+                                        <td>{formatVND(u.total_spent)}</td>
                                         <td>
                                             <button
                                                 className="btn-edit"

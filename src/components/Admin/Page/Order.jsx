@@ -9,11 +9,20 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter,] = useState("");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const formatVND = (value) =>
+    Number(value || 0).toLocaleString("vi-VN") + "₫";
 
+  const statusTexts = {
+    pending: "Chờ xác nhận",
+    processing: "Đang xử lý",
+    shipping: "Đang giao hàng",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy",
+  };
   const fetchOrders = async (page = 1) => {
     try {
       setLoading(true);
@@ -74,7 +83,7 @@ const Orders = () => {
                 <th>ID</th>
                 <th>User</th>
                 <th>Tổng tiền</th>
-                <th>Discount</th>
+                <th>Giảm giá</th>
                 <th>Trạng thái</th>
                 <th>Phương thức thanh toán</th>
                 <th>Hành động</th>
@@ -90,9 +99,9 @@ const Orders = () => {
                   <tr key={o.id}>
                     <td>{o.id}</td>
                     <td>{o.user?.name || o.user?.email}</td>
-                    <td>{o.final_total.toLocaleString()}₫</td>
-                    <td>{o.discount_amount?.toLocaleString() || 0}₫</td>
-                    <td>{o.status}</td>
+                    <td>{formatVND(o.final_total)}</td>
+                    <td>{formatVND(o.discount_amount) || formatVND(0)}</td>
+                    <td>{statusTexts[o.status]}</td>
                     <td>{o.payment_method}</td>
                     <td>
                       <button
@@ -108,7 +117,7 @@ const Orders = () => {
             </tbody>
           </table>
 
-          {/* Pagination */}
+          {/* Phân trang */}
           {pagination.total > 0 && (
             <div className="pagination">
               {[...Array(pagination.last_page)].map((_, i) => (

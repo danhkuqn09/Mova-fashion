@@ -1,5 +1,5 @@
 import "./Header.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -9,17 +9,59 @@ function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Parse user error:", error);
+    const verifyToken = async () => {
+      const token = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+      
+      if (!token) {
+        // Không có token, xóa user info
         localStorage.removeItem("user");
+        setUser(null);
+        return;
       }
-    }
+      
+      // Nếu có storedUser, hiển thị ngay để UX tốt hơn
+      if (storedUser && storedUser !== "undefined") {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error("Parse user error:", e);
+        }
+      }
+      
+      try {
+        // Verify token với backend
+        const response = await axios.get("http://localhost:8000/api/profile", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Token hợp lệ, cập nhật user info
+        setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      } catch (error) {
+        // Token không hợp lệ hoặc hết hạn
+        console.error("Token verification failed:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      }
+    };
+    
+    verifyToken();
+    
+    // Lắng nghe sự kiện login từ các component khác
+    const handleLoginSuccess = () => {
+      verifyToken();
+    };
+    
+    window.addEventListener("loginSuccess", handleLoginSuccess);
+    
+    return () => {
+      window.removeEventListener("loginSuccess", handleLoginSuccess);
+    };
   }, []);
 
   const toggleUserMenu = (e) => {
@@ -84,6 +126,7 @@ function Header() {
               <li className="nav-item"><Link to="/shop" className="nav-link">Cửa hàng</Link></li>
               <li className="nav-item"><Link to="/news" className="nav-link">Giới thiệu</Link></li>
               <li className="nav-item"><Link to="/contact" className="nav-link">Liên hệ</Link></li>
+              <li className="nav-item"><Link to="/about" className="nav-link">Chúng Tôi</Link></li>
             </ul>
           </nav>
 
@@ -101,7 +144,13 @@ function Header() {
             <ul className="user-dropdown-menu">
               {!user ? (
                 <>
-                  <Link to="/login" className="dropdown-item">Đăng nhập</Link>
+                  <Link 
+                    to="/login" 
+                    state={{ from: location.pathname }}
+                    className="dropdown-item"
+                  >
+                    Đăng nhập
+                  </Link>
                   <Link to="/register" className="dropdown-item">Đăng ký</Link>
                 </>
               ) : (

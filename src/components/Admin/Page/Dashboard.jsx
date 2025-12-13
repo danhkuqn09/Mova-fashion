@@ -91,7 +91,27 @@ const Dashboard = () => {
     loadAll();
   }, []);
 
-  if (loading) return <p>Đang tải Dashboard...</p>;
+  if (loading) {
+    return (
+      <div className="admin-container">
+        <Sidebar />
+        <div className="admin-main">
+          <Topbar />
+          <div className="dashboard-loading">
+            <div className="loading-wrapper">
+              <div className="spinner-container">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+              </div>
+              <h3 className="loading-text">Đang tải Dashboard...</h3>
+              <p className="loading-subtext">Vui lòng chờ trong giây lát</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-container">

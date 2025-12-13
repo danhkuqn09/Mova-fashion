@@ -124,72 +124,236 @@ const UserProfile = () => {
   };
 
 
-  if (loading) return <p>Đang tải...</p>;
+  // Format tiền VNĐ
+  const formatMoney = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount || 0);
+  };
+
+  if (loading) return (
+    <div className="container mt-5">
+      <div className="text-center">
+        <div className="spinner-border" role="status" style={{ color: '#b88e2f' }}>
+          <span className="visually-hidden">Đang tải...</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="profile-container">
-      <h1>Thông tin cá nhân</h1>
-      <div className="profile-card">
-        <div className="avatar-section">
-          <img src={profile.avatar ? `http://localhost:8000${profile.avatar}?t=${Date.now()}` : "/Image/default.png"} />
+    <div className="container py-5">
+      <h2 className="mb-4 text-center" style={{ color: '#b88e2f' }}>Thông tin cá nhân</h2>
+      
+      <div className="row">
+        {/* Avatar Section */}
+        <div className="col-lg-4 mb-4">
+          <div className="card shadow-sm">
+            <div className="card-body text-center">
+              <img 
+                src={profile.avatar ? `http://localhost:8000${profile.avatar}?t=${Date.now()}` : "/Image/default.png"} 
+                alt="Avatar"
+                className="rounded-circle mb-3"
+                style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+              />
+              <div className="mb-3">
+                <input 
+                  type="file" 
+                  className="form-control form-control-sm" 
+                  onChange={handleAvatarChange}
+                  accept="image/*"
+                />
+              </div>
+              <button 
+                className="btn btn-sm w-100 mb-2" 
+                style={{ backgroundColor: '#b88e2f', color: 'white', border: 'none' }}
+                onClick={handleUploadAvatar}
+              >
+                <i className="fas fa-upload me-2"></i>Cập nhật ảnh
+              </button>
+              {profile.avatar && (
+                <button 
+                  className="btn btn-danger btn-sm w-100" 
+                  onClick={handleDeleteAvatar}
+                >
+                  <i className="fas fa-trash me-2"></i>Xóa ảnh
+                </button>
+              )}
+            </div>
+          </div>
 
-          <input type="file" onChange={handleAvatarChange} />
-          <button onClick={handleUploadAvatar}>Cập nhật ảnh</button>
-          {profile.avatar && <button onClick={handleDeleteAvatar}>Xóa ảnh</button>}
+          {/* Statistics Card */}
+          <div className="card shadow-sm mt-4">
+            <div className="card-header text-white" style={{ backgroundColor: '#b88e2f' }}>
+              <h5 className="mb-0"><i className="fas fa-chart-bar me-2"></i>Thống kê</h5>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <h6 className="text-muted mb-2">Đơn hàng</h6>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Tổng đơn:</span>
+                  <strong style={{ color: '#b88e2f' }}>{statistics.orders?.total || 0}</strong>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Chờ xử lý:</span>
+                  <strong className="text-warning">{statistics.orders?.pending || 0}</strong>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Đang xử lý:</span>
+                  <strong className="text-info">{statistics.orders?.processing || 0}</strong>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Hoàn thành:</span>
+                  <strong className="text-success">{statistics.orders?.completed || 0}</strong>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Đã hủy:</span>
+                  <strong className="text-danger">{statistics.orders?.cancelled || 0}</strong>
+                </div>
+              </div>
+              <hr />
+              <div className="d-flex justify-content-between mb-3">
+                <span>Tổng chi tiêu:</span>
+                <strong style={{ color: '#b88e2f' }}>{formatMoney(statistics.total_spent || 0)}</strong>
+              </div>
+              <hr />
+              <div className="d-flex justify-content-between">
+                <span><i className="fas fa-comments me-2"></i>Bình luận:</span>
+                <strong>{statistics.comments || 0}</strong>
+              </div>
+            </div>
+          </div>
         </div>
 
-
-        <div className="info-section">
-          {editing ? (
-            <>
-              <input
-                type="text"
-                value={editData.name || ""}
-                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                placeholder="Tên"
-              />
-              <input
-                type="text"
-                value={editData.phone || ""}
-                onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                placeholder="SĐT"
-              />
-              <input
-                type="text"
-                value={editData.address || ""}
-                onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                placeholder="Địa chỉ"
-              />
-              <button onClick={handleSaveProfile}>Lưu</button>
-              <button onClick={() => setEditing(false)}>Hủy</button>
-            </>
-          ) : (
-            <>
-              <p><b>ID: </b>{profile.id}</p>
-              <p><b>Tên:</b> {profile.name}</p>
-              <p><b>Email:</b> {profile.email}</p>
-              <p><b>SĐT:</b> {profile.phone}</p>
-              <p><b>Role: </b>{profile.role}</p>
-              <p><b>Ngày tạo: </b>{profile.created_at}</p>
-              <button onClick={() => setEditing(true)}>Chỉnh sửa</button>
-            </>
-          )}
+        {/* Profile Info Section */}
+        <div className="col-lg-8">
+          <div className="card shadow-sm">
+            <div className="card-header text-white d-flex justify-content-between align-items-center" style={{ backgroundColor: '#b88e2f' }}>
+              <h5 className="mb-0"><i className="fas fa-user me-2"></i>Thông tin tài khoản</h5>
+              {!editing && (
+                <button 
+                  className="btn btn-light btn-sm" 
+                  onClick={() => setEditing(true)}
+                >
+                  <i className="fas fa-edit me-2"></i>Chỉnh sửa
+                </button>
+              )}
+            </div>
+            <div className="card-body">
+              {editing ? (
+                <form>
+                  <div className="mb-3">
+                    <label className="form-label"><strong>Họ tên</strong></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editData.name || ""}
+                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                      placeholder="Nhập họ tên"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label"><strong>Số điện thoại</strong></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editData.phone || ""}
+                      onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                      placeholder="Nhập số điện thoại"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label"><strong>Địa chỉ</strong></label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editData.address || ""}
+                      onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                      placeholder="Nhập địa chỉ"
+                    />
+                  </div>
+                  <div className="d-flex gap-2">
+                    <button 
+                      type="button"
+                      className="btn" 
+                      style={{ backgroundColor: '#b88e2f', color: 'white', border: 'none' }}
+                      onClick={handleSaveProfile}
+                    >
+                      <i className="fas fa-save me-2"></i>Lưu thay đổi
+                    </button>
+                    <button 
+                      type="button"
+                      className="btn btn-secondary" 
+                      onClick={() => setEditing(false)}
+                    >
+                      <i className="fas fa-times me-2"></i>Hủy
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">ID</small>
+                        <p className="mb-0 fw-bold">{profile.id}</p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Vai trò</small>
+                        <p className="mb-0 fw-bold">
+                          <span className={`badge ${profile.role === 'admin' ? 'bg-danger' : 'bg-info'}`}>
+                            {profile.role}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-md-12">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Họ tên</small>
+                        <p className="mb-0 fw-bold">{profile.name || 'Chưa cập nhật'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-md-12">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Email</small>
+                        <p className="mb-0 fw-bold">{profile.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Số điện thoại</small>
+                        <p className="mb-0 fw-bold">{profile.phone || 'Chưa cập nhật'}</p>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Ngày tạo</small>
+                        <p className="mb-0 fw-bold">{new Date(profile.created_at).toLocaleDateString('vi-VN')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="p-3 bg-light rounded">
+                        <small className="text-muted">Địa chỉ</small>
+                        <p className="mb-0 fw-bold">{profile.address || 'Chưa cập nhật'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-
-      </div>
-
-      <div className="stats-card-profile">
-        <p><b>Tổng đơn:</b> {statistics.orders?.total || 0}</p>
-        <p><b>Chưa xử lý: </b>{statistics.orders?.pending || 0}</p>
-        <p><b>Đã xử lý: </b>{statistics.orders?.processing || 0}</p>
-        <p><b>Đã hoàn thành:</b> {statistics.orders?.completed || 0}</p>
-        <p><b>Đã hủy:</b> {statistics.orders?.cancelled || 0}</p>
-        <p><b>Tổng chi tiêu:</b> {statistics.total_spent?.toLocaleString() || 0}₫</p>
-
-      </div>
-      <div className="stats-comment">
-        <h2>Thống kê bình luận</h2>
-        <p><b>Số lần bình luận: </b>{statistics.comments}</p>
       </div>
     </div>
   );

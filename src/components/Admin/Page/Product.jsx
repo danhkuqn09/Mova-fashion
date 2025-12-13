@@ -14,6 +14,8 @@ const Products = () => {
         total: 0,
         per_page: 10,
     });
+const formatVND = (value) =>
+    Number(value || 0).toLocaleString("vi-VN") + "₫";
 
     const navigate = useNavigate();
 
@@ -117,7 +119,7 @@ const Products = () => {
                                             </td>
 
                                             <td>{prod.name}</td>
-                                            <td>{prod.price}₫</td>
+                                            <td>{formatVND(prod.price)}</td>
                                             <td>{prod.description || "Không có mô tả"}</td>
 
                                             <td>

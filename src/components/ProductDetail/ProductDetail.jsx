@@ -15,7 +15,6 @@ function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [mainImg, setMainImg] = useState("");
-  console.log(product);
 
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
@@ -25,6 +24,21 @@ function ProductDetail() {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
+  // 👉 Popup/Toast State
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState("success"); // 'success' or 'error'
+
+  // 👉 Hàm hiển thị Popup/Toast
+  const displayPopup = (message, type = "success", duration = 3000) => {
+    setPopupMessage(message);
+    setPopupType(type);
+    setShowPopup(true);
+    // Tự động ẩn sau thời gian định sẵn
+    setTimeout(() => {
+      setShowPopup(false);
+    }, duration);
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -35,7 +49,7 @@ function ProductDetail() {
           res.data?.data ||
           res.data.product ||
           res.data;
-        console.log("PRODUCT RAW DATA:", data); // <-- thêm dòng này
+        console.log("PRODUCT RAW DATA:", data);
 
         setProduct(data);
         if (data.image) {
@@ -63,21 +77,27 @@ function ProductDetail() {
   const selectedVariant = useMemo(() => {
     if (!product || !selectedColor || !selectedSize) return null;
 
-    return product.variants.find(
+    const variant = product.variants.find(
       (v) => v.size === selectedSize && v.color_id === selectedColor.id
     );
+
+    return variant;
   }, [product, selectedColor, selectedSize]);
-  // thêm giỏ hàng
+
+  // 👉 Thay thế alert bằng displayPopup
   const handleAddToCart = async () => {
     if (!selectedVariant) {
-      alert("Vui lòng chọn màu và size trước khi thêm vào giỏ!");
+      displayPopup("Vui lòng chọn màu và size trước khi thêm vào giỏ!", "error");
       return;
     }
 
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Bạn cần đăng nhập để thêm vào giỏ hàng!");
-      navigate("/login");
+      localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+      displayPopup("Bạn cần đăng nhập để thêm vào giỏ hàng!", "error", 5000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 500);
       return;
     }
 
@@ -94,24 +114,28 @@ function ProductDetail() {
       );
 
       if (res.data?.success) {
-        alert("Đã thêm sản phẩm vào giỏ hàng!");
+        displayPopup("✅ Đã thêm sản phẩm vào giỏ hàng!", "success");
       } else {
-        alert(res.data?.message || "Không thể thêm sản phẩm!");
+        displayPopup(res.data?.message || "Không thể thêm sản phẩm!", "error");
       }
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       if (error.response?.status === 401) {
-        alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-        navigate("/login");
+        localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+        displayPopup("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!", "error", 5000);
+        setTimeout(() => {
+          navigate("/login");
+        }, 500);
       } else {
-        alert("Thêm sản phẩm thất bại!");
+        displayPopup("Thêm sản phẩm thất bại!", "error");
       }
     }
   };
+
   // mua ngay
   const handleBuyNow = () => {
     if (!selectedVariant) {
-      alert("Vui lòng chọn màu và size trước khi mua!");
+      displayPopup("Vui lòng chọn màu và size trước khi mua!", "error");
       return;
     }
 
@@ -122,6 +146,8 @@ function ProductDetail() {
       quantity: quantity,
       price: selectedVariant.sale_price || selectedVariant.price || product.price,
       image: selectedVariant.image || product.image,
+      color: selectedVariant.color?.name || selectedColor?.name || null,
+      size: selectedVariant.size || null,
     };
 
     navigate("/checkout", {
@@ -132,6 +158,7 @@ function ProductDetail() {
       },
     });
   };
+
   // Lấy bình luận
   const fetchComments = async () => {
     try {
@@ -147,6 +174,7 @@ function ProductDetail() {
       setLoadingComments(false);
     }
   };
+
   // Lấy đánh giá
   const fetchReviews = async () => {
     try {
@@ -174,19 +202,20 @@ function ProductDetail() {
   const handleSubmitComment = async () => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
-    
+
     console.log("Checking auth:", { hasToken: !!token, hasUser: !!user });
-    
+
     if (!token || !user) {
-      alert("Bạn cần đăng nhập để bình luận!");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+      displayPopup("Bạn cần đăng nhập để bình luận!", "error");
       navigate("/login");
       return;
     }
 
     if (!commentContent.trim()) {
-      alert("Vui lòng nhập nội dung bình luận!");
+      displayPopup("Vui lòng nhập nội dung bình luận!", "error");
       return;
     }
 
@@ -218,25 +247,26 @@ function ProductDetail() {
         // Reset file input
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
-        
+
         fetchComments(); // Refresh
-        alert("Đã gửi bình luận thành công!");
+        displayPopup("Đã gửi bình luận thành công!", "success");
       } else {
-        alert(res.data?.message || "Không thể gửi bình luận!");
+        displayPopup(res.data?.message || "Không thể gửi bình luận!", "error");
       }
     } catch (error) {
       console.error("Lỗi gửi bình luận:", error);
       console.error("Error response:", error.response?.data);
-      
+
       if (error.response?.status === 401) {
-        alert("Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại.");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+        displayPopup("Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại.", "error");
         navigate("/login");
       } else if (error.response?.data?.message) {
-        alert("Lỗi: " + error.response.data.message);
+        displayPopup("Lỗi: " + error.response.data.message, "error");
       } else {
-        alert("Có lỗi xảy ra khi gửi bình luận. Vui lòng thử lại!");
+        displayPopup("Có lỗi xảy ra khi gửi bình luận. Vui lòng thử lại!", "error");
       }
     }
   };
@@ -245,7 +275,7 @@ function ProductDetail() {
   const handleDeleteComment = async (commentId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Bạn cần đăng nhập!");
+      displayPopup("Bạn cần đăng nhập!", "error");
       return;
     }
 
@@ -258,16 +288,13 @@ function ProductDetail() {
 
       if (res.data?.success) {
         fetchComments();
-        alert("Đã xóa bình luận!");
+        displayPopup("Đã xóa bình luận!", "success");
       }
     } catch (error) {
       console.error("Lỗi xóa bình luận:", error);
+      displayPopup("Xóa bình luận thất bại!", "error");
     }
   };
-
-
-
-
 
 
   if (loading) {
@@ -282,6 +309,34 @@ function ProductDetail() {
 
   return (
     <div className="ProductDetail">
+
+      {/* 👉 Popup/Toast Component - Đặt ở đầu để hiển thị trên cùng */}
+      {showPopup && (
+        <div
+          className={`custom-toast-container bg-${popupType === 'success' ? 'success' : 'danger'} text-white shadow-lg p-3 rounded-3`}
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div className="d-flex align-items-center">
+            <strong className="me-auto">
+              <i className={`fas fa-${popupType === 'success' ? 'check-circle' : 'times-circle'} me-2 fs-5`}></i>
+              {popupType === 'success' ? 'Thông báo' : 'Lỗi'}
+            </strong>
+            <button
+              type="button"
+              className="btn-close btn-close-white ms-2"
+              aria-label="Close"
+              onClick={() => setShowPopup(false)}
+            ></button>
+          </div>
+          <div className="mt-2 pt-2 border-top border-light">
+            {popupMessage}
+          </div>
+        </div>
+      )}
+
+
       <Banner />
       <div className="container py-5">
         <div className="row g-5">
@@ -291,7 +346,7 @@ function ProductDetail() {
               <div className="main-image shadow-lg rounded-4 overflow-hidden mb-3" style={{ backgroundColor: '#f8f9fa' }}>
                 <img src={mainImg} alt="main product" className="w-100" style={{ height: '500px', objectFit: 'contain' }} />
               </div>
-              
+
               {/* Thumbnails */}
               <div className="d-flex gap-2 justify-content-center">
                 {[product.image, ...product.variants.map((v) => v.image)]
@@ -314,7 +369,7 @@ function ProductDetail() {
           <div className="col-md-6">
             <div className="product-info">
               <h1 className="fw-bold mb-3">{product.name}</h1>
-              
+
               <div className="d-flex align-items-center gap-3 mb-3">
                 <h3 className="text-primary fw-bold mb-0">
                   {formatVND(
@@ -366,7 +421,7 @@ function ProductDetail() {
                   {product.colors.map((color) => (
                     <button
                       key={color.id}
-                      style={{ 
+                      style={{
                         backgroundColor: color.hex_code,
                         width: '40px',
                         height: '40px',
@@ -407,22 +462,22 @@ function ProductDetail() {
               {/* Quantity & Actions */}
               <div className="d-flex gap-3 align-items-center mb-4">
                 <div className="input-group" style={{ maxWidth: '140px' }}>
-                  <button 
-                    className="btn btn-outline-secondary" 
+                  <button
+                    className="btn btn-outline-secondary"
                     onClick={() => handleQuantity("decrease")}
-                    disabled={!selectedVariant || selectedVariant.quantity === 0}
+                    disabled={!selectedVariant || selectedVariant.quantity === 0 || quantity === 1}
                   >
                     <i className="fas fa-minus"></i>
                   </button>
-                  <input 
-                    type="text" 
-                    className="form-control text-center" 
-                    value={quantity} 
-                    readOnly 
+                  <input
+                    type="text"
+                    className="form-control text-center"
+                    value={quantity}
+                    readOnly
                     style={{ fontWeight: '600' }}
                   />
-                  <button 
-                    className="btn btn-outline-secondary" 
+                  <button
+                    className="btn btn-outline-secondary"
                     onClick={() => handleQuantity("increase")}
                     disabled={!selectedVariant || quantity >= (selectedVariant?.quantity || 0)}
                   >
@@ -430,8 +485,8 @@ function ProductDetail() {
                   </button>
                 </div>
 
-                <button 
-                  className="btn btn-outline-dark btn-lg flex-grow-1" 
+                <button
+                  className="btn btn-outline-dark btn-lg flex-grow-1"
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || selectedVariant.quantity === 0}
                 >
@@ -439,8 +494,8 @@ function ProductDetail() {
                   {!selectedVariant ? 'Chọn màu & size' : selectedVariant.quantity === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
                 </button>
 
-                <button 
-                  className="btn btn-dark btn-lg flex-grow-1" 
+                <button
+                  className="btn btn-dark btn-lg flex-grow-1"
                   onClick={handleBuyNow}
                   disabled={!selectedVariant || selectedVariant.quantity === 0}
                 >
@@ -466,7 +521,7 @@ function ProductDetail() {
               <div className="card-header bg-light border-0">
                 <ul className="nav nav-tabs card-header-tabs">
                   <li className="nav-item">
-                    <button 
+                    <button
                       className={`nav-link ${activeTab === "description" ? "active" : ""}`}
                       onClick={() => setActiveTab("description")}
                     >
@@ -474,7 +529,7 @@ function ProductDetail() {
                     </button>
                   </li>
                   <li className="nav-item">
-                    <button 
+                    <button
                       className={`nav-link ${activeTab === "comments" ? "active" : ""}`}
                       onClick={() => setActiveTab("comments")}
                     >
@@ -482,7 +537,7 @@ function ProductDetail() {
                     </button>
                   </li>
                   <li className="nav-item">
-                    <button 
+                    <button
                       className={`nav-link ${activeTab === "reviews" ? "active" : ""}`}
                       onClick={() => setActiveTab("reviews")}
                     >
@@ -500,7 +555,7 @@ function ProductDetail() {
                     <p className="text-secondary lh-lg" style={{ fontSize: '1rem' }}>
                       {product.description || "Chưa có mô tả chi tiết cho sản phẩm này."}
                     </p>
-                    
+
                     {/* Additional Product Info */}
                     <div className="mt-4">
                       <h5 className="fw-semibold mb-3">Thông tin chi tiết</h5>
@@ -537,7 +592,7 @@ function ProductDetail() {
               {activeTab === "comments" && (
                 <div className="card-body">
                   <h4 className="mb-4 fw-bold">Bình luận sản phẩm</h4>
-                  
+
                   {/* Comment Form */}
                   <div className="mb-5">
                     <textarea
@@ -556,7 +611,7 @@ function ProductDetail() {
                         onChange={(e) => setCommentImage(e.target.files[0])}
                         style={{ maxWidth: '300px' }}
                       />
-                      <button 
+                      <button
                         className="btn px-4"
                         style={{ backgroundColor: '#b88e2f', color: 'white', border: 'none' }}
                         onClick={handleSubmitComment}

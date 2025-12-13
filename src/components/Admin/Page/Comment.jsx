@@ -3,6 +3,7 @@ import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import axios from "axios";
 import "./Css/Comment.css";
+import { useNavigate } from "react-router-dom";
 
 const Comments = () => {
     const [comments, setComments] = useState([]);
@@ -10,13 +11,10 @@ const Comments = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
-    // Chi tiết comment
-    const [detailComment, setDetailComment] = useState(null);
-    const [showDetailModal, setShowDetailModal] = useState(false);
-
+    const navigate = useNavigate();
     const token = localStorage.getItem("token");
 
-    // Lấy danh sách bình luận
+    // ================= FETCH COMMENTS =================
     const fetchComments = async (page = 1) => {
         try {
             setLoading(true);
@@ -45,21 +43,7 @@ const Comments = () => {
         fetchComments();
     }, [search]);
 
-    // Xem chi tiết
-    const viewDetail = async (id) => {
-        try {
-            const res = await axios.get(`http://localhost:8000/api/admin/comments/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setDetailComment(res.data.data);
-            setShowDetailModal(true);
-        } catch (err) {
-            console.error("Lỗi khi xem chi tiết bình luận:", err);
-            alert("Không thể xem chi tiết bình luận");
-        }
-    };
-
-    // Xóa comment
+    // ================= DELETE COMMENT =================
     const handleDelete = async (comment) => {
         const confirmed = window.confirm(
             `Bạn có chắc muốn xóa bình luận của ${comment.user.name}?`
@@ -67,11 +51,14 @@ const Comments = () => {
         if (!confirmed) return;
 
         try {
-            await axios.delete(`http://localhost:8000/api/admin/comments/${comment.id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.delete(
+                `http://localhost:8000/api/admin/comments/${comment.id}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
             alert("Xóa bình luận thành công!");
-            fetchComments(); // tải lại danh sách
+            fetchComments();
         } catch (err) {
             console.error("Lỗi khi xóa bình luận:", err);
             alert("Xóa bình luận thất bại!");
@@ -83,10 +70,11 @@ const Comments = () => {
             <Sidebar />
             <div className="admin-main">
                 <Topbar />
+
                 <div className="admin-page">
                     <h1>Quản lý Bình Luận</h1>
 
-                    {/* Tìm kiếm */}
+                    {/* SEARCH */}
                     <div className="filters">
                         <input
                             type="text"
@@ -96,7 +84,7 @@ const Comments = () => {
                         />
                     </div>
 
-                    {/* Bảng bình luận */}
+                    {/* TABLE */}
                     <table className="admin-table">
                         <thead>
                             <tr>
@@ -127,15 +115,30 @@ const Comments = () => {
                                         <td>{c.content}</td>
                                         <td>
                                             {c.image ? (
-                                                <img src={c.image} alt="comment" className="comment-image" />
-                                            ) : "Không có"}
+                                                <img
+                                                    src={c.image}
+                                                    alt="comment"
+                                                    className="comment-image"
+                                                />
+                                            ) : (
+                                                "Không có"
+                                            )}
                                         </td>
                                         <td>{c.created_at}</td>
                                         <td>
-                                            <button onClick={() => viewDetail(c.id)} className="btn-edit">
+                                            <button
+                                                className="btn-edit"
+                                                onClick={() =>
+                                                    navigate(`/admin/comments/${c.id}`)
+                                                }
+                                            >
                                                 Xem
                                             </button>
-                                            <button onClick={() => handleDelete(c)} className="btn-delete">
+
+                                            <button
+                                                className="btn-delete"
+                                                onClick={() => handleDelete(c)}
+                                            >
                                                 Xóa
                                             </button>
                                         </td>
@@ -145,47 +148,22 @@ const Comments = () => {
                         </tbody>
                     </table>
 
-                    {/* Pagination */}
+                    {/* PAGINATION */}
                     {pagination.total > 0 && (
                         <div className="pagination">
                             {[...Array(pagination.last_page)].map((_, i) => (
                                 <button
                                     key={i}
-                                    className={pagination.current_page === i + 1 ? "active" : ""}
+                                    className={
+                                        pagination.current_page === i + 1
+                                            ? "active"
+                                            : ""
+                                    }
                                     onClick={() => fetchComments(i + 1)}
                                 >
                                     {i + 1}
                                 </button>
                             ))}
-                        </div>
-                    )}
-
-                    {/* Detail Modal */}
-                    {showDetailModal && detailComment && (
-                        <div className="modal-comment">
-                            <div className="modal-content">
-                                <h2>Chi tiết bình luận</h2>
-                                <p>
-                                    <b>Nội dung:</b> {detailComment.content}
-                                </p>
-                                {detailComment.image && (
-                                    <img src={detailComment.image} alt="comment" style={{ maxWidth: "100%" }} />
-                                )}
-                                <h3>Người dùng</h3>
-                                <p>{detailComment.user.name}</p>
-                                <p>{detailComment.user.email}</p>
-                                <p>Tổng số bình luận đã viết: {detailComment.user.total_comments}</p>
-
-                                <h3>Sản phẩm</h3>
-                                <p>{detailComment.product.name}</p>
-                                <p>Category: {detailComment.product.category?.name || "Không"}</p>
-                                <p>Số bình luận: {detailComment.product.total_comments}</p>
-
-                                <p>Ngày tạo: {detailComment.created_at}</p>
-                                <p>Ngày cập nhật: {detailComment.updated_at}</p>
-
-                                <button onClick={() => setShowDetailModal(false)}>Đóng</button>
-                            </div>
                         </div>
                     )}
                 </div>

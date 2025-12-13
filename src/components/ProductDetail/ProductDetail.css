@@ -545,3 +545,48 @@ color: #fff;
 border-radius: 5px;
 margin: 5px;
 }
+/* ProductDetail.css - THÊM ĐOẠN NÀY VÀO CUỐI FILE */
+
+/* Custom Toast/Popup Styling */
+.custom-toast-container {
+  position: fixed; /* Giữ toast cố định trên màn hình */
+  top: 20px; /* Cách lề trên 20px */
+  right: 20px; /* Cách lề phải 20px */
+  z-index: 1050; /* Đảm bảo toast nằm trên mọi thứ (giống như modal) */
+  min-width: 300px;
+  max-width: 90vw;
+  animation: fadeIn 0.3s ease-in-out, fadeOut 0.5s ease-in-out 2.5s forwards; 
+  /* fadeIn 0.3s, sau 2.5s thì fadeOut 0.5s. Thời gian total = 3s (nếu không tự đóng bằng nút X)*/
+}
+
+.custom-toast-container.bg-success {
+    background-color: #4CAF50 !important; /* Màu xanh lá cây */
+}
+
+.custom-toast-container.bg-danger {
+    background-color: #F44336 !important; /* Màu đỏ */
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    /* Dịch chuyển ra ngoài màn hình khi ẩn */
+    transform: translateX(100%); 
+  }
+}

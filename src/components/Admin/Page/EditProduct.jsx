@@ -40,11 +40,13 @@ const EditProduct = () => {
                 // Load màu
                 colors: prod.colors
                     ? prod.colors.map((c) => ({
+                        id: c.id,
                         name: c.name,
                         color_code: c.color_code,
                         image: null,
                     }))
                     : [],
+
 
                 // Load variants
                 variants: prod.variants
@@ -72,7 +74,6 @@ const EditProduct = () => {
 
         try {
             const form = new FormData();
-
             form.append("name", formData.name);
             form.append("description", formData.description);
             form.append("price", formData.price);
@@ -86,12 +87,16 @@ const EditProduct = () => {
 
             // COLORS
             formData.colors.forEach((c, i) => {
+                if (c.id) {
+                    form.append(`colors[${i}][id]`, c.id);
+                }
                 form.append(`colors[${i}][name]`, c.name);
                 form.append(`colors[${i}][color_code]`, c.color_code);
                 if (c.image instanceof File) {
                     form.append(`colors[${i}][image]`, c.image);
                 }
             });
+
 
             // VARIANTS
             formData.variants.forEach((v, i) => {

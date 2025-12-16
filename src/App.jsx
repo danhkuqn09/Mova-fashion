@@ -47,6 +47,7 @@ import EditCategory from "./components/Admin/Page/EditCategories";
 import UserDetail from "./components/Admin/Page/UserDetail";
 import CommentDetail from "./components/Admin/Page/CommentDetail";
 import AdminLayout from "./components/Admin/AdminLayout";
+import ProductView from "./components/Admin/Page/ProductView";
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";

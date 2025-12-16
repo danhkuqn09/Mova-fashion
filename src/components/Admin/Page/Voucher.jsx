@@ -134,20 +134,34 @@ const Voucher = () => {
                 <Topbar />
 
                 <div className="admin-page">
-                    <h1>Quản lý Voucher</h1>
-                    <div className="voucher-header">
-                        <div className="voucher-actions">
-                            <input
-                                type="text"
-                                placeholder="Tìm theo mã voucher..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
-
-                        <button className="add-btn" onClick={() => navigate("/admin/voucher/add")}>
-                            + Thêm voucher
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h1 className="mb-0">
+                            <i className="fas fa-ticket-alt text-primary me-2"></i>
+                            Quản lý voucher
+                        </h1>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => navigate("/admin/voucher/add")}
+                        >
+                            <i className="fas fa-plus me-2"></i>Thêm voucher
                         </button>
+                    </div>
+
+                    <div className="card border-0 shadow-sm mb-4">
+                        <div className="card-body">
+                            <div className="input-group">
+                                <span className="input-group-text bg-white border-end-0">
+                                    <i className="fas fa-search text-muted"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    className="form-control border-start-0 ps-0"
+                                    placeholder="Tìm theo mã voucher..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Popup Form */}
@@ -223,53 +237,99 @@ const Voucher = () => {
                     )}
 
                     {loading ? (
-                        <p>Đang tải...</p>
+                        <div className="text-center py-5">
+                            <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                <span className="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+                        </div>
                     ) : (
-                        <table className="voucher-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Mã</th>
-                                    <th>% Giảm</th>
-                                    <th>Số lượng</th>
-                                    <th>Đã dùng</th>
-                                    <th>Còn lại</th>
-                                    <th>Bắt đầu</th>
-                                    <th>Kết thúc</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredData.map((v) => (
-                                    <tr key={v.id}>
-                                        <td>{v.id}</td>
-                                        <td>{v.code}</td>
-                                        <td>{v.discount_percent}%</td>
-                                        <td>{v.quantity}</td>
-                                        <td>{v.used_count}</td>
-                                        <td>{v.remaining_quantity}</td>
-                                        <td>{formatDate(v.start_date)}</td>
-                                        <td>{formatDate(v.end_date)}</td>
-                                        <td>
-                                            <span
-                                                className={`status-badge ${v.is_active ? "active" : "inactive"}`}
-                                            >
-                                                {v.is_active ? "Đang hoạt động" : "Ngừng hoạt động"}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button className="toggle-btn" onClick={() => handleToggle(v.id)}>
-                                                {v.is_active ? "Tắt" : "Bật"}
-                                            </button>
-                                            <button className="delete-btn" onClick={() => handleDelete(v.id)}>
-                                                Xóa
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="card border-0 shadow-sm">
+                            <div className="card-body p-0">
+                                <div className="table-responsive">
+                                    <table className="table table-hover mb-0">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th style={{ width: '60px' }}>ID</th>
+                                                <th>Mã</th>
+                                                <th style={{ width: '100px' }}>% Giảm</th>
+                                                <th style={{ width: '100px' }}>Số lượng</th>
+                                                <th style={{ width: '100px' }}>Đã dùng</th>
+                                                <th style={{ width: '100px' }}>Còn lại</th>
+                                                <th style={{ width: '150px' }}>Bắt đầu</th>
+                                                <th style={{ width: '150px' }}>Kết thúc</th>
+                                                <th style={{ width: '150px' }}>Trạng thái</th>
+                                                <th style={{ width: '150px' }}>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredData.length > 0 ? (
+                                                filteredData.map((v) => (
+                                                    <tr key={v.id}>
+                                                        <td className="fw-bold text-primary">#{v.id}</td>
+                                                        <td>
+                                                            <span className="badge bg-secondary" style={{ fontSize: '14px' }}>
+                                                                {v.code}
+                                                            </span>
+                                                        </td>
+                                                        <td className="fw-semibold text-success">{v.discount_percent}%</td>
+                                                        <td className="text-center">{v.quantity}</td>
+                                                        <td className="text-center text-danger fw-semibold">{v.used_count}</td>
+                                                        <td className="text-center text-success fw-semibold">{v.remaining_quantity}</td>
+                                                        <td>
+                                                            <small className="text-muted">
+                                                                <i className="far fa-calendar-alt me-1"></i>
+                                                                {formatDate(v.start_date)}
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <small className="text-muted">
+                                                                <i className="far fa-calendar-alt me-1"></i>
+                                                                {formatDate(v.end_date)}
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <span className={`badge ${v.is_active ? 'bg-success' : 'bg-secondary'}`}>
+                                                                {v.is_active ? (
+                                                                    <><i className="fas fa-check-circle me-1"></i>Đang hoạt động</>
+                                                                ) : (
+                                                                    <><i className="fas fa-times-circle me-1"></i>Ngừng hoạt động</>
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex gap-2">
+                                                                <button
+                                                                    className={`btn btn-sm ${v.is_active ? 'btn-secondary' : 'btn-success'}`}
+                                                                    onClick={() => handleToggle(v.id)}
+                                                                    title={v.is_active ? 'Tắt voucher' : 'Bật voucher'}
+                                                                >
+                                                                    <i className={`fas ${v.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}`}></i>
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-sm btn-danger"
+                                                                    onClick={() => handleDelete(v.id)}
+                                                                    title="Xóa"
+                                                                >
+                                                                    <i className="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="10" className="text-center text-muted py-4">
+                                                        <i className="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                                        Không tìm thấy voucher nào
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

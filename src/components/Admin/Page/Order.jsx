@@ -23,6 +23,33 @@ const Orders = () => {
     completed: "Hoàn thành",
     cancelled: "Đã hủy",
   };
+
+  const paymentMethodTexts = {
+    cod: "COD (Tiền mặt)",
+    momo: "Momo",
+  };
+
+  const paymentStatusTexts = {
+    unpaid: "Chưa thanh toán",
+    paid: "Đã thanh toán",
+    refunded: "Đã hoàn tiền",
+  };
+
+  const getPaymentStatusBadge = (status) => {
+    const colors = {
+      unpaid: "#ffc107",
+      paid: "#28a745",
+      refunded: "#6c757d",
+    };
+    return {
+      backgroundColor: colors[status] || "#6c757d",
+      color: "white",
+      padding: "4px 8px",
+      borderRadius: "4px",
+      fontSize: "12px",
+      fontWeight: "bold",
+    };
+  };
   const fetchOrders = async (page = 1) => {
     try {
       setLoading(true);
@@ -85,15 +112,16 @@ const Orders = () => {
                 <th>Tổng tiền</th>
                 <th>Giảm giá</th>
                 <th>Trạng thái</th>
-                <th>Phương thức thanh toán</th>
+                <th>Phương thức TT</th>
+                <th>Trạng thái TT</th>
                 <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7">Đang tải...</td></tr>
+                <tr><td colSpan="8">Đang tải...</td></tr>
               ) : orders.length === 0 ? (
-                <tr><td colSpan="7">Không có dữ liệu</td></tr>
+                <tr><td colSpan="8">Không có dữ liệu</td></tr>
               ) : (
                 orders.map((o) => (
                   <tr key={o.id}>
@@ -102,7 +130,12 @@ const Orders = () => {
                     <td>{formatVND(o.final_total)}</td>
                     <td>{formatVND(o.discount_amount) || formatVND(0)}</td>
                     <td>{statusTexts[o.status]}</td>
-                    <td>{o.payment_method}</td>
+                    <td>{paymentMethodTexts[o.payment_method] || o.payment_method}</td>
+                    <td>
+                      <span style={getPaymentStatusBadge(o.payment_status)}>
+                        {paymentStatusTexts[o.payment_status] || o.payment_status}
+                      </span>
+                    </td>
                     <td>
                       <button
                         className="btn-edit"

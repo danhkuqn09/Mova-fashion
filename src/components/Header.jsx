@@ -41,8 +41,9 @@ function Header() {
         });
         
         // Token hợp lệ, cập nhật user info
-        setUser(response.data);
-        localStorage.setItem("user", JSON.stringify(response.data));
+        const userData = response.data.data || response.data;
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
         
         // Lấy số lượng giỏ hàng
         fetchCartCount(token);

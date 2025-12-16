@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import Footer from "../Footer";
-import { useNavigate } from "react-router-dom"; // import useNavigate
+import { useNavigate } from "react-router-dom";
+import "./AuthPages.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -40,12 +40,20 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="login-page-layout">
-      <div className="main-content-wrapper">
-        <div className="registration-container">
-          <div className="register-form-box">
+    <div className="auth-page-layout">
+      <div className="auth-content-wrapper">
+        <div className="auth-container">
+          <div className="auth-form-box">
             <h2>Quên mật khẩu</h2>
-            {message && <p style={{ color: "green" }}>{message}</p>}
+            <p className="auth-subtitle">
+              Nhập email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.
+            </p>
+            
+            {message && (
+              <div className="auth-message success">
+                {message}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
               <input
@@ -54,15 +62,23 @@ const ForgotPassword = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
 
-              <button type="submit" className="register-button" disabled={loading}>
-                {loading ? "Đang gửi..." : "Gửi liên kết về Email"}
+              <button type="submit" className="auth-submit-btn" disabled={loading}>
+                {loading ? (
+                  <>
+                    Đang gửi...
+                    <span className="auth-loading"></span>
+                  </>
+                ) : (
+                  "Gửi liên kết về Email"
+                )}
               </button>
             </form>
 
-            <div className="login-prompt">
-              <a href="/login">Quay lại đăng nhập</a>
+            <div className="auth-link-section">
+              <a href="/login">← Quay lại đăng nhập</a>
             </div>
           </div>
         </div>

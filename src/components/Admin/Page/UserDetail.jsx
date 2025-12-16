@@ -77,9 +77,12 @@ const UserDetail = () => {
     };
 
     const getPaymentStatusBadge = (status) => {
-        return status === 'paid' 
-            ? <span className="badge bg-success">Đã thanh toán</span>
-            : <span className="badge bg-warning text-dark">Chưa thanh toán</span>;
+        const badges = {
+            unpaid: <span className="badge bg-warning text-dark">Chưa thanh toán</span>,
+            paid: <span className="badge bg-success">Đã thanh toán</span>,
+            refunded: <span className="badge bg-secondary">Đã hoàn tiền</span>,
+        };
+        return badges[status] || <span className="badge bg-secondary">{status}</span>;
     };
 
     return (
@@ -102,60 +105,93 @@ const UserDetail = () => {
                                 <i className="fas fa-user text-primary me-2"></i>Thông tin cá nhân
                             </h5>
                         </div>
-                        <div className="card-body">
-                            <div className="row">
-                                <div className="col-md-2 text-center mb-3">
+                        <div className="card-body p-4">
+                            <div className="row align-items-center">
+                                <div className="col-md-3 text-center mb-4 mb-md-0">
                                     {detail.user.avatars ? (
                                         <img 
                                             src={`http://localhost:8000${detail.user.avatars}`}
                                             alt={detail.user.name}
                                             className="rounded-circle"
-                                            style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+                                            style={{ width: '140px', height: '140px', objectFit: 'cover' }}
                                         />
                                     ) : (
                                         <div 
                                             className="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                            style={{ width: '120px', height: '120px' }}
+                                            style={{ width: '140px', height: '140px' }}
                                         >
-                                            <i className="fas fa-user fa-3x text-white"></i>
+                                            <i className="fas fa-user fa-4x text-white"></i>
                                         </div>
                                     )}
+                                    <div className="mt-3">
+                                        {detail.user.role === 'admin' 
+                                            ? <span className="badge bg-danger px-3 py-2">Admin</span>
+                                            : <span className="badge bg-primary px-3 py-2">User</span>
+                                        }
+                                    </div>
                                 </div>
-                                <div className="col-md-10">
-                                    <div className="row g-3">
+                                <div className="col-md-9">
+                                    <div className="row g-4">
                                         <div className="col-md-6">
-                                            <label className="text-muted small">ID</label>
-                                            <p className="mb-0 fw-semibold">#{detail.user.id}</p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-hashtag me-1"></i>ID
+                                                </label>
+                                                <p className="mb-0 fw-bold fs-5">#{detail.user.id}</p>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label className="text-muted small">Họ tên</label>
-                                            <p className="mb-0 fw-semibold">{detail.user.name}</p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-user me-1"></i>Họ tên
+                                                </label>
+                                                <p className="mb-0 fw-bold fs-5">{detail.user.name}</p>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label className="text-muted small">Email</label>
-                                            <p className="mb-0">{detail.user.email}</p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-envelope me-1"></i>Email
+                                                </label>
+                                                <p className="mb-0">{detail.user.email}</p>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label className="text-muted small">Số điện thoại</label>
-                                            <p className="mb-0">{detail.user.phone || "Chưa có"}</p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-phone me-1"></i>Số điện thoại
+                                                </label>
+                                                <p className="mb-0">{detail.user.phone || <span className="text-muted">Chưa có</span>}</p>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label className="text-muted small">Vai trò</label>
-                                            <p className="mb-0">
-                                                {detail.user.role === 'admin' 
-                                                    ? <span className="badge bg-danger">Admin</span>
-                                                    : <span className="badge bg-primary">User</span>
-                                                }
-                                            </p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-map-marker-alt me-1"></i>Địa chỉ
+                                                </label>
+                                                <p className="mb-0">{detail.user.address || <span className="text-muted">Chưa có</span>}</p>
+                                            </div>
                                         </div>
                                         <div className="col-md-6">
-                                            <label className="text-muted small">Xác thực email</label>
-                                            <p className="mb-0">
-                                                {detail.user.email_verified_at 
-                                                    ? <span className="badge bg-success">Đã xác thực</span>
-                                                    : <span className="badge bg-warning text-dark">Chưa xác thực</span>
-                                                }
-                                            </p>
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-check-circle me-1"></i>Xác thực email
+                                                </label>
+                                                <p className="mb-0">
+                                                    {detail.user.email_verified_at 
+                                                        ? <span className="badge bg-success">Đã xác thực</span>
+                                                        : <span className="badge bg-warning text-dark">Chưa xác thực</span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="info-box">
+                                                <label className="text-muted small fw-semibold text-uppercase mb-1">
+                                                    <i className="fas fa-calendar-alt me-1"></i>Ngày đăng ký
+                                                </label>
+                                                <p className="mb-0">{detail.user.created_at}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -195,11 +231,11 @@ const UserDetail = () => {
                         </div>
                     </div>
 
-                    {/* 5 đơn gần nhất */}
+                    {/* Đơn gần nhất */}
                     <div className="card border-0 shadow-sm">
                         <div className="card-header bg-white border-0 py-3">
                             <h5 className="mb-0 fw-bold">
-                                <i className="fas fa-history text-info me-2"></i>5 đơn hàng gần nhất
+                                <i className="fas fa-history text-info me-2"></i>Những đơn hàng gần nhất
                             </h5>
                         </div>
                         <div className="card-body p-0">
@@ -241,10 +277,10 @@ const UserDetail = () => {
                                                             <span className="badge bg-secondary">COD</span>
                                                         )}
                                                         {order.payment_method === 'momo' && (
-                                                            <span className="badge" style={{ backgroundColor: '#a50064' }}>MoMo</span>
+                                                            <span className="badge" style={{ backgroundColor: '#a50064' }}>Momo</span>
                                                         )}
-                                                        {order.payment_method === 'vnpay' && (
-                                                            <span className="badge" style={{ backgroundColor: '#0066b2' }}>VNPay</span>
+                                                        {!order.payment_method && (
+                                                            <span className="badge bg-light text-dark">N/A</span>
                                                         )}
                                                     </td>
                                                 </tr>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Product.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 function ProductSection() {
   const [products, setProducts] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -151,12 +151,12 @@ function ProductSection() {
 
         {visibleCount < products.length && (
           <div className="text-center mt-5">
-            <button 
-              className="btn btn-lg px-5" 
+            <button
+              className="btn btn-lg px-5"
               onClick={showMore}
-              style={{ 
-                backgroundColor: '#b88e2f', 
-                color: 'white', 
+              style={{
+                backgroundColor: '#b88e2f',
+                color: 'white',
                 border: 'none',
                 transition: 'all 0.3s'
               }}

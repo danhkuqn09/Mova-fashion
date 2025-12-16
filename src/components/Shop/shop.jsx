@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Banner from "./Banner";
 import "./shop.css";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation} from "react-router-dom";
 
 function Shop() {
   const [categories, setCategories] = useState([]);
@@ -39,7 +39,7 @@ function Shop() {
   const [isFiltering, setIsFiltering] = useState(false); // Biến cờ để biết đang lọc
 
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const keyword = new URLSearchParams(location.search).get("keyword") || "";
 
@@ -63,7 +63,8 @@ function Shop() {
         ]);
 
       setCategories(resCategories.data.data.categories || []);
-
+      console.log(resCategories.data.data.categories);
+    
       const getData = (res) => {
         if (Array.isArray(res.data)) return res.data;
         if (Array.isArray(res.data.data)) return res.data.data;
@@ -196,40 +197,7 @@ function Shop() {
     return stars;
   };
 
-  const handleBuyNow = (p) => {
-    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
-
-    if (!firstVariant) {
-      alert("Sản phẩm này chưa có biến thể!");
-      return;
-    }
-
-    const price = firstVariant.price_after_discount ?? firstVariant.price;
-
-    navigate("/checkout", {
-      state: {
-        buyNow: true,
-        item: {
-          product_variant_id: firstVariant.id,  // ✅ ĐÚNG
-          quantity: 1,
-          price: price,
-          name: p.name,
-        },
-        subtotal: price,
-      },
-    });
-  };
-
-
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Đang tải dữ liệu...</p>
-      </div>
-    );
-  }
-
+  // Render functions
   const renderProducts = (list) =>
     list.map((p) => (
       <div className="col" key={p.id}>
@@ -250,19 +218,8 @@ function Shop() {
                   -{p.discount_percent}%
                 </span>
               )}
-              {/* Badge tag */}
-              {p.tag && (
-                <span className="position-absolute top-0 start-0 badge m-2 px-3 py-2"
-                  style={{
-                    fontSize: '0.75rem',
-                    backgroundColor: p.tag === 'new' ? '#28a745' : p.tag === 'hot' ? '#dc3545' : '#ffc107'
-                  }}>
-                  {p.tag.toUpperCase()}
-                </span>
-              )}
             </div>
           </Link>
-
           <div className="card-body d-flex flex-column">
             <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
               <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -272,7 +229,22 @@ function Shop() {
 
             {/* Rating */}
             <div className="mb-2 d-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
-              {renderStars(p.average_rating || 0)}
+              {(() => {
+                const rating = p.average_rating || 0;
+                const stars = [];
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                for (let i = 0; i < 5; i++) {
+                  if (i < fullStars) {
+                    stars.push(<i key={i} className="fas fa-star text-warning"></i>);
+                  } else if (i === fullStars && hasHalfStar) {
+                    stars.push(<i key={i} className="fas fa-star-half-alt text-warning"></i>);
+                  } else {
+                    stars.push(<i key={i} className="far fa-star text-warning"></i>);
+                  }
+                }
+                return stars;
+              })()}
               <span className="text-muted ms-1">
                 ({p.review_count || 0})
               </span>
@@ -280,10 +252,10 @@ function Shop() {
 
             <div className="mt-auto">
               {/* Giá */}
-              <div className="mb-2">
+              <div className="mb-3">
                 {p.sale_price ? (
                   <>
-                    <div className="d-flex align-items-center gap-2 mb-1">
+                    <div className="d-flex align-items-baseline gap-2 mb-1">
                       <span className="text-danger fw-bold fs-5">
                         {Number(p.sale_price).toLocaleString('vi-VN')}₫
                       </span>
@@ -334,6 +306,15 @@ function Shop() {
         {c.name}
       </button>
     ));
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Đang tải dữ liệu...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="shop">

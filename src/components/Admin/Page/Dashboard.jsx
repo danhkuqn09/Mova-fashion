@@ -3,6 +3,26 @@ import axios from "axios";
 import Sidebar from "../Sidebar";
 import Topbar from "../Topbar";
 import "./Css/Dashboard.css";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const [overview, setOverview] = useState(null);
@@ -80,6 +100,7 @@ const Dashboard = () => {
         loadPendingOrders(),
         loadRevenueComparison(),
       ]);
+
     } catch (error) {
       console.error("Dashboard load error:", error);
     } finally {
@@ -133,7 +154,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
             <div className="col-md-6 col-xl-3">
               <div className="card border-0 shadow-sm h-100" style={{ borderLeft: '4px solid #2ecc71' }}>
                 <div className="card-body d-flex align-items-center">
@@ -147,7 +167,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
             <div className="col-md-6 col-xl-3">
               <div className="card border-0 shadow-sm h-100" style={{ borderLeft: '4px solid #9b59b6' }}>
                 <div className="card-body d-flex align-items-center">
@@ -161,7 +180,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
             <div className="col-md-6 col-xl-3">
               <div className="card border-0 shadow-sm h-100" style={{ borderLeft: '4px solid #b88e2f' }}>
                 <div className="card-body d-flex align-items-center">
@@ -220,7 +238,7 @@ const Dashboard = () => {
                             {order.status === 'cancelled' && <span className="badge bg-danger">Đã hủy</span>}
                           </td>
                           <td>
-                            <select 
+                            <select
                               className="form-select form-select-sm"
                               style={{ minWidth: '150px' }}
                               value={order.status || 'pending'}
@@ -244,32 +262,46 @@ const Dashboard = () => {
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-header bg-white border-0 py-3">
               <h5 className="mb-0 fw-bold">
-                <i className="fas fa-calendar-day text-info me-2"></i>Doanh thu theo ngày
+                <i className="fas fa-calendar-day text-info me-2"></i>
+                Doanh thu theo ngày
               </h5>
             </div>
-            <div className="card-body p-0">
-              <div className="table-responsive">
-                <table className="table table-hover mb-0">
-                  <thead className="table-light">
-                    <tr>
-                      <th>Ngày</th>
-                      <th>Doanh thu</th>
-                      <th>Đơn hàng</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {revenueDay.map((item, i) => (
-                      <tr key={i}>
-                        <td>{item.date}</td>
-                        <td className="fw-semibold text-success">{Number(item.revenue).toLocaleString('vi-VN')}₫</td>
-                        <td><span className="badge bg-secondary">{Number(item.order_count).toLocaleString('vi-VN')}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div className="card-body">
+              <Bar
+                data={{
+                  labels: revenueDay.map((i) => i.date),
+                  datasets: [
+                    {
+                      label: "Doanh thu (₫)",
+                      data: revenueDay.map((i) => i.revenue),
+                      borderWidth: 2,
+                      tension: 0.4,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: "top" },
+                    tooltip: {
+                      callbacks: {
+                        label: (ctx) =>
+                          Number(ctx.raw).toLocaleString("vi-VN") + "₫",
+                      },
+                    },
+                  },
+                  scales: {
+                    y: {
+                      ticks: {
+                        callback: (v) => Number(v).toLocaleString("vi-VN"),
+                      },
+                    },
+                  },
+                }}
+              />
             </div>
           </div>
+
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-header bg-white border-0 py-3">
               <h5 className="mb-0 fw-bold">

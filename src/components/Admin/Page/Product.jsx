@@ -14,8 +14,8 @@ const Products = () => {
         total: 0,
         per_page: 10,
     });
-const formatVND = (value) =>
-    Number(value || 0).toLocaleString("vi-VN") + "₫";
+    const formatVND = (value) =>
+        Number(value || 0).toLocaleString("vi-VN") + "₫";
 
     const navigate = useNavigate();
 
@@ -81,99 +81,178 @@ const formatVND = (value) =>
                 <Topbar />
 
                 <div className="admin-page">
-                    <div className="admin-header">
-                        <h1>Quản lý sản phẩm</h1>
-
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h1 className="mb-0">
+                            <i className="fas fa-box text-primary me-2"></i>
+                            Quản lý sản phẩm
+                        </h1>
                         <button
-                            className="add-btn"
+                            className="btn btn-primary"
                             onClick={() => navigate("/admin/products/add")}
                         >
-                            ➕ Thêm sản phẩm
+                            <i className="fas fa-plus me-2"></i>Thêm sản phẩm
                         </button>
                     </div>
 
                     {loading ? (
-                        <p>Đang tải dữ liệu...</p>
+                        <div className="text-center py-5">
+                            <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                <span className="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+                        </div>
                     ) : (
                         <>
-                            <table className="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Hình ảnh</th>
-                                        <th>Tên</th>
-                                        <th>Giá</th>
-                                        <th>Mô tả</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {products.map((prod) => (
-                                        <tr key={prod.id}>
-                                            <td>{prod.id}</td>
-                                            <td>
-                                                <img
-                                                    src={
-                                                        prod.image
-                                                            ? `http://localhost:8000${prod.image}`
-                                                            : "/Image/no-image.png"
-                                                    }
-                                                    alt={prod.name}
-                                                    className="product-img"
-                                                />
-                                            </td>
-
-                                            <td>{prod.name}</td>
-                                            <td>
-                                                {prod.sale_price ? (
-                                                    <>
-                                                        <del className="text-muted">{formatPrice(prod.price)}</del>
-                                                        <br />
-                                                        <strong className="text-danger">{formatPrice(prod.sale_price)}</strong>
-                                                    </>
-                                                ) : (
-                                                    formatPrice(prod.price)
-                                                )}
-                                            </td>
-                                            <td>{prod.description || "Không có mô tả"}</td>
-
-                                            <td>
-                                                <button
-                                                    className="btn-edit"
-                                                    onClick={() =>
-                                                        navigate(`/admin/products/edit/${prod.id}`)
-                                                    }
-                                                >
-                                                    Sửa
-                                                </button>
-
-                                                <button
-                                                    className="btn-delete"
-                                                    onClick={() => handleDelete(prod.id)}
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* pagination */}
-                            <div className="pagination">
-                                {[...Array(pagination.last_page)].map((_, i) => (
-                                    <button
-                                        key={i}
-                                        className={
-                                            pagination.current_page === i + 1 ? "active" : ""
-                                        }
-                                        onClick={() => fetchProducts(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+                            <div className="card border-0 shadow-sm">
+                                <div className="card-body p-0">
+                                    <div className="table-responsive">
+                                        <table className="table table-hover mb-0">
+                                            <thead className="table-light">
+                                                <tr>
+                                                    <th style={{ width: '60px' }}>ID</th>
+                                                    <th style={{ width: '100px' }}>Hình ảnh</th>
+                                                    <th>Tên sản phẩm</th>
+                                                    <th style={{ width: '180px' }}>Giá</th>
+                                                    <th>Danh mục</th>
+                                                    <th style={{ width: '220px' }}>Hành động</th>
+                                                </tr>
+                                            </thead>
+                                                        <tbody>
+                                                {products.map((prod) => (
+                                                    <tr key={prod.id}>
+                                                        <td className="fw-bold text-primary">#{prod.id}</td>
+                                                        <td>
+                                                            <img
+                                                                src={
+                                                                    prod.image
+                                                                        ? `http://localhost:8000${prod.image}`
+                                                                        : "/Image/no-image.png"
+                                                                }
+                                                                alt={prod.name}
+                                                                className="rounded"
+                                                                style={{
+                                                                    width: '70px',
+                                                                    height: '70px',
+                                                                    objectFit: 'cover',
+                                                                    cursor: 'pointer',
+                                                                    transition: 'transform 0.3s ease'
+                                                                }}
+                                                                onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
+                                                                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                                                onClick={() => window.open(
+                                                                    prod.image ? `http://localhost:8000${prod.image}` : '/Image/no-image.png',
+                                                                    '_blank'
+                                                                )}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <div className="fw-semibold" style={{ maxWidth: '300px' }}>
+                                                                {prod.name}
+                                                            </div>
+                                                            <small className="text-muted">
+                                                                {prod.description ? (
+                                                                    prod.description.length > 50 
+                                                                        ? prod.description.substring(0, 50) + '...' 
+                                                                        : prod.description
+                                                                ) : 'Không có mô tả'}
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            {prod.sale_price ? (
+                                                                <div>
+                                                                    <div>
+                                                                        <del className="text-muted small">{formatPrice(prod.price)}</del>
+                                                                    </div>
+                                                                    <div className="fw-bold" style={{ color: '#e74c3c', fontSize: '16px' }}>
+                                                                        {formatPrice(prod.sale_price)}
+                                                                    </div>
+                                                                    <span className="badge bg-danger small">SALE</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="fw-bold" style={{ fontSize: '16px' }}>
+                                                                    {formatPrice(prod.price)}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {prod.category?.name ? (
+                                                                <span className="badge bg-info">{prod.category.name}</span>
+                                                            ) : (
+                                                                <span className="text-muted small">Chưa phân loại</span>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex gap-2">
+                                                                <button
+                                                                    className="btn btn-sm btn-info"
+                                                                    onClick={() => navigate(`/admin/products/view/${prod.id}`)}
+                                                                    title="Xem chi tiết"
+                                                                >
+                                                                    <i className="fas fa-eye"></i>
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-sm btn-warning"
+                                                                    onClick={() => navigate(`/admin/products/edit/${prod.id}`)}
+                                                                    title="Chỉnh sửa"
+                                                                >
+                                                                    <i className="fas fa-edit"></i>
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-sm btn-danger"
+                                                                    onClick={() => handleDelete(prod.id)}
+                                                                    title="Xóa"
+                                                                >
+                                                                    <i className="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Pagination */}
+                            {pagination.last_page > 1 && (
+                                <div className="d-flex justify-content-center mt-4">
+                                    <nav>
+                                        <ul className="pagination">
+                                            {pagination.current_page > 1 && (
+                                                <li className="page-item">
+                                                    <button
+                                                        className="page-link"
+                                                        onClick={() => fetchProducts(pagination.current_page - 1)}
+                                                    >
+                                                        <i className="fas fa-chevron-left"></i>
+                                                    </button>
+                                                </li>
+                                            )}
+                                            {[...Array(pagination.last_page)].map((_, i) => (
+                                                <li key={i} className={`page-item ${pagination.current_page === i + 1 ? 'active' : ''}`}>
+                                                    <button
+                                                        className="page-link"
+                                                        onClick={() => fetchProducts(i + 1)}
+                                                    >
+                                                        {i + 1}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                            {pagination.current_page < pagination.last_page && (
+                                                <li className="page-item">
+                                                    <button
+                                                        className="page-link"
+                                                        onClick={() => fetchProducts(pagination.current_page + 1)}
+                                                    >
+                                                        <i className="fas fa-chevron-right"></i>
+                                                    </button>
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

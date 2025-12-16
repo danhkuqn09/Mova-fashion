@@ -56,71 +56,108 @@ const Categories = () => {
             <div className="admin-main">
                 <Topbar />
                 <div className="admin-page">
-                    <div className="admin-header">
-                        <h1>Quản lý Danh Mục</h1>
-
-                        {/* CHUYỂN SANG TRANG ADD */}
-                        <button className="add-btn" onClick={() => navigate("/admin/categories/add")}>
-                            ➕ Thêm danh mục
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h1 className="mb-0">
+                            <i className="fas fa-th-large text-primary me-2"></i>
+                            Quản lý danh mục
+                        </h1>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => navigate("/admin/categories/add")}
+                        >
+                            <i className="fas fa-plus me-2"></i>Thêm danh mục
                         </button>
                     </div>
 
                     {loading ? (
-                        <p>Đang tải dữ liệu...</p>
+                        <div className="text-center py-5">
+                            <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                                <span className="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+                        </div>
                     ) : (
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Tên danh mục</th>
-                                    <th>Mô tả</th>
-                                    <th>Ảnh</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categories.length > 0 ? (
-                                    categories.map((cat) => (
-                                        <tr key={cat.id}>
-                                            <td>{cat.id}</td>
-                                            <td>{cat.name}</td>
-                                            <td>{cat.description || "Không có mô tả"}</td>
-                                            <td>
-                                                {cat.image ? (
-                                                    <img
-                                                        src={`http://localhost:8000${cat.image}`}
-                                                        alt={cat.name}
-                                                        className="category-img"
-                                                    />
-                                                ) : (
-                                                    "Không có ảnh"
-                                                )}
-                                            </td>
-
-                                            <td>
-                                                {/* CHỈ SỬA, KHÔNG CÒN MODAL ADD */}
-                                                <button
-                                                    className="btn-edit"
-                                                    onClick={() => navigate(`/admin/categories/edit/${cat.id}`)}
-                                                >
-                                                    Sửa
-                                                </button>
-                                                <button
-                                                    className="btn-delete"
-                                                    onClick={() => handleDelete(cat.id)}
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5">Không có danh mục nào</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                        <div className="card border-0 shadow-sm">
+                            <div className="card-body p-0">
+                                <div className="table-responsive">
+                                    <table className="table table-hover mb-0">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th style={{ width: '60px' }}>ID</th>
+                                                <th style={{ width: '100px' }}>Ảnh</th>
+                                                <th>Tên danh mục</th>
+                                                <th>Mô tả</th>
+                                                <th style={{ width: '180px' }}>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {categories.length > 0 ? (
+                                                categories.map((cat) => (
+                                                    <tr key={cat.id}>
+                                                        <td className="fw-bold text-primary">#{cat.id}</td>
+                                                        <td>
+                                                            {cat.image ? (
+                                                                <img
+                                                                    src={`http://localhost:8000${cat.image}`}
+                                                                    alt={cat.name}
+                                                                    className="rounded"
+                                                                    style={{
+                                                                        width: '70px',
+                                                                        height: '70px',
+                                                                        objectFit: 'cover',
+                                                                        cursor: 'pointer',
+                                                                        transition: 'transform 0.3s ease'
+                                                                    }}
+                                                                    onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
+                                                                    onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                                                    onClick={() => window.open(`http://localhost:8000${cat.image}`, '_blank')}
+                                                                />
+                                                            ) : (
+                                                                <span className="text-muted small">Không có ảnh</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="fw-semibold">{cat.name}</td>
+                                                        <td>
+                                                            <small className="text-muted">
+                                                                {cat.description ? (
+                                                                    cat.description.length > 80 
+                                                                        ? cat.description.substring(0, 80) + '...' 
+                                                                        : cat.description
+                                                                ) : 'Không có mô tả'}
+                                                            </small>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex gap-2">
+                                                                <button
+                                                                    className="btn btn-sm btn-warning"
+                                                                    onClick={() => navigate(`/admin/categories/edit/${cat.id}`)}
+                                                                    title="Chỉnh sửa"
+                                                                >
+                                                                    <i className="fas fa-edit"></i>
+                                                                </button>
+                                                                <button
+                                                                    className="btn btn-sm btn-danger"
+                                                                    onClick={() => handleDelete(cat.id)}
+                                                                    title="Xóa"
+                                                                >
+                                                                    <i className="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="5" className="text-center text-muted py-4">
+                                                        Không có danh mục nào
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

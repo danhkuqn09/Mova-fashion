@@ -16,8 +16,8 @@ class ProductSeeder extends Seeder
         $products = [
             // Áo Thun (category_id = 1)
             [
-                'name' => 'Áo Thun Nam Basic Trắng',
-                'image' => 'products/ao-thun-trang.jpg',
+                'name' => 'Áo Thun Nam Basic',
+                'image' => null,
                 'price' => 199000,
                 'sale_price' => 149000,
                 'tag' => 'HOT',
@@ -29,7 +29,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Thun Nữ Croptop',
-                'image' => 'products/ao-croptop.jpg',
+                'image' => null,
                 'price' => 150000,
                 'sale_price' => null,
                 'tag' => 'NEW',
@@ -41,7 +41,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Thun Oversize Unisex',
-                'image' => 'products/ao-thun-oversize.jpg',
+                'image' => null,
                 'price' => 220000,
                 'sale_price' => 189000,
                 'tag' => 'HOT',
@@ -55,7 +55,7 @@ class ProductSeeder extends Seeder
             // Áo Sơ Mi (category_id = 2)
             [
                 'name' => 'Áo Sơ Mi Nam Công Sở',
-                'image' => 'products/ao-somi-nam.jpg',
+                'image' => null,
                 'price' => 350000,
                 'sale_price' => 299000,
                 'tag' => 'NEW',
@@ -67,7 +67,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Sơ Mi Nữ Dài Tay',
-                'image' => 'products/ao-somi-nu.jpg',
+                'image' => null,
                 'price' => 320000,
                 'sale_price' => null,
                 'tag' => null,
@@ -81,7 +81,7 @@ class ProductSeeder extends Seeder
             // Quần Jean (category_id = 3)
             [
                 'name' => 'Quần Jean Nam Slim Fit',
-                'image' => 'products/quan-jean-nam.jpg',
+                'image' => null,
                 'price' => 450000,
                 'sale_price' => 399000,
                 'tag' => 'SALE',
@@ -93,7 +93,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Quần Jean Nữ Ống Rộng',
-                'image' => 'products/quan-jean-nu.jpg',
+                'image' => null,
                 'price' => 420000,
                 'sale_price' => 350000,
                 'tag' => 'SALE',
@@ -105,7 +105,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Quần Jean Baggy Unisex',
-                'image' => 'products/quan-jean-baggy.jpg',
+                'image' => null,
                 'price' => 480000,
                 'sale_price' => 420000,
                 'tag' => 'HOT',
@@ -119,7 +119,7 @@ class ProductSeeder extends Seeder
             // Quần Tây (category_id = 4)
             [
                 'name' => 'Quần Kaki Nam Công Sở',
-                'image' => 'products/quan-kaki-nam.jpg',
+                'image' => null,
                 'price' => 380000,
                 'sale_price' => 320000,
                 'tag' => null,
@@ -131,7 +131,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Quần Tây Nữ Công Sở',
-                'image' => 'products/quan-tay-nu.jpg',
+                'image' => null,
                 'price' => 350000,
                 'sale_price' => null,
                 'tag' => 'NEW',
@@ -145,7 +145,7 @@ class ProductSeeder extends Seeder
             // Áo Khoác (category_id = 5)
             [
                 'name' => 'Áo Khoác Jean Nam',
-                'image' => 'products/ao-khoac-jean.jpg',
+                'image' => null,
                 'price' => 550000,
                 'sale_price' => 480000,
                 'tag' => 'HOT',
@@ -157,7 +157,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Hoodie Nỉ Unisex',
-                'image' => 'products/ao-hoodie.jpg',
+                'image' => null,
                 'price' => 380000,
                 'sale_price' => 320000,
                 'tag' => 'NEW',
@@ -171,7 +171,7 @@ class ProductSeeder extends Seeder
             // Váy (category_id = 6)
             [
                 'name' => 'Váy Chữ A Nữ Công Sở',
-                'image' => 'products/vay-chu-a.jpg',
+                'image' => null,
                 'price' => 320000,
                 'sale_price' => null,
                 'tag' => null,
@@ -183,7 +183,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Váy Maxi Dài Nữ',
-                'image' => 'products/vay-maxi.jpg',
+                'image' => null,
                 'price' => 450000,
                 'sale_price' => 380000,
                 'tag' => 'SALE',
@@ -197,7 +197,7 @@ class ProductSeeder extends Seeder
             // Đầm (category_id = 7)
             [
                 'name' => 'Đầm Công Sở Nữ',
-                'image' => 'products/dam-cong-so.jpg',
+                'image' => null,
                 'price' => 420000,
                 'sale_price' => null,
                 'tag' => 'NEW',
@@ -209,7 +209,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Đầm Dạ Tiệc Sang Trọng',
-                'image' => 'products/dam-da-tiec.jpg',
+                'image' => null,
                 'price' => 680000,
                 'sale_price' => 580000,
                 'tag' => 'HOT',
@@ -223,7 +223,7 @@ class ProductSeeder extends Seeder
             // Áo Polo (category_id = 8)
             [
                 'name' => 'Áo Polo Nam Cao Cấp',
-                'image' => 'products/ao-polo-nam.jpg',
+                'image' => null,
                 'price' => 280000,
                 'sale_price' => null,
                 'tag' => null,
@@ -235,7 +235,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Polo Nữ Thể Thao',
-                'image' => 'products/ao-polo-nu.jpg',
+                'image' => null,
                 'price' => 250000,
                 'sale_price' => 199000,
                 'tag' => 'SALE',
@@ -249,7 +249,7 @@ class ProductSeeder extends Seeder
             // Quần Short (category_id = 9)
             [
                 'name' => 'Quần Short Jean Nam',
-                'image' => 'products/short-jean-nam.jpg',
+                'image' => null,
                 'price' => 280000,
                 'sale_price' => 220000,
                 'tag' => 'SALE',
@@ -261,7 +261,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Quần Short Kaki Nữ',
-                'image' => 'products/short-kaki-nu.jpg',
+                'image' => null,
                 'price' => 250000,
                 'sale_price' => null,
                 'tag' => null,
@@ -275,7 +275,7 @@ class ProductSeeder extends Seeder
             // Áo Len (category_id = 10)
             [
                 'name' => 'Áo Len Nam Cổ Tròn',
-                'image' => 'products/ao-len-nam.jpg',
+                'image' => null,
                 'price' => 420000,
                 'sale_price' => 350000,
                 'tag' => 'HOT',
@@ -287,7 +287,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'name' => 'Áo Cardigan Nữ',
-                'image' => 'products/cardigan-nu.jpg',
+                'image' => null,
                 'price' => 380000,
                 'sale_price' => null,
                 'tag' => 'NEW',

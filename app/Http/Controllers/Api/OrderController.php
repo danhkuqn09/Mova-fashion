@@ -260,30 +260,6 @@ class OrderController extends Controller
                     }
                 }
 
-                if ($request->payment_method === 'payos') {
-                    $payosResponse = $this->createPayOSPayment($order);
-
-                    if (isset($payosResponse['checkoutUrl'])) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Đặt hàng thành công. Vui lòng thanh toán.',
-                            'data' => [
-                                'order' => $order,
-                                'payment_url' => $payosResponse['checkoutUrl'],
-                                'payment_method' => 'payos',
-                                'qr_code_url' => $payosResponse['qrCode'] ?? null
-                            ]
-                        ], 201);
-                    } else {
-                        DB::rollBack();
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Không thể tạo thanh toán PayOS',
-                            'error' => $payosResponse['message'] ?? 'Unknown error'
-                        ], 500);
-                    }
-                }
-
                 // Thanh toán COD
                 return response()->json([
                     'success' => true,
@@ -319,7 +295,7 @@ class OrderController extends Controller
                 'email' => 'required|email|max:255',
                 'phone' => 'required|string|max:20',
                 'address' => 'required|string|max:500',
-                'payment_method' => 'required|string|in:COD,momo,payos',
+                'payment_method' => 'required|string|in:COD,momo',
                 'voucher_code' => 'nullable|string|exists:vouchers,code',
                 'note' => 'nullable|string|max:1000',
             ], [
@@ -468,30 +444,6 @@ class OrderController extends Controller
                             'success' => false,
                             'message' => 'Không thể tạo thanh toán Momo',
                             'error' => $momoResponse['message'] ?? 'Unknown error'
-                        ], 500);
-                    }
-                }
-
-                if ($request->payment_method === 'payos') {
-                    $payosResponse = $this->createPayOSPayment($order);
-
-                    if (isset($payosResponse['checkoutUrl'])) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Đặt hàng thành công. Vui lòng thanh toán.',
-                            'data' => [
-                                'order' => $order,
-                                'payment_url' => $payosResponse['checkoutUrl'],
-                                'payment_method' => 'payos',
-                                'qr_code_url' => $payosResponse['qrCode'] ?? null
-                            ]
-                        ], 201);
-                    } else {
-                        DB::rollBack();
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Không thể tạo thanh toán PayOS',
-                            'error' => $payosResponse['message'] ?? 'Unknown error'
                         ], 500);
                     }
                 }
@@ -803,6 +755,19 @@ class OrderController extends Controller
             $oldStatus = $order->status;
             $newStatus = $request->status;
 
+            // Kiểm tra trạng thái có hợp lệ theo luồng không
+            if (!$this->isValidStatusTransition($oldStatus, $newStatus)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể chuyển trạng thái từ "' . $this->getStatusText($oldStatus) . '" sang "' . $this->getStatusText($newStatus) . '"',
+                    'data' => [
+                        'current_status' => $oldStatus,
+                        'requested_status' => $newStatus,
+                        'allowed_statuses' => $this->getAllowedNextStatuses($oldStatus)
+                    ]
+                ], 400);
+            }
+
             // Nếu đổi từ trạng thái khác sang cancelled
             if ($oldStatus !== 'cancelled' && $newStatus === 'cancelled') {
                 DB::beginTransaction();
@@ -889,77 +854,6 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi xóa đơn hàng',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Thống kê đơn hàng theo trạng thái
-     */
-    public function getStatistics()
-    {
-        try {
-            $user = Auth::user();
-
-            $statistics = [
-                'pending' => Order::where('user_id', $user->id)->where('status', 'pending')->count(),
-                'processing' => Order::where('user_id', $user->id)->where('status', 'processing')->count(),
-                'shipping' => Order::where('user_id', $user->id)->where('status', 'shipping')->count(),
-                'completed' => Order::where('user_id', $user->id)->where('status', 'completed')->count(),
-                'cancelled' => Order::where('user_id', $user->id)->where('status', 'cancelled')->count(),
-                'total' => Order::where('user_id', $user->id)->count(),
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy thống kê đơn hàng thành công',
-                'data' => $statistics
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy thống kê đơn hàng',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Admin: Thống kê tổng quan
-     */
-    public function adminStatistics(Request $request)
-    {
-        try {
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
-
-            $query = Order::query();
-
-            if ($startDate && $endDate) {
-                $query->whereBetween('created_at', [$startDate, $endDate]);
-            }
-
-            $statistics = [
-                'total_orders' => (clone $query)->count(),
-                'pending' => (clone $query)->where('status', 'pending')->count(),
-                'processing' => (clone $query)->where('status', 'processing')->count(),
-                'shipping' => (clone $query)->where('status', 'shipping')->count(),
-                'completed' => (clone $query)->where('status', 'completed')->count(),
-                'cancelled' => (clone $query)->where('status', 'cancelled')->count(),
-                'total_revenue' => (clone $query)->where('status', 'completed')->sum('final_total'),
-                'total_discount' => (clone $query)->sum('discount_amount'),
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy thống kê thành công',
-                'data' => $statistics
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy thống kê',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -1126,7 +1020,7 @@ class OrderController extends Controller
 
             // Momo resultCode = 0 nghĩa là thành công
             if ($request->resultCode == 0) {
-                $order->status = 'processing';
+                // Chỉ cập nhật trạng thái thanh toán, không thay đổi trạng thái đơn hàng
                 $order->payment_status = 'paid';
                 $order->save();
 
@@ -1218,9 +1112,8 @@ class OrderController extends Controller
 
             // Momo resultCode = 0 là thành công
             if ($request->resultCode == 0) {
-                // Cập nhật trạng thái thanh toán
+                // Chỉ cập nhật trạng thái thanh toán, không thay đổi trạng thái đơn hàng
                 $order->payment_status = 'paid';
-                $order->status = 'processing';
                 $order->save();
 
                 Log::info('Momo callback payment successful', [
@@ -1307,237 +1200,6 @@ class OrderController extends Controller
     }
 
     /**
-     * Tạo thanh toán PayOS
-     */
-    private function createPayOSPayment($order)
-    {
-        $clientId = config('services.payos.client_id');
-        $apiKey = config('services.payos.api_key');
-        $checksumKey = config('services.payos.checksum_key');
-        $endpoint = config('services.payos.endpoint');
-        $returnUrl = config('services.payos.return_url');
-        $cancelUrl = config('services.payos.cancel_url');
-
-        $orderCode = (int) ($order->id . time()); // PayOS yêu cầu số nguyên
-        $amount = (int) $order->final_total;
-        $description = "Mova thanh toan " . number_format($order->final_total); // Max 25 ký tự
-
-        // Tạo items trước
-        $items = [];
-        foreach ($order->items as $item) {
-            $items[] = [
-                'name' => $item->productVariant->product->name ?? 'Product',
-                'quantity' => $item->quantity,
-                'price' => (int) $item->price
-            ];
-        }
-
-        // Tạo signature - PayOS yêu cầu format cụ thể
-        $signatureData = "amount={$amount}&cancelUrl={$cancelUrl}&description={$description}&orderCode={$orderCode}&returnUrl={$returnUrl}";
-        $signature = hash_hmac('sha256', $signatureData, $checksumKey);
-
-        // Tạo data request - PHẢI có signature trong body
-        $data = [
-            'orderCode' => $orderCode,
-            'amount' => $amount,
-            'description' => $description,
-            'buyerName' => $order->name,
-            'buyerEmail' => $order->email,
-            'buyerPhone' => $order->phone,
-            'buyerAddress' => $order->address,
-            'items' => $items,
-            'cancelUrl' => $cancelUrl,
-            'returnUrl' => $returnUrl,
-            'signature' => $signature
-        ];
-
-        // Log để debug
-        Log::info('PayOS Payment Request', [
-            'orderCode' => $orderCode,
-            'amount' => $amount,
-            'signature' => $signature
-        ]);
-
-        try {
-            $ch = curl_init($endpoint);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'x-client-id: ' . $clientId,
-                'x-api-key: ' . $apiKey,
-            ]);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-            $result = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            $jsonResult = json_decode($result, true);
-
-            // Log response
-            Log::info('PayOS Response', ['response' => $jsonResult, 'httpCode' => $httpCode]);
-
-            if ($httpCode === 200 && isset($jsonResult['data'])) {
-                // Lưu orderCode để mapping sau
-                $order->transaction_id = (string) $orderCode;
-                $order->save();
-
-                return $jsonResult['data'];
-            }
-
-            return [
-                'error' => true,
-                'message' => $jsonResult['desc'] ?? 'Unknown error',
-                'code' => $jsonResult['code'] ?? 'UNKNOWN'
-            ];
-        } catch (\Exception $e) {
-            Log::error('PayOS Payment Error', ['error' => $e->getMessage()]);
-            return [
-                'error' => true,
-                'message' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Xử lý webhook từ PayOS
-     */
-    public function payosWebhook(Request $request)
-    {
-        try {
-            $checksumKey = config('services.payos.checksum_key');
-
-            // Verify webhook signature
-            $webhookData = $request->all();
-            Log::info('PayOS Webhook Received', $webhookData);
-
-            // Tìm order theo orderCode
-            $orderCode = $webhookData['data']['orderCode'] ?? null;
-            if (!$orderCode) {
-                return response()->json(['error' => 'Invalid webhook data'], 400);
-            }
-
-            $order = Order::where('transaction_id', (string) $orderCode)->first();
-            if (!$order) {
-                return response()->json(['error' => 'Order not found'], 404);
-            }
-
-            // Kiểm tra trạng thái thanh toán
-            $code = $webhookData['code'] ?? null;
-            $success = $webhookData['success'] ?? false;
-
-            if ($code === '00' && $success) {
-                // Thanh toán thành công
-                $order->status = 'processing';
-                $order->payment_status = 'paid';
-                $order->save();
-
-                Log::info('PayOS payment successful', [
-                    'order_id' => $order->id,
-                    'status' => $order->status,
-                    'payment_status' => $order->payment_status
-                ]);
-
-                return response()->json([
-                    'error' => 0,
-                    'message' => 'Webhook received successfully'
-                ]);
-            } else {
-                // Thanh toán thất bại - rollback
-                DB::beginTransaction();
-                try {
-                    $order->status = 'cancelled';
-                    $order->payment_status = 'unpaid';
-                    $order->save();
-
-                    // Hoàn lại tồn kho
-                    foreach ($order->items as $item) {
-                        $variant = ProductVariant::find($item->product_variant_id);
-                        $variant->quantity += $item->quantity;
-                        $variant->save();
-                    }
-
-                    // Hoàn lại voucher
-                    if ($order->voucher_id) {
-                        $voucher = Voucher::find($order->voucher_id);
-                        $voucher->decrement('used_count');
-                    }
-
-                    Log::info('PayOS payment failed - order cancelled', [
-                        'order_id' => $order->id,
-                        'code' => $code
-                    ]);
-
-                    DB::commit();
-
-                    return response()->json([
-                        'error' => 0,
-                        'message' => 'Payment failed, order cancelled'
-                    ]);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    throw $e;
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('PayOS Webhook Error', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Internal server error'], 500);
-        }
-    }
-
-    /**
-     * Xử lý return URL từ PayOS
-     */
-    public function payosReturn(Request $request)
-    {
-        try {
-            $code = $request->query('code');
-            $id = $request->query('id');
-            $orderCode = $request->query('orderCode');
-
-            // Tìm order
-            $order = Order::where('transaction_id', (string) $orderCode)->first();
-
-            if (!$order) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không tìm thấy đơn hàng'
-                ], 404);
-            }
-
-            if ($code === '00') {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Thanh toán thành công',
-                    'data' => [
-                        'order_id' => $order->id,
-                        'status' => $order->status,
-                        'amount' => $order->final_total
-                    ]
-                ], 200);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Thanh toán thất bại. Đơn hàng đã bị hủy.',
-                    'data' => [
-                        'order_id' => $order->id,
-                        'status' => $order->status,
-                        'code' => $code
-                    ]
-                ], 400);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi xử lý return PayOS',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
      * Helper: Lấy text hiển thị trạng thái
      */
     private function getStatusText($status)
@@ -1554,6 +1216,44 @@ class OrderController extends Controller
     }
 
     /**
+     * Helper: Kiểm tra xem có thể chuyển từ trạng thái cũ sang trạng thái mới không
+     */
+    private function isValidStatusTransition($oldStatus, $newStatus)
+    {
+        // Nếu trạng thái không thay đổi
+        if ($oldStatus === $newStatus) {
+            return true;
+        }
+
+        // Định nghĩa các trạng thái tiếp theo hợp lệ
+        $validTransitions = [
+            'pending' => ['processing', 'cancelled'],
+            'processing' => ['shipping', 'cancelled'],
+            'shipping' => ['completed', 'cancelled'],
+            'completed' => [], // Không thể chuyển sang trạng thái nào khác
+            'cancelled' => [], // Không thể chuyển sang trạng thái nào khác
+        ];
+
+        return in_array($newStatus, $validTransitions[$oldStatus] ?? []);
+    }
+
+    /**
+     * Helper: Lấy danh sách trạng thái tiếp theo hợp lệ
+     */
+    private function getAllowedNextStatuses($currentStatus)
+    {
+        $transitions = [
+            'pending' => ['processing', 'cancelled'],
+            'processing' => ['shipping', 'cancelled'],
+            'shipping' => ['completed', 'cancelled'],
+            'completed' => [],
+            'cancelled' => [],
+        ];
+
+        return $transitions[$currentStatus] ?? [];
+    }
+
+    /**
      * Helper: Lấy text hiển thị phương thức thanh toán
      */
     private function getPaymentMethodText($paymentMethod)
@@ -1561,9 +1261,9 @@ class OrderController extends Controller
         $paymentTexts = [
             'COD' => 'Thanh toán khi nhận hàng',
             'momo' => 'Ví điện tử Momo',
-            'payos' => 'Chuyển khoản ngân hàng (PayOS)',
         ];
 
         return $paymentTexts[$paymentMethod] ?? $paymentMethod;
     }
 }
+

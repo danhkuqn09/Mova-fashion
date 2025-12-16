@@ -54,11 +54,6 @@ Route::get('/products/{productId}/comments', [CommentController::class, 'index']
 Route::post('/momo/notify', [OrderController::class, 'momoNotify']); // IPN URL
 Route::get('/momo/callback', [OrderController::class, 'momoCallback']); // Return URL
 
-// PayOS callbacks (Public - PayOS gọi trực tiếp)
-Route::post('/payos/webhook', [OrderController::class, 'payosWebhook']); // Webhook URL
-Route::get('/payos/return', [OrderController::class, 'payosReturn']); // Return URL
-
-
 // Voucher routes (Public - Xem danh sách)
 Route::get('/vouchers', [VoucherController::class, 'index']);
 
@@ -89,7 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/orders', [OrderController::class, 'index']);
 	Route::post('/orders', [OrderController::class, 'store']);
 	Route::post('/orders/buy-now', [OrderController::class, 'buyNow']);
-	Route::get('/orders/statistics', [OrderController::class, 'getStatistics']);
 	Route::get('/orders/{id}', [OrderController::class, 'show']);
 	Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 	Route::get('/orders/{id}/payment-status', [OrderController::class, 'checkPaymentStatus']);
@@ -118,10 +112,7 @@ Route::middleware('auth:sanctum')->group(function () {
 		// Dashboard - Thống kê tổng quan
 		Route::get('/admin/dashboard/overview', [DashboardController::class, 'overview']);
 		Route::get('/admin/dashboard/revenue-by-day', [DashboardController::class, 'revenueByDay']);
-		Route::get('/admin/dashboard/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
-		Route::get('/admin/dashboard/revenue-by-year', [DashboardController::class, 'revenueByYear']);
 		Route::get('/admin/dashboard/pending-orders', [DashboardController::class, 'pendingOrders']);
-		Route::get('/admin/dashboard/low-stock-products', [DashboardController::class, 'lowStockProducts']);
 		Route::get('/admin/dashboard/revenue-comparison', [DashboardController::class, 'revenueComparison']);
 
 		//  Quản lí Voucher
@@ -133,7 +124,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 		// Quản lí Order
 		Route::get('/admin/orders', [OrderController::class, 'adminIndex']);
-		Route::get('/admin/orders/statistics', [OrderController::class, 'adminStatistics']);
 		Route::get('/admin/orders/{id}', [OrderController::class, 'adminShowOrder']);
 		Route::put('/admin/orders/{id}/status', [OrderController::class, 'updateStatus']);
 		Route::delete('/admin/orders/{id}', [OrderController::class, 'destroy']);

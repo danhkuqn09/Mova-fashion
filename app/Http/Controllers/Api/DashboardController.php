@@ -127,6 +127,8 @@ class DashboardController extends Controller
 
     /**
      * Thống kê doanh thu theo ngày
+     * - Doanh thu được tính khi admin chuyển trạng thái sang "completed"
+     * - Hoặc khi thanh toán Momo thành công (payment_status = 'paid')
      */
     public function revenueByDay(Request $request)
     {
@@ -134,26 +136,44 @@ class DashboardController extends Controller
             $startDate = $request->input('start_date', Carbon::now()->subDays(30)->format('Y-m-d'));
             $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
 
-            $revenues = Order::where('status', 'completed')
-                ->whereBetween('created_at', [$startDate, $endDate])
+            // Lấy đơn hàng đã hoàn thành (COD)
+            $completedOrders = Order::where('status', 'completed')
+                ->whereBetween('updated_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->select(
-                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('DATE(updated_at) as date'),
                     DB::raw('SUM(final_total) as revenue'),
                     DB::raw('COUNT(*) as order_count')
                 )
-                ->groupBy('date')
-                ->orderBy('date', 'asc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'date' => Carbon::parse($item->date)->format('d/m/Y'),
-                        'revenue' => $item->revenue,
-                        'order_count' => $item->order_count,
-                    ];
-                });
+                ->groupBy('date');
 
-            $totalRevenue = $revenues->sum('revenue');
-            $totalOrders = $revenues->sum('order_count');
+            // Lấy đơn hàng Momo đã thanh toán (payment_status = 'paid')
+            $paidMomoOrders = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->where('status', '!=', 'completed') // Không tính trùng với completed
+                ->whereBetween('updated_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
+                    DB::raw('DATE(updated_at) as date'),
+                    DB::raw('SUM(final_total) as revenue'),
+                    DB::raw('COUNT(*) as order_count')
+                )
+                ->groupBy('date');
+
+            // Union 2 queries
+            $revenues = $completedOrders
+                ->union($paidMomoOrders)
+                ->get();
+
+            // Group và sum lại theo ngày (trường hợp có cả 2 loại trong cùng 1 ngày)
+            $revenuesByDate = $revenues->groupBy('date')->map(function ($items, $date) {
+                return [
+                    'date' => Carbon::parse($date)->format('d/m/Y'),
+                    'revenue' => $items->sum('revenue'),
+                    'order_count' => $items->sum('order_count'),
+                ];
+            })->sortBy('date')->values();
+
+            $totalRevenue = $revenuesByDate->sum('revenue');
+            $totalOrders = $revenuesByDate->sum('order_count');
 
             return response()->json([
                 'success' => true,
@@ -163,7 +183,7 @@ class DashboardController extends Controller
                     'end_date' => Carbon::parse($endDate)->format('d/m/Y'),
                     'total_revenue' => $totalRevenue,
                     'total_orders' => $totalOrders,
-                    'revenues' => $revenues,
+                    'revenues' => $revenuesByDate,
                 ]
             ], 200);
 

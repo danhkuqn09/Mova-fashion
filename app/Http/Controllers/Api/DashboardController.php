@@ -23,7 +23,13 @@ class DashboardController extends Controller
             $totalOrders = Order::count();
             $totalUsers = User::where('role', 'user')->count();
             $totalProducts = Product::count();
-            $totalRevenue = Order::where('status', 'completed')->sum('final_total');
+            
+            // Tính doanh thu: Đơn completed + Momo đã thanh toán
+            $completedRevenue = Order::where('status', 'completed')->sum('final_total');
+            $momoRevenue = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->sum('final_total');
+            $totalRevenue = $completedRevenue + $momoRevenue;
 
             // Đơn hàng theo trạng thái
             $ordersByStatus = Order::select('status', DB::raw('count(*) as total'))
@@ -204,24 +210,38 @@ class DashboardController extends Controller
         try {
             $year = $request->input('year', Carbon::now()->year);
 
-            $revenues = Order::where('status', 'completed')
+            // Đơn hàng completed
+            $completedOrders = Order::where('status', 'completed')
                 ->whereYear('created_at', $year)
                 ->select(
                     DB::raw('MONTH(created_at) as month'),
                     DB::raw('SUM(final_total) as revenue'),
                     DB::raw('COUNT(*) as order_count')
                 )
-                ->groupBy('month')
-                ->orderBy('month', 'asc')
-                ->get()
-                ->map(function ($item) use ($year) {
-                    return [
-                        'month' => $item->month,
-                        'month_name' => 'Tháng ' . $item->month . '/' . $year,
-                        'revenue' => $item->revenue,
-                        'order_count' => $item->order_count,
-                    ];
-                });
+                ->groupBy('month');
+
+            // Đơn hàng Momo đã thanh toán
+            $momoOrders = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereYear('created_at', $year)
+                ->select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('SUM(final_total) as revenue'),
+                    DB::raw('COUNT(*) as order_count')
+                )
+                ->groupBy('month');
+
+            // Union và group lại theo tháng
+            $allOrders = $completedOrders->union($momoOrders)->get();
+            
+            $revenues = $allOrders->groupBy('month')->map(function ($items, $month) use ($year) {
+                return [
+                    'month' => $month,
+                    'month_name' => 'Tháng ' . $month . '/' . $year,
+                    'revenue' => $items->sum('revenue'),
+                    'order_count' => $items->sum('order_count'),
+                ];
+            })->sortBy('month')->values();
 
             $totalRevenue = $revenues->sum('revenue');
             $totalOrders = $revenues->sum('order_count');
@@ -255,23 +275,37 @@ class DashboardController extends Controller
             $startYear = $request->input('start_year', Carbon::now()->subYears(4)->year);
             $endYear = $request->input('end_year', Carbon::now()->year);
 
-            $revenues = Order::where('status', 'completed')
+            // Đơn hàng completed
+            $completedOrders = Order::where('status', 'completed')
                 ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])
                 ->select(
                     DB::raw('YEAR(created_at) as year'),
                     DB::raw('SUM(final_total) as revenue'),
                     DB::raw('COUNT(*) as order_count')
                 )
-                ->groupBy('year')
-                ->orderBy('year', 'asc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'year' => $item->year,
-                        'revenue' => $item->revenue,
-                        'order_count' => $item->order_count,
-                    ];
-                });
+                ->groupBy('year');
+
+            // Đơn hàng Momo đã thanh toán
+            $momoOrders = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])
+                ->select(
+                    DB::raw('YEAR(created_at) as year'),
+                    DB::raw('SUM(final_total) as revenue'),
+                    DB::raw('COUNT(*) as order_count')
+                )
+                ->groupBy('year');
+
+            // Union và group lại theo năm
+            $allOrders = $completedOrders->union($momoOrders)->get();
+            
+            $revenues = $allOrders->groupBy('year')->map(function ($items, $year) {
+                return [
+                    'year' => $year,
+                    'revenue' => $items->sum('revenue'),
+                    'order_count' => $items->sum('order_count'),
+                ];
+            })->sortBy('year')->values();
 
             $totalRevenue = $revenues->sum('revenue');
             $totalOrders = $revenues->sum('order_count');
@@ -424,25 +458,57 @@ class DashboardController extends Controller
             $thisMonthStart = Carbon::now()->startOfMonth();
             $thisMonthEnd = Carbon::now()->endOfMonth();
             
-            $thisMonthRevenue = Order::where('status', 'completed')
+            // Doanh thu: Completed + Momo paid
+            $thisMonthCompletedRevenue = Order::where('status', 'completed')
                 ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
                 ->sum('final_total');
             
-            $thisMonthOrders = Order::where('status', 'completed')
+            $thisMonthMomoRevenue = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
+                ->sum('final_total');
+            
+            $thisMonthRevenue = $thisMonthCompletedRevenue + $thisMonthMomoRevenue;
+            
+            // Số đơn hàng
+            $thisMonthCompletedOrders = Order::where('status', 'completed')
                 ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
                 ->count();
+            
+            $thisMonthMomoOrders = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
+                ->count();
+            
+            $thisMonthOrders = $thisMonthCompletedOrders + $thisMonthMomoOrders;
 
             // Tháng trước
             $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
             $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
             
-            $lastMonthRevenue = Order::where('status', 'completed')
+            // Doanh thu: Completed + Momo paid
+            $lastMonthCompletedRevenue = Order::where('status', 'completed')
                 ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
                 ->sum('final_total');
             
-            $lastMonthOrders = Order::where('status', 'completed')
+            $lastMonthMomoRevenue = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+                ->sum('final_total');
+            
+            $lastMonthRevenue = $lastMonthCompletedRevenue + $lastMonthMomoRevenue;
+            
+            // Số đơn hàng
+            $lastMonthCompletedOrders = Order::where('status', 'completed')
                 ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
                 ->count();
+            
+            $lastMonthMomoOrders = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+                ->count();
+            
+            $lastMonthOrders = $lastMonthCompletedOrders + $lastMonthMomoOrders;
 
             // Tính phần trăm tăng trưởng
             $revenueGrowth = $lastMonthRevenue > 0 
@@ -463,23 +529,34 @@ class DashboardController extends Controller
                 : 0;
 
             // Doanh thu theo ngày trong tháng hiện tại
-            $dailyRevenue = Order::where('status', 'completed')
+            $completedDaily = Order::where('status', 'completed')
                 ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
                 ->select(
                     DB::raw('DATE(created_at) as date'),
                     DB::raw('SUM(final_total) as revenue'),
                     DB::raw('COUNT(*) as order_count')
                 )
-                ->groupBy('date')
-                ->orderBy('date', 'asc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'date' => Carbon::parse($item->date)->format('d/m'),
-                        'revenue' => $item->revenue,
-                        'order_count' => $item->order_count,
-                    ];
-                });
+                ->groupBy('date');
+            
+            $momoDaily = Order::where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
+                ->select(
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('SUM(final_total) as revenue'),
+                    DB::raw('COUNT(*) as order_count')
+                )
+                ->groupBy('date');
+            
+            $allDaily = $completedDaily->union($momoDaily)->get();
+            
+            $dailyRevenue = $allDaily->groupBy('date')->map(function ($items, $date) {
+                return [
+                    'date' => Carbon::parse($date)->format('d/m'),
+                    'revenue' => $items->sum('revenue'),
+                    'order_count' => $items->sum('order_count'),
+                ];
+            })->sortBy('date')->values();
 
             return response()->json([
                 'success' => true,

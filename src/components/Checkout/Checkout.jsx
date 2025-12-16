@@ -108,6 +108,8 @@ const CheckoutPage = () => {
           window.location.href = res.data.data.payment_url;
         } else {
           alert("Đặt hàng thành công!");
+          // Phát sự kiện để cập nhật số lượng giỏ hàng ở Header
+          window.dispatchEvent(new Event("cartUpdated"));
           navigate("/order");
         }
       } else {

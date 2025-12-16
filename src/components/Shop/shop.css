@@ -109,15 +109,55 @@
   box-shadow: 0 5px 15px rgba(184, 142, 47, 0.4);
 }
 
+.product-card .btn-brand {
+  background-color: #b88e2f !important;
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.product-card .btn-brand:hover {
+  background-color: #9a7628 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(184, 142, 47, 0.5);
+}
+
+.product-card .btn-outline-dark {
+  transition: all 0.3s ease;
+}
+
+.product-card .btn-outline-dark:hover {
+  background-color: #212529 !important;
+  color: white !important;
+  transform: translateY(-2px);
+}
+
 .product-card .badge {
   font-size: 0.75rem;
   padding: 0.5rem 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Star rating */
+.fa-star, .fa-star-half-alt {
+  font-size: 0.9rem;
+}
+
+/* Price styling */
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-decoration-line-through {
+  opacity: 0.6;
 }
 
 .product-card .card-title {
   color: #333;
   transition: color 0.3s;
+  line-height: 1.4;
+}
 }
 
 .product-card:hover .card-title {

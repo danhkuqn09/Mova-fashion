@@ -29,26 +29,22 @@ function ProductSection() {
 
   const showMore = () => setVisibleCount((prev) => prev + 10);
 
-  const handleBuyNow = (p) => {
-    const firstVariant = p.variants?.[0]; // lấy variant đầu tiên
-    if (!firstVariant) {
-      alert("Sản phẩm này chưa có biến thể!");
-      return;
-    }
+  // Render stars
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
 
-    const price = firstVariant.price_after_discount ?? firstVariant.price;
-    navigate("/checkout", {
-      state: {
-        buyNow: true,
-        item: {
-          product_variant_id: firstVariant.id,  
-          quantity: 1,
-          price: price,
-          name: p.name,
-        },
-        subtotal: price,
-      },
-    });
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(<i key={i} className="fas fa-star text-warning"></i>);
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(<i key={i} className="fas fa-star-half-alt text-warning"></i>);
+      } else {
+        stars.push(<i key={i} className="far fa-star text-warning"></i>);
+      }
+    }
+    return stars;
   };
 
   return (
@@ -62,7 +58,7 @@ function ProductSection() {
         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
           {products.slice(0, visibleCount).map((p) => (
             <div className="col" key={p.id}>
-              <div className="card h-100 border-0 shadow-sm product-card">
+              <div className="card h-100 border-0 shadow-sm product-card position-relative" style={{ transition: 'all 0.3s' }}>
                 <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
                   <div className="position-relative overflow-hidden">
                     <img
@@ -70,33 +66,82 @@ function ProductSection() {
                       alt={p.name}
                       className="card-img-top"
                       style={{ height: '280px', objectFit: 'cover', transition: 'transform 0.3s' }}
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     />
-                    {p.price_after_discount && (
-                      <span className="position-absolute top-0 end-0 badge bg-danger m-2">SALE</span>
+                    {/* Badge SALE */}
+                    {p.discount_percent > 0 && (
+                      <span className="position-absolute top-0 end-0 badge bg-danger m-2 px-3 py-2" style={{ fontSize: '0.85rem' }}>
+                        -{p.discount_percent}%
+                      </span>
+                    )}
+                    {/* Badge tag */}
+                    {p.tag && (
+                      <span className="position-absolute top-0 start-0 badge m-2 px-3 py-2" 
+                        style={{ 
+                          fontSize: '0.75rem',
+                          backgroundColor: p.tag === 'new' ? '#28a745' : p.tag === 'hot' ? '#dc3545' : '#ffc107'
+                        }}>
+                        {p.tag.toUpperCase()}
+                      </span>
                     )}
                   </div>
                 </Link>
+                
                 <div className="card-body d-flex flex-column">
-                  <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px' }}>{p.name}</h5>
+                  <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
+                    <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px' }}>
+                      {p.name}
+                    </h5>
+                  </Link>
+
+                  {/* Rating */}
+                  <div className="mb-2 d-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
+                    {renderStars(p.average_rating || 0)}
+                    <span className="text-muted ms-1">
+                      ({p.review_count || 0})
+                    </span>
+                  </div>
+
                   <div className="mt-auto">
-                    {p.price_after_discount ? (
-                      <div className="mb-2">
-                        <span className="text-danger fw-bold fs-6 me-2">
-                          {Number(p.price_after_discount).toLocaleString('vi-VN')}₫
-                        </span>
-                        <span className="text-muted text-decoration-line-through" style={{ fontSize: '0.85rem' }}>
+                    {/* Giá */}
+                    <div className="mb-2">
+                      {p.sale_price ? (
+                        <>
+                          <div className="d-flex align-items-center gap-2 mb-1">
+                            <span className="text-danger fw-bold fs-5">
+                              {Number(p.sale_price).toLocaleString('vi-VN')}₫
+                            </span>
+                          </div>
+                          <span className="text-muted text-decoration-line-through" style={{ fontSize: '0.85rem' }}>
+                            {Number(p.price).toLocaleString('vi-VN')}₫
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-primary fw-bold fs-5">
                           {Number(p.price).toLocaleString('vi-VN')}₫
                         </span>
-                      </div>
-                    ) : (
-                      <p className="text-primary fw-bold fs-6 mb-2">{Number(p.price).toLocaleString('vi-VN')}₫</p>
-                    )}
-                    <button 
-                      className="btn btn-dark w-100 btn-sm" 
-                      onClick={() => handleBuyNow(p)}
+                      )}
+                    </div>
+
+                    {/* Buttons */}
+                    <Link 
+                      to={`/productdetail/${p.id}`}
+                      className="btn w-100 btn-sm d-flex align-items-center justify-content-center gap-2 btn-brand"
+                      style={{ 
+                        fontSize: '0.9rem', 
+                        transition: 'all 0.3s', 
+                        padding: '0.5rem',
+                        backgroundColor: '#b88e2f',
+                        color: 'white',
+                        border: 'none'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#9a7628'}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#b88e2f'}
                     >
-                      <i className="fas fa-shopping-cart me-2"></i>Mua Ngay
-                    </button>
+                      <i className="fas fa-eye"></i>
+                      Xem chi tiết
+                    </Link>
                   </div>
                 </div>
               </div>

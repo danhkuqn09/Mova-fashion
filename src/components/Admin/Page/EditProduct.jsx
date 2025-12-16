@@ -41,12 +41,15 @@ const EditProduct = () => {
     // Format giá tiền VND
     const formatPrice = (value) => {
         if (!value) return "";
-        return Number(value).toLocaleString("vi-VN");
+        // Loại bỏ tất cả ký tự không phải số trước khi format
+        const numValue = String(value).replace(/\D/g, "");
+        if (!numValue) return "";
+        return Number(numValue).toLocaleString("vi-VN");
     };
 
     // Parse giá từ format về number
     const parsePrice = (value) => {
-        return value.replace(/\D/g, "");
+        return String(value).replace(/\D/g, "");
     };
 
     // Load chi tiết sản phẩm
@@ -58,8 +61,8 @@ const EditProduct = () => {
             setFormData({
                 name: prod.name,
                 description: prod.description || "",
-                price: prod.price,
-                sale_price: prod.sale_price || "",
+                price: String(Math.floor(parseFloat(prod.price) || 0)),
+                sale_price: prod.sale_price ? String(Math.floor(parseFloat(prod.sale_price))) : "",
                 tag: prod.tag_id || "",
                 category_id: prod.category?.id || "",
                 image: null,
@@ -79,10 +82,9 @@ const EditProduct = () => {
                         // Tìm color_index dựa vào color_id
                         const colorIdx = prod.colors?.findIndex(c => c.id === v.color_id) ?? 0;
                         return {
-                            id: v.id,
                             size: v.size,
                             quantity: v.quantity,
-                            price: v.price || "",
+                            price: v.price ? String(Math.floor(parseFloat(v.price))) : "",
                             color_index: colorIdx >= 0 ? colorIdx : 0
                         };
                     })
@@ -101,6 +103,9 @@ const EditProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Giới hạn giá tối đa (do database chỉ hỗ trợ decimal(10,2) = tối đa 99,999,999.99)
+        const MAX_PRICE = 99999999;
+
         try {
             const form = new FormData();
 
@@ -108,17 +113,25 @@ const EditProduct = () => {
             form.append("description", formData.description);
             
             // Parse price về số nguyên và validate
-            let priceValue = typeof formData.price === 'string' 
-                ? parsePrice(formData.price) 
-                : formData.price;
-            priceValue = Math.min(parseInt(priceValue) || 0, 2147483647);
+            const priceValue = parseInt(String(formData.price).replace(/\D/g, '')) || 0;
+            
+            // Kiểm tra giá vượt quá giới hạn
+            if (priceValue > MAX_PRICE) {
+                alert(`❌ Giá không được vượt quá ${formatPrice(MAX_PRICE)} VND`);
+                return;
+            }
+            
             form.append("price", priceValue);
             
             if (formData.sale_price) {
-                let salePriceValue = typeof formData.sale_price === 'string'
-                    ? parsePrice(formData.sale_price)
-                    : formData.sale_price;
-                salePriceValue = Math.min(parseInt(salePriceValue) || 0, 2147483647);
+                const salePriceValue = parseInt(String(formData.sale_price).replace(/\D/g, '')) || 0;
+                
+                // Kiểm tra giá sale vượt quá giới hạn
+                if (salePriceValue > MAX_PRICE) {
+                    alert(`❌ Giá khuyến mãi không được vượt quá ${formatPrice(MAX_PRICE)} VND`);
+                    return;
+                }
+                
                 form.append("sale_price", salePriceValue);
             }
             
@@ -138,14 +151,19 @@ const EditProduct = () => {
                 }
             });
 
+            // VARIANTS (không cần gửi id nữa vì backend sẽ tạo mới tất cả)
             formData.variants.forEach((v, index) => {
-                if (v.id) form.append(`variants[${index}][id]`, v.id);
                 form.append(`variants[${index}][size]`, v.size);
                 form.append(`variants[${index}][quantity]`, v.quantity);
                 if (v.price) {
-                    const variantPrice = typeof v.price === 'string'
-                        ? parsePrice(v.price)
-                        : v.price;
+                    const variantPrice = parseInt(String(v.price).replace(/\D/g, '')) || 0;
+                    
+                    // Kiểm tra giá biến thể
+                    if (variantPrice > MAX_PRICE) {
+                        alert(`❌ Giá biến thể ${v.size} không được vượt quá ${formatPrice(MAX_PRICE)} VND`);
+                        throw new Error('Price limit exceeded');
+                    }
+                    
                     form.append(`variants[${index}][price]`, variantPrice);
                 }
                 form.append(`variants[${index}][color_index]`, v.color_index);
@@ -199,7 +217,7 @@ const EditProduct = () => {
             ...formData,
             variants: [
                 ...formData.variants,
-                { id: null, size: "", quantity: 0, price: "", color_index: 0 },
+                { size: "", quantity: 0, price: "", color_index: 0 },
             ],
         });
     };
@@ -252,6 +270,7 @@ const EditProduct = () => {
                                     onChange={(e) => setFormData({ ...formData, price: parsePrice(e.target.value) })}
                                     placeholder="0"
                                 />
+                                <small style={{color: '#666', fontSize: '0.85em'}}>Giá tối đa: 99,999,999 VND</small>
                             </div>
 
                             <div className="form-group">
@@ -262,6 +281,7 @@ const EditProduct = () => {
                                     onChange={(e) => setFormData({ ...formData, sale_price: parsePrice(e.target.value) })}
                                     placeholder="0"
                                 />
+                                <small style={{color: '#666', fontSize: '0.85em'}}>Giá tối đa: 99,999,999 VND</small>
                             </div>
                         </div>
 

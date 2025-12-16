@@ -46,6 +46,7 @@ import OrderDetailAdmin from "./components/Admin/Page/OrderDetail";
 import EditCategory from "./components/Admin/Page/EditCategories";
 import UserDetail from "./components/Admin/Page/UserDetail";
 import CommentDetail from "./components/Admin/Page/CommentDetail";
+import AdminLayout from "./components/Admin/AdminLayout";
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -105,27 +106,30 @@ const location = useLocation();
     <Route path="/payment/callback" element={<MomoCallbackPage />} />
     <Route path="/user" element={<UserProfileFull />}></Route>
 
-    {/* Admin */}
-    <Route path="/admin" element={<Dashboard />} />
-    <Route path="/admin/users" element={<Users />} />
-    <Route path="/admin/products" element={<Products />} />
-    <Route path="/admin/categories" element={<Categories />} />
-    <Route path="/admin/orders" element={<Orders />} />
-    <Route path="/admin/comments" element={<Comments />} />
-    <Route path="/admin/voucher" element={<Voucher />} />
-    <Route path="/admin/news" element={<News />} />
-    <Route path="/order/:id" element={<OrderDetail />} />
-    <Route path="/admin/products/add" element={<AddProduct />} />
-    <Route path="/admin/voucher/add" element={<AddVoucher />} />
-    <Route path="/admin/categories/add" element={<AddCategories />} />
-    <Route path="/admin/news/:id" element={<NewDetail />} />
-    <Route path="/admin/products/edit/:id" element={<EditProduct />} />
-    <Route path="/admin/reviews/:id" element={<ReviewDetail />} />
-    <Route path="/admin/orders/:id" element={<OrderDetailAdmin />} />
-    <Route path="/admin/categories/edit/:id" element={<EditCategory />} />
-    <Route path="/admin/users/:id" element={<UserDetail />} />
-    <Route path="/admin/comments/:id" element={<CommentDetail />} />
+    {/* Admin - Wrap tất cả routes admin trong AdminLayout */}
+    <Route path="/admin" element={<AdminLayout />}>
+      <Route index element={<Dashboard />} />
+      <Route path="users" element={<Users />} />
+      <Route path="users/:id" element={<UserDetail />} />
+      <Route path="products" element={<Products />} />
+      <Route path="products/add" element={<AddProduct />} />
+      <Route path="products/edit/:id" element={<EditProduct />} />
+      <Route path="categories" element={<Categories />} />
+      <Route path="categories/add" element={<AddCategories />} />
+      <Route path="categories/edit/:id" element={<EditCategory />} />
+      <Route path="orders" element={<Orders />} />
+      <Route path="orders/:id" element={<OrderDetailAdmin />} />
+      <Route path="comments" element={<Comments />} />
+      <Route path="comments/:id" element={<CommentDetail />} />
+      <Route path="voucher" element={<Voucher />} />
+      <Route path="voucher/add" element={<AddVoucher />} />
+      <Route path="news" element={<News />} />
+      <Route path="news/:id" element={<NewDetail />} />
+      <Route path="reviews" element={<Review />} />
+      <Route path="reviews/:id" element={<ReviewDetail />} />
+    </Route>
 
+    <Route path="/order/:id" element={<OrderDetail />} />
 
    </Routes>
    {!isAdminRoute && <Footer />}

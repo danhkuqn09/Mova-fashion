@@ -19,7 +19,29 @@ const Users = () => {
     const [sortOrder, setSortOrder] = useState("desc");
 const formatVND = (value) =>
     Number(value || 0).toLocaleString("vi-VN") + "₫";
+    const updateRole = async (userId, newRole) => {
+        if (!window.confirm(`Bạn có chắc muốn đổi role thành "${newRole}"?`)) return;
 
+        try {
+            const res = await axios.put(
+                `http://localhost:8000/api/admin/users/${userId}/role`,
+                { role: newRole },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (res.data.success) {
+                alert("Đổi role thành công!");
+                fetchUsers(pagination.current_page);
+            }
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || "Lỗi khi đổi role");
+        }
+    };
     // Fetch list
     const fetchUsers = async (page = 1) => {
         try {
@@ -124,7 +146,17 @@ const formatVND = (value) =>
                                         <td>{u.name}</td>
                                         <td>{u.email}</td>
                                         <td>{u.phone}</td>
-                                        <td>{u.role}</td>
+                                        <td>
+                                            <select
+                                                className="form-select form-select-sm"
+                                                style={{ minWidth: '100px' }}
+                                                value={u.role}
+                                                onChange={(e) => updateRole(u.id, e.target.value)}
+                                            >
+                                                <option value="user">User</option>
+                                                <option value="admin">Admin</option>
+                                            </select>
+                                        </td>
                                         <td>{u.total_orders}</td>
                                         <td>{formatVND(u.total_spent)}</td>
                                         <td>

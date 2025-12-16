@@ -46,6 +46,7 @@ import OrderDetailAdmin from "./components/Admin/Page/OrderDetail";
 import EditCategory from "./components/Admin/Page/EditCategories";
 import UserDetail from "./components/Admin/Page/UserDetail";
 import CommentDetail from "./components/Admin/Page/CommentDetail";
+import ProductView from "./components/Admin/Page/ProductView";
 // CSS & Libraries
 import "./App.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -125,6 +126,7 @@ const location = useLocation();
     <Route path="/admin/categories/edit/:id" element={<EditCategory />} />
     <Route path="/admin/users/:id" element={<UserDetail />} />
     <Route path="/admin/comments/:id" element={<CommentDetail />} />
+    <Route path="/admin/products/view/:id" element={<ProductView />} />
 
 
    </Routes>

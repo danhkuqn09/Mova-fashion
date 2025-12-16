@@ -14,8 +14,8 @@ const Products = () => {
         total: 0,
         per_page: 10,
     });
-const formatVND = (value) =>
-    Number(value || 0).toLocaleString("vi-VN") + "₫";
+    const formatVND = (value) =>
+        Number(value || 0).toLocaleString("vi-VN") + "₫";
 
     const navigate = useNavigate();
 
@@ -153,6 +153,12 @@ const formatVND = (value) =>
                                                     onClick={() => handleDelete(prod.id)}
                                                 >
                                                     Xóa
+                                                </button>
+                                                <button
+                                                    className="btn-view"
+                                                    onClick={() => navigate(`/admin/products/view/${prod.id}`)}
+                                                >
+                                                    Xem
                                                 </button>
                                             </td>
                                         </tr>

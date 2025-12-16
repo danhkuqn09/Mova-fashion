@@ -20,10 +20,10 @@ const Products = () => {
     const navigate = useNavigate();
 
     // Format giá tiền VND
-    const formatPrice = (value) => {
-        if (!value) return "0";
-        return Number(value).toLocaleString("vi-VN") + "₫";
-    };
+    // const formatPrice = (value) => {
+    //     if (!value) return "0";
+    //     return Number(value).toLocaleString("vi-VN") + "₫";
+    // };
 
     // Lấy danh sách sản phẩm
     const fetchProducts = async (page = 1) => {
@@ -128,12 +128,12 @@ const Products = () => {
                                             <td>
                                                 {prod.sale_price ? (
                                                     <>
-                                                        <del className="text-muted">{formatPrice(prod.price)}</del>
+                                                        <del className="text-muted">{formatVND(prod.price)}</del>
                                                         <br />
-                                                        <strong className="text-danger">{formatPrice(prod.sale_price)}</strong>
+                                                        <strong className="text-danger">{formatVND(prod.sale_price)}</strong>
                                                     </>
                                                 ) : (
-                                                    formatPrice(prod.price)
+                                                    formatVND(prod.price)
                                                 )}
                                             </td>
                                             <td>{prod.description || "Không có mô tả"}</td>

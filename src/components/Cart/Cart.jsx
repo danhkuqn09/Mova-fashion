@@ -37,7 +37,10 @@ function CartPage() {
       })
       .then((res) => {
         const cartData = res.data?.data?.items || [];
+        console.log("Cart items with stock:", cartData);
         setCartItems(cartData);
+        // Mặc định chọn tất cả sản phẩm
+        setSelectedItems(cartData.map((item) => item.id));
         setLoading(false);
       })
       .catch((error) => {
@@ -86,6 +89,9 @@ function CartPage() {
 
       setCartItems(cartItems.filter((item) => item.id !== itemId));
       setSelectedItems(selectedItems.filter((id) => id !== itemId));
+      
+      // Phát sự kiện để cập nhật số lượng giỏ hàng ở Header
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi khi xóa sản phẩm:", error);
       alert("Không thể xóa sản phẩm khỏi giỏ hàng!");
@@ -97,28 +103,35 @@ function CartPage() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    // Tìm item hiện tại TRƯỚC khi update state
+    const currentItem = cartItems.find((i) => i.id === itemId);
+    if (!currentItem) return;
+
+    let newQty = currentItem.quantity;
+    if (type === "increase") {
+      // Kiểm tra tồn kho trước khi tăng
+      const stockQty = currentItem.variant?.quantity || 0;
+      if (newQty >= stockQty) {
+        alert(`Sản phẩm chỉ còn ${stockQty} sản phẩm trong kho!`);
+        return;
+      }
+      newQty++;
+    } else if (type === "decrease") {
+      if (newQty === 1) {
+        removeItem(itemId);
+        return;
+      }
+      newQty--;
+    }
+
+    // Update UI optimistically
     setCartItems((prevCart) =>
-      prevCart.map((item) => {
-        if (item.id === itemId) {
-          let newQty = item.quantity;
-          if (type === "increase") newQty++;
-          else if (type === "decrease" && newQty > 1) newQty--;
-          else if (type === "decrease" && newQty === 1) {
-            removeItem(item.id);
-            return item;
-          }
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      })
+      prevCart.map((item) =>
+        item.id === itemId ? { ...item, quantity: newQty } : item
+      )
     );
 
     try {
-      const currentItem = cartItems.find((i) => i.id === itemId);
-      let newQty = currentItem.quantity;
-      if (type === "increase") newQty++;
-      else if (type === "decrease" && newQty > 1) newQty--;
-
       await axios.put(
         `http://localhost:8000/api/cart/${itemId}`,
         { quantity: newQty },
@@ -126,9 +139,23 @@ function CartPage() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      
+      // Phát sự kiện để cập nhật số lượng giỏ hàng ở Header
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi cập nhật giỏ hàng:", error);
-      alert("Không thể cập nhật số lượng!");
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      
+      const errorMsg = error.response?.data?.message || "Không thể cập nhật số lượng!";
+      alert(errorMsg);
+      
+      // Rollback nếu API thất bại
+      setCartItems((prevCart) =>
+        prevCart.map((item) =>
+          item.id === itemId ? { ...item, quantity: currentItem.quantity } : item
+        )
+      );
     }
   };
 
@@ -155,73 +182,102 @@ function CartPage() {
   // 🔹 Giao diện chính
   return (
     <div className="cart-page">
-      <h2>Giỏ hàng của bạn</h2>
+      <div className="cart-header">
+        <h2>🛒 Giỏ hàng của bạn</h2>
+        <span className="cart-count">({cartItems.length} sản phẩm)</span>
+      </div>
 
       {/* Chọn tất cả */}
       <div className="select-all-box">
-        <input
-          type="checkbox"
-          className="styled-checkbox"
-          checked={selectedItems.length === cartItems.length}
-          onChange={selectAll}
-        />
-        <span>Chọn tất cả</span>
-      </div>
-
-      {cartItems.map((item) => (
-        <div className="cart-item" key={item.id}>
-          {/* Chọn 1 sả3n phâẩ3m*/}
+        <label className="checkbox-label">
           <input
             type="checkbox"
-            className="select-item-checkbox checkbox-left"
-            checked={selectedItems.includes(item.id)}
-            onChange={() => toggleSelectItem(item.id)}
+            className="styled-checkbox"
+            checked={selectedItems.length === cartItems.length}
+            onChange={selectAll}
           />
+          <span className="checkbox-text">Chọn tất cả ({selectedItems.length}/{cartItems.length})</span>
+        </label>
+      </div>
 
-          <img
-            src={`http://localhost:8000/storage/${item.product.image}`}
-            alt={item.product.name}
-            className="item-image"
-          />
-          <div className="item-details">
-            <h3>{item.product.name}</h3>
-            <p>
-              Size: {item.variant.size} • Màu:{" "}
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "12px",
-                  height: "12px",
-                  backgroundColor: item.variant.color_code,
-                  borderRadius: "50%",
-                  margin: "0 4px",
-                  border: "1px solid #ccc",
-                }}
-              ></span>
-              {item.variant.color}
-            </p>
+      <div className="cart-items-container">
+        {cartItems.map((item) => (
+          <div className={`cart-item ${selectedItems.includes(item.id) ? 'selected' : ''}`} key={item.id}>
+            <label className="checkbox-wrapper">
+              <input
+                type="checkbox"
+                className="select-item-checkbox"
+                checked={selectedItems.includes(item.id)}
+                onChange={() => toggleSelectItem(item.id)}
+              />
+              <span className="checkmark"></span>
+            </label>
 
-            <div className="quantity-control">
-              <button onClick={() => updateQuantity(item.id, "decrease")}>
-                -
-              </button>
-              <span>{item.quantity}</span>
-              <button onClick={() => updateQuantity(item.id, "increase")}>
-                +
-              </button>
+            <img
+              src={`http://localhost:8000/storage/${item.product.image}`}
+              alt={item.product.name}
+              className="item-image"
+            />
+            
+            <div className="item-details">
+              <h3 className="item-name">{item.product.name}</h3>
+              <div className="item-variants">
+                <span className="variant-badge">
+                  <i className="fas fa-ruler-combined"></i> Size: {item.variant.size}
+                </span>
+                <span className="variant-badge">
+                  <span
+                    className="color-dot"
+                    style={{
+                      backgroundColor: item.variant.color_code,
+                    }}
+                  ></span>
+                  {item.variant.color}
+                </span>
+              </div>
+
+              <div className="item-price-row">
+                <span className="unit-price">{formatCurrency(item.price)}</span>
+                {item.variant?.quantity > 0 && (
+                  <span className="stock-info" style={{ fontSize: '0.85rem', color: '#7f8c8d', marginLeft: '10px' }}>
+                    (Còn {item.variant.quantity} sản phẩm)
+                  </span>
+                )}
+              </div>
             </div>
 
-            <p>
-              {formatCurrency(item.price)} × {item.quantity} ={" "}
-              <strong>{formatCurrency(item.price * item.quantity)}</strong>
-            </p>
-          </div>
+            <div className="item-actions">
+              <div className="quantity-control">
+                <button 
+                  className="qty-btn" 
+                  onClick={() => updateQuantity(item.id, "decrease")}
+                  disabled={item.quantity === 1}
+                >
+                  <i className="fas fa-minus"></i>
+                </button>
+                <input type="text" className="qty-input" value={item.quantity} readOnly />
+                <button 
+                  className="qty-btn" 
+                  onClick={() => updateQuantity(item.id, "increase")}
+                  disabled={item.quantity >= (item.variant?.quantity || 0)}
+                  title={item.quantity >= (item.variant?.quantity || 0) ? 'Hết hàng trong kho' : 'Tăng số lượng'}
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
 
-          <button className="remove-item-btn" onClick={() => removeItem(item.id)}>
-            &times;
-          </button>
-        </div>
-      ))}
+              <div className="item-total">
+                <span className="total-label">Thành tiền:</span>
+                <span className="total-price">{formatCurrency(item.price * item.quantity)}</span>
+              </div>
+            </div>
+
+            <button className="remove-item-btn" onClick={() => removeItem(item.id)} title="Xóa sản phẩm">
+              <i className="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        ))}
+      </div>
 
       {/* 🔹 Tổng tiền sản phẩm được chọn */}
       <div className="cart-summary">

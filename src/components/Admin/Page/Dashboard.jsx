@@ -30,8 +30,6 @@ const Dashboard = () => {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [comparison, setComparison] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [revenueMonth, setRevenueMonth] = useState([]);
-  const [revenueYear, setRevenueYear] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -47,21 +45,6 @@ const Dashboard = () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     setRevenueDay(res.data.data.revenues);
-  };
-  const loadRevenueByMonth = async () => {
-    const res = await axios.get(
-      "http://localhost:8000/api/admin/dashboard/revenue-by-month",
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setRevenueMonth(res.data.data.revenues);
-  };
-
-  const loadRevenueByYear = async () => {
-    const res = await axios.get(
-      "http://localhost:8000/api/admin/dashboard/revenue-by-year",
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setRevenueYear(res.data.data.revenues);
   };
 
   const loadPendingOrders = async () => {
@@ -114,8 +97,6 @@ const Dashboard = () => {
       await Promise.all([
         loadOverview(),
         loadRevenueByDay(),
-        loadRevenueByMonth(),
-        loadRevenueByYear(),
         loadPendingOrders(),
         loadRevenueComparison(),
       ]);
@@ -321,88 +302,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-header bg-white border-0 py-3">
-              <h5 className="mb-0 fw-bold">
-                <i className="fas fa-calendar-alt text-primary me-2"></i>
-                Doanh thu theo tháng
-              </h5>
-            </div>
-            <div className="card-body">
-              <Bar
-                data={{
-                  labels: revenueMonth.map((i) => i.month),
-                  datasets: [
-                    {
-                      label: "Doanh thu (₫)",
-                      data: revenueMonth.map((i) => i.revenue),
-                      borderWidth: 1,
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                      callbacks: {
-                        label: (ctx) =>
-                          Number(ctx.raw).toLocaleString("vi-VN") + "₫",
-                      },
-                    },
-                  },
-                  scales: {
-                    y: {
-                      ticks: {
-                        callback: (v) => Number(v).toLocaleString("vi-VN"),
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-          </div>
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-header bg-white border-0 py-3">
-              <h5 className="mb-0 fw-bold">
-                <i className="fas fa-calendar text-warning me-2"></i>
-                Doanh thu theo năm
-              </h5>
-            </div>
-            <div className="card-body">
-              <Bar
-                data={{
-                  labels: revenueYear.map((i) => i.year),
-                  datasets: [
-                    {
-                      label: "Doanh thu (₫)",
-                      data: revenueYear.map((i) => i.revenue),
-                      borderWidth: 1,
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                      callbacks: {
-                        label: (ctx) =>
-                          Number(ctx.raw).toLocaleString("vi-VN") + "₫",
-                      },
-                    },
-                  },
-                  scales: {
-                    y: {
-                      ticks: {
-                        callback: (v) => Number(v).toLocaleString("vi-VN"),
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-          </div>
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-header bg-white border-0 py-3">
               <h5 className="mb-0 fw-bold">

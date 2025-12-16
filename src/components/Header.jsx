@@ -8,6 +8,7 @@ function Header() {
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,6 +21,7 @@ function Header() {
         // Không có token, xóa user info
         localStorage.removeItem("user");
         setUser(null);
+        setCartCount(0);
         return;
       }
       
@@ -39,14 +41,19 @@ function Header() {
         });
         
         // Token hợp lệ, cập nhật user info
-        setUser(response.data);
-        localStorage.setItem("user", JSON.stringify(response.data));
+        const userData = response.data.data || response.data;
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        
+        // Lấy số lượng giỏ hàng
+        fetchCartCount(token);
       } catch (error) {
         // Token không hợp lệ hoặc hết hạn
         console.error("Token verification failed:", error);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
+        setCartCount(0);
       }
     };
     
@@ -57,16 +64,42 @@ function Header() {
       verifyToken();
     };
     
+    // Lắng nghe sự kiện cập nhật giỏ hàng
+    const handleCartUpdate = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetchCartCount(token);
+      }
+    };
+    
     window.addEventListener("loginSuccess", handleLoginSuccess);
+    window.addEventListener("cartUpdated", handleCartUpdate);
     
     return () => {
       window.removeEventListener("loginSuccess", handleLoginSuccess);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
   }, []);
 
   const toggleUserMenu = (e) => {
     e.stopPropagation();
     setIsMenuOpen((prev) => !prev);
+  };
+
+  // 🛒 Hàm lấy số lượng sản phẩm trong giỏ hàng
+  const fetchCartCount = async (token) => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/cart", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const cartData = response.data?.data?.items || [];
+      // Tính tổng số lượng sản phẩm
+      const totalCount = cartData.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(totalCount);
+    } catch (error) {
+      console.error("Error fetching cart count:", error);
+      setCartCount(0);
+    }
   };
 
   useEffect(() => {
@@ -197,10 +230,19 @@ function Header() {
           )}
         </div>
         <i
-          className="fas fa-shopping-cart"
+          className="fas fa-shopping-cart position-relative"
           onClick={() => navigate("/cart")}
           style={{ cursor: "pointer" }}
-        ></i>
+        >
+          {cartCount > 0 && (
+            <span 
+              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style={{ fontSize: '0.65rem', padding: '0.25rem 0.45rem' }}
+            >
+              {cartCount > 99 ? '99+' : cartCount}
+            </span>
+          )}
+        </i>
             </div>
           </div>
         </div>

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
-import Footer from "../Footer";
-import "./changepassword.css";
+import { useNavigate } from "react-router-dom";
+import "./AuthPages.css";
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -47,12 +46,20 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className="login-page-layout">
-      <div className="main-content-wrapper">
-        <div className="registration-container">
-          <div className="register-form-box">
+    <div className="auth-page-layout">
+      <div className="auth-content-wrapper">
+        <div className="auth-container">
+          <div className="auth-form-box">
             <h2>Đổi mật khẩu</h2>
-            {message && <p style={{ color: "green" }}>{message}</p>}
+            <p className="auth-subtitle">
+              Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn.
+            </p>
+            
+            {message && (
+              <div className={`auth-message ${message.includes("thành công") ? "success" : "error"}`}>
+                {message}
+              </div>
+            )}
 
             <form onSubmit={handleChangePassword}>
               <input
@@ -77,10 +84,14 @@ const ChangePassword = () => {
                 required
               />
 
-              <button type="submit" className="register-button">
+              <button type="submit" className="auth-submit-btn">
                 Xác nhận đổi mật khẩu
               </button>
             </form>
+            
+            <div className="auth-link-section">
+              <a href="/user">← Quay lại trang cá nhân</a>
+            </div>
           </div>
         </div>
       </div>

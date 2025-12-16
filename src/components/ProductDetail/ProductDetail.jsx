@@ -23,6 +23,7 @@ function ProductDetail() {
   const [activeTab, setActiveTab] = useState("description");
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   // 👉 Popup/Toast State
   const [showPopup, setShowPopup] = useState(false);
@@ -49,11 +50,21 @@ function ProductDetail() {
           res.data?.data ||
           res.data.product ||
           res.data;
-        console.log("PRODUCT RAW DATA:", data);
 
         setProduct(data);
+        console.log("Product data:", data);
+        console.log("Category:", data.category);
+        
         if (data.image) {
-          setMainImg(`http://localhost:8000${data.image}`);
+          const imgUrl = data.image.startsWith('http') ? data.image : `http://localhost:8000${data.image}`;
+          setMainImg(imgUrl);
+        }
+        
+        // Lấy sản phẩm liên quan theo danh mục
+        if (data.category?.id) {
+          fetchRelatedProducts(data.category.id, id);
+        } else {
+          console.warn("Không có category trong product data");
         }
       } catch (error) {
         console.error("Lỗi khi tải chi tiết sản phẩm:", error);
@@ -64,6 +75,23 @@ function ProductDetail() {
     fetchProduct();
   }, [id]);
 
+  // 🔗 Lấy sản phẩm liên quan
+  const fetchRelatedProducts = async (categoryId, currentProductId) => {
+    try {
+      console.log("Fetching related products for category:", categoryId);
+      const res = await axios.get(`http://localhost:8000/api/products/category/${categoryId}`);
+      console.log("API Response:", res.data);
+      const productsData = res.data?.data?.products?.data || [];
+      console.log("Products data:", productsData);
+      // Lọc bỏ sản phẩm hiện tại và chỉ lấy 8 sản phẩm
+      const filtered = productsData.filter(p => p.id !== parseInt(currentProductId)).slice(0, 8);
+      console.log("Filtered related products:", filtered);
+      setRelatedProducts(filtered);
+    } catch (error) {
+      console.error("Lỗi khi tải sản phẩm liên quan:", error);
+    }
+  };
+
   // chỉnh số lượng
   const handleQuantity = (type) => {
     setQuantity((prev) =>
@@ -73,6 +101,15 @@ function ProductDetail() {
 
   const formatVND = (value) =>
     Number(value || 0).toLocaleString("vi-VN") + "₫";
+
+  // Hàm xử lý URL ảnh
+  const normalizeImage = (img) => {
+    if (!img) return "/no-image.png";
+    if (img.startsWith("http")) return img;
+    if (img.startsWith("/storage")) return `http://localhost:8000${img}`;
+    if (img.startsWith("storage/")) return `http://localhost:8000/${img}`;
+    return `http://localhost:8000/storage/${img}`;
+  };
 
   const selectedVariant = useMemo(() => {
     if (!product || !selectedColor || !selectedSize) return null;
@@ -115,6 +152,8 @@ function ProductDetail() {
 
       if (res.data?.success) {
         displayPopup("✅ Đã thêm sản phẩm vào giỏ hàng!", "success");
+        // Phát sự kiện để cập nhật số lượng giỏ hàng ở Header
+        window.dispatchEvent(new Event("cartUpdated"));
       } else {
         displayPopup(res.data?.message || "Không thể thêm sản phẩm!", "error");
       }
@@ -145,7 +184,7 @@ function ProductDetail() {
       product: product,
       quantity: quantity,
       price: selectedVariant.sale_price || selectedVariant.price || product.price,
-      image: selectedVariant.image || product.image,
+      image: selectedVariant.image || selectedColor?.image || product.image,
       color: selectedVariant.color?.name || selectedColor?.name || null,
       size: selectedVariant.size || null,
     };
@@ -349,18 +388,25 @@ function ProductDetail() {
 
               {/* Thumbnails */}
               <div className="d-flex gap-2 justify-content-center">
-                {[...new Set([product.image, ...product.variants.map((v) => v.image)])]
-                  .filter(Boolean)
-                  .map((img, i) => (
-                    <img
-                      key={i}
-                      src={`http://localhost:8000${img}`}
-                      alt={product.name}
-                      onClick={() => setMainImg(`http://localhost:8000${img}`)}
-                      className={`thumbnail-img rounded-3 ${mainImg === `http://localhost:8000${img}` ? 'active' : ''}`}
-                      style={{ width: '80px', height: '80px', objectFit: 'contain', cursor: 'pointer', border: mainImg === `http://localhost:8000${img}` ? '3px solid #b88e2f' : '2px solid #ddd', backgroundColor: '#f8f9fa' }}
-                    />
-                  ))}
+                {[
+                  product.image,
+                  ...product.colors.map(c => c.image).filter(Boolean),
+                  ...product.variants.map(v => v.image).filter(Boolean)
+                ]
+                  .filter((img, index, self) => img && self.indexOf(img) === index) // Loại bỏ trùng lặp
+                  .map((img, i) => {
+                    const fullImgUrl = img.startsWith('http') ? img : `http://localhost:8000${img}`;
+                    return (
+                      <img
+                        key={i}
+                        src={fullImgUrl}
+                        alt={product.name}
+                        onClick={() => setMainImg(fullImgUrl)}
+                        className={`thumbnail-img rounded-3 ${mainImg === fullImgUrl ? 'active' : ''}`}
+                        style={{ width: '80px', height: '80px', objectFit: 'contain', cursor: 'pointer', border: mainImg === fullImgUrl ? '3px solid #b88e2f' : '2px solid #ddd', backgroundColor: '#f8f9fa' }}
+                      />
+                    );
+                  })}
               </div>
             </div>
           </div>
@@ -413,7 +459,6 @@ function ProductDetail() {
                 )}
               </div>
 
-              <p className="text-secondary mb-4 lh-lg">{product.description}</p>
               {/* Color Selection */}
               <div className="mb-4">
                 <h6 className="fw-semibold mb-3">Màu sắc</h6>
@@ -422,7 +467,7 @@ function ProductDetail() {
                     <button
                       key={color.id}
                       style={{
-                        backgroundColor: color.hex_code,
+                        backgroundColor: color.hex_code || color.color_code || '#000000',
                         width: '40px',
                         height: '40px',
                         border: selectedColor?.id === color.id ? '3px solid #b88e2f' : '2px solid #ddd',
@@ -432,8 +477,17 @@ function ProductDetail() {
                       }}
                       onClick={() => {
                         setSelectedColor(color);
+                        // Ưu tiên ảnh từ bảng product_colors
                         if (color.image) {
-                          setMainImg(`http://localhost:8000${color.image}`);
+                          const colorImgUrl = color.image.startsWith('http') ? color.image : `http://localhost:8000${color.image}`;
+                          setMainImg(colorImgUrl);
+                        } else {
+                          // Nếu không có ảnh màu, tìm variant có màu này
+                          const variantWithImage = product.variants.find(v => v.color_id === color.id && v.image);
+                          if (variantWithImage && variantWithImage.image) {
+                            const variantImgUrl = variantWithImage.image.startsWith('http') ? variantWithImage.image : `http://localhost:8000${variantWithImage.image}`;
+                            setMainImg(variantImgUrl);
+                          }
                         }
                       }}
                       title={color.name}
@@ -731,6 +785,101 @@ function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className="container my-5">
+          <div className="text-center mb-4">
+            <h3 className="fw-bold">Sản phẩm liên quan</h3>
+            <p className="text-muted">Khám phá thêm các sản phẩm cùng danh mục</p>
+          </div>
+          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {relatedProducts.map((p) => (
+              <div className="col" key={p.id}>
+                <div className="card h-100 border-0 shadow-sm product-card position-relative" style={{ transition: 'all 0.3s' }}>
+                  <a href={`/productdetail/${p.id}`} className="text-decoration-none">
+                    <div className="position-relative overflow-hidden">
+                      <img
+                        src={normalizeImage(p.image)}
+                        alt={p.name}
+                        className="card-img-top"
+                        style={{ height: '280px', objectFit: 'cover', transition: 'transform 0.3s' }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                      {p.discount_percent > 0 && (
+                        <span className="position-absolute top-0 end-0 m-2 badge bg-danger" style={{ fontSize: '0.85rem' }}>
+                          -{p.discount_percent}%
+                        </span>
+                      )}
+                    </div>
+                  </a>
+                  <div className="card-body d-flex flex-column">
+                    <a href={`/productdetail/${p.id}`} className="text-decoration-none">
+                      <h5 className="card-title text-dark fw-bold mb-2" style={{ fontSize: '0.95rem', minHeight: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        {p.name}
+                      </h5>
+                    </a>
+                    
+                    {/* Rating */}
+                    <div className="mb-2 d-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
+                      {(() => {
+                        const rating = p.average_rating || 0;
+                        const stars = [];
+                        const fullStars = Math.floor(rating);
+                        const hasHalfStar = rating % 1 >= 0.5;
+                        for (let i = 0; i < 5; i++) {
+                          if (i < fullStars) {
+                            stars.push(<i key={i} className="fas fa-star text-warning"></i>);
+                          } else if (i === fullStars && hasHalfStar) {
+                            stars.push(<i key={i} className="fas fa-star-half-alt text-warning"></i>);
+                          } else {
+                            stars.push(<i key={i} className="far fa-star text-warning"></i>);
+                          }
+                        }
+                        return stars;
+                      })()}
+                      <span className="text-muted ms-1">({p.review_count || 0})</span>
+                    </div>
+
+                    <div className="mt-auto">
+                      {/* Giá */}
+                      <div className="mb-2">
+                        {p.sale_price ? (
+                          <>
+                            <div className="d-flex align-items-center gap-2 mb-1">
+                              <span className="text-danger fw-bold" style={{ fontSize: '1.1rem' }}>
+                                {Number(p.sale_price || 0).toLocaleString('vi-VN')}₫
+                              </span>
+                              <span className="text-muted text-decoration-line-through" style={{ fontSize: '0.9rem' }}>
+                                {Number(p.price || 0).toLocaleString('vi-VN')}₫
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <span className="fw-bold" style={{ fontSize: '1.1rem', color: '#b88e2f' }}>
+                            {Number(p.price || 0).toLocaleString('vi-VN')}₫
+                          </span>
+                        )}
+                      </div>
+                      
+                      <a 
+                        href={`/productdetail/${p.id}`}
+                        className="btn w-100 text-white" 
+                        style={{ backgroundColor: '#b88e2f', transition: 'all 0.3s' }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#9a7628'}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#b88e2f'}
+                      >
+                        <i className="fas fa-eye me-2"></i>Xem chi tiết
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

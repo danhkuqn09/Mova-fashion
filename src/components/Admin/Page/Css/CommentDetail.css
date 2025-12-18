@@ -1,25 +1,78 @@
+/* Container chính */
+.comment-detail {
+    max-width: 1200px;
+}
+
+/* Section box với card design */
 .comment-detail .box {
     background: #fff;
-    padding: 16px;
-    border-radius: 6px;
-    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
+.comment-detail .box h3 {
+    margin: 0;
+    padding: 15px 25px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #b88e2f 0%, #9a7628 100%);
+}
+
+.comment-detail .box p {
+    padding: 0 25px;
+    margin: 15px 0;
+    font-size: 15px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.comment-detail .box p:first-of-type {
+    padding-top: 20px;
+}
+
+.comment-detail .box p:last-of-type {
+    padding-bottom: 20px;
+}
+
+.comment-detail .box p b {
+    font-weight: 600;
+    color: #666;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* Hình ảnh chi tiết */
 .detail-image {
-    max-width: 300px;
-    margin-top: 10px;
-    border-radius: 6px;
+    max-width: 400px;
+    width: 100%;
+    margin: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: block;
 }
 
+/* Nút quay lại */
 .btn-back {
-    background: none;
-    padding: 8px 14px;
-    border: none;
-    font-size: 16px;
-    color: #007BFF;
-    margin-bottom: 15px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 10px 18px;
+    border-radius: 8px;
     cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
 }
+
 .btn-back:hover {
-    background-color:#c0c0c0 ;
+    background: #e9ecef;
+    border-color: #bbb;
+    transform: translateX(-2px);
 }

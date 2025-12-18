@@ -86,7 +86,7 @@ const OrderDetail = () => {
 
   const updateStatus = async () => {
     try {
-      await axios.put(
+      const res = await axios.put(
         `http://localhost:8000/api/admin/orders/${id}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -96,7 +96,10 @@ const OrderDetail = () => {
       fetchOrder();
     } catch (err) {
       console.error("Lỗi cập nhật", err);
-      alert("Lỗi cập nhật trạng thái");
+      console.error("Response data:", err.response?.data);
+      
+      const errorMsg = err.response?.data?.message || "Lỗi cập nhật trạng thái";
+      alert(errorMsg);
     }
   };
 

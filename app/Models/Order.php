@@ -45,4 +45,28 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Kiểm tra xem đơn hàng có thể hủy không
+     */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, ['pending', 'processing']);
+    }
+
+    /**
+     * Kiểm tra xem đơn hàng đã thanh toán chưa
+     */
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'paid';
+    }
+
+    /**
+     * Kiểm tra xem đơn hàng đã hoàn tiền chưa
+     */
+    public function isRefunded(): bool
+    {
+        return $this->payment_status === 'refunded';
+    }
 }

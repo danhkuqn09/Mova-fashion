@@ -786,7 +786,14 @@ class OrderController extends Controller
                         $voucher->decrement('used_count');
                     }
 
+                    // Cập nhật trạng thái hủy và hoàn tiền
                     $order->status = $newStatus;
+                    
+                    // Nếu đơn hàng đã thanh toán, đổi payment_status sang refunded
+                    if ($order->payment_status === 'paid') {
+                        $order->payment_status = 'refunded';
+                    }
+                    
                     $order->save();
 
                     DB::commit();
@@ -807,6 +814,7 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'old_status' => $oldStatus,
                     'new_status' => $newStatus,
+                    'payment_status' => $order->payment_status,
                 ]
             ], 200);
         } catch (\Exception $e) {

@@ -24,6 +24,18 @@ const OrderDetail = () => {
     completed: "Hoàn thành",
     cancelled: "Đã hủy",
   };
+  const statusFlow = ["pending", "processing", "shipping", "completed"];
+  const canSelectStatus = (currentStatus, optionStatus) => {
+    if (currentStatus === "completed" || currentStatus === "cancelled") {
+      return currentStatus === optionStatus;
+    }
+
+    const currentIndex = statusFlow.indexOf(currentStatus);
+    const optionIndex = statusFlow.indexOf(optionStatus);
+
+    // Cho phép giữ nguyên hoặc tiến đúng 1 bước
+    return optionIndex === currentIndex || optionIndex === currentIndex + 1;
+  };
 
   const paymentMethodTexts = {
     cod: "COD (Tiền mặt)",
@@ -216,13 +228,13 @@ const OrderDetail = () => {
                     {order.items.map((item) => (
                       <tr key={item.id}>
                         <td>
-                          <img 
-                            src={item.product_variant?.color?.image 
-                              ? `http://localhost:8000/storage/${item.product_variant.color.image}` 
-                              : (item.product_variant?.product?.image 
+                          <img
+                            src={item.product_variant?.color?.image
+                              ? `http://localhost:8000/storage/${item.product_variant.color.image}`
+                              : (item.product_variant?.product?.image
                                 ? `http://localhost:8000/storage/${item.product_variant.product.image}`
                                 : '/placeholder.png')
-                            } 
+                            }
                             alt={item.product_variant?.product?.name || 'Product'}
                             className="product-thumb"
                             onError={(e) => { e.target.src = '/placeholder.png'; }}
@@ -276,13 +288,34 @@ const OrderDetail = () => {
               <div className="order-action">
                 <div className="action-group">
                   <label>Cập nhật trạng thái:</label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="pending">Chờ xác nhận</option>
-                    <option value="processing">Đang xử lý</option>
-                    <option value="shipping">Đang giao hàng</option>
-                    <option value="completed">Hoàn thành</option>
-                    <option value="cancelled">Đã hủy</option>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    disabled={order.status === "completed" || order.status === "cancelled"}
+                  >
+                    {statusFlow.map((st) => (
+                      <option
+                        key={st}
+                        value={st}
+                        disabled={!canSelectStatus(order.status, st)}
+                      >
+                        {statusTexts[st]}
+                      </option>
+                    ))}
+  
+                    {/* Cancelled: chỉ cho phép nếu chưa completed */}
+                    {order.status !== "completed" && (
+                      <option
+                        value="cancelled"
+                        disabled={order.status === "cancelled"}
+                      >
+                        Đã hủy
+                      </option>
+                    )}
                   </select>
+
+
+
                   <button className="btn-update" onClick={updateStatus}>
                     <i className="fas fa-check"></i> Cập nhật
                   </button>

@@ -232,6 +232,7 @@
     border: 1px solid #ddd;
     font-size: 14px;
     background: white;
+    color: #000;
     cursor: pointer;
     transition: all 0.3s;
 }

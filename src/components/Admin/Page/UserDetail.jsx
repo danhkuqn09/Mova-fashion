@@ -108,23 +108,24 @@ const UserDetail = () => {
                         <div className="card-body p-4">
                             <div className="row align-items-center">
                                 <div className="col-md-3 text-center mb-4 mb-md-0">
-                                    {detail.user.avatars ? (
-                                        <img 
-                                            src={`http://localhost:8000${detail.user.avatars}`}
+                                    {detail.user.avatar ? (
+                                        <img
+                                            src={`http://localhost:8000${detail.user.avatar}`}
                                             alt={detail.user.name}
                                             className="rounded-circle"
-                                            style={{ width: '140px', height: '140px', objectFit: 'cover' }}
+                                            style={{ width: "140px", height: "140px", objectFit: "cover" }}
                                         />
                                     ) : (
-                                        <div 
+                                        <div
                                             className="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                            style={{ width: '140px', height: '140px' }}
+                                            style={{ width: "140px", height: "140px" }}
                                         >
                                             <i className="fas fa-user fa-4x text-white"></i>
                                         </div>
                                     )}
+
                                     <div className="mt-3">
-                                        {detail.user.role === 'admin' 
+                                        {detail.user.role === 'admin'
                                             ? <span className="badge bg-danger px-3 py-2">Admin</span>
                                             : <span className="badge bg-primary px-3 py-2">User</span>
                                         }
@@ -178,7 +179,7 @@ const UserDetail = () => {
                                                     <i className="fas fa-check-circle me-1"></i>Xác thực email
                                                 </label>
                                                 <p className="mb-0">
-                                                    {detail.user.email_verified_at 
+                                                    {detail.user.email_verified_at
                                                         ? <span className="badge bg-success">Đã xác thực</span>
                                                         : <span className="badge bg-warning text-dark">Chưa xác thực</span>
                                                     }
@@ -253,39 +254,47 @@ const UserDetail = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {detail.recent_orders.map((order) => (
-                                                <tr key={order.id}>
-                                                    <td>
-                                                        <span className="badge bg-primary">
-                                                            #{order.order_code || `ID-${order.id}`}
-                                                        </span>
-                                                    </td>
-                                                    <td className="text-muted small">
-                                                        {order.created_at}
-                                                    </td>
-                                                    <td className="fw-semibold">
-                                                        {formatVND(order.final_total)}
-                                                    </td>
-                                                    <td>
-                                                        {getPaymentStatusBadge(order.payment_status)}
-                                                    </td>
-                                                    <td>
-                                                        {getStatusBadge(order.status)}
-                                                    </td>
-                                                    <td>
-                                                        {order.payment_method === 'cod' && (
-                                                            <span className="badge bg-secondary">COD</span>
-                                                        )}
-                                                        {order.payment_method === 'momo' && (
-                                                            <span className="badge" style={{ backgroundColor: '#a50064' }}>Momo</span>
-                                                        )}
-                                                        {!order.payment_method && (
-                                                            <span className="badge bg-light text-dark">N/A</span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {detail.recent_orders.map((order) => {
+                                                console.log("ORDER DATA:", order);
+                                                console.log("payment_method:", order.payment_method);
+                                                console.log("payment_status:", order.payment_status);
+
+
+                                                return (
+                                                    <tr key={order.id}>
+                                                        <td>
+                                                            <span className="badge bg-primary">
+                                                                #{order.order_code || `ID-${order.id}`}
+                                                            </span>
+                                                        </td>
+                                                        <td className="text-muted small">
+                                                            {order.created_at}
+                                                        </td>
+                                                        <td className="fw-semibold">
+                                                            {formatVND(order.final_total)}
+                                                        </td>
+                                                        <td>
+                                                            {getPaymentStatusBadge(order.payment_status)}
+                                                        </td>
+                                                        <td>
+                                                            {getStatusBadge(order.status)}
+                                                        </td>
+                                                        <td>
+                                                            {order.payment_method === 'COD' && (
+                                                                <span className="badge bg-secondary">COD</span>
+                                                            )}
+                                                            {order.payment_method === 'momo' && (
+                                                                <span className="badge" style={{ backgroundColor: '#a50064' }}>Momo</span>
+                                                            )}
+                                                            {!order.payment_method && (
+                                                                <span className="badge bg-light text-dark">N/A</span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
+
                                     </table>
                                 </div>
                             ) : (

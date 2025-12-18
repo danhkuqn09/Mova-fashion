@@ -54,13 +54,12 @@ function ProductDetail() {
         setProduct(data);
         console.log("Product data:", data);
         console.log("Category:", data.category);
-        
+
         if (data.image) {
           const imgUrl = data.image.startsWith('http') ? data.image : `http://localhost:8000${data.image}`;
           setMainImg(imgUrl);
         }
-        
-        // Lấy sản phẩm liên quan theo danh mục
+        // Lấy sản phẩm liên quan theo categories
         if (data.category?.id) {
           fetchRelatedProducts(data.category.id, id);
         } else {
@@ -75,7 +74,7 @@ function ProductDetail() {
     fetchProduct();
   }, [id]);
 
-  // 🔗 Lấy sản phẩm liên quan
+  // Lấy sản phẩm liên quan
   const fetchRelatedProducts = async (categoryId, currentProductId) => {
     try {
       console.log("Fetching related products for category:", categoryId);
@@ -177,18 +176,31 @@ function ProductDetail() {
       displayPopup("Vui lòng chọn màu và size trước khi mua!", "error");
       return;
     }
-
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.setItem("redirectAfterLogin", `/productdetail/${id}`);
+      displayPopup("Bạn cần đăng nhập để mua sản phẩm", "error", 5000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+      return;
+    }
     const item = {
       product_variant_id: selectedVariant.id,
       name: product.name,
       product: product,
       quantity: quantity,
-      price: selectedVariant.sale_price || selectedVariant.price || product.price,
-      image: selectedVariant.image || selectedColor?.image || product.image,
+      price:
+        selectedVariant.sale_price ||
+        selectedVariant.price ||
+        product.price,
+      image:
+        selectedVariant.image ||
+        selectedColor?.image ||
+        product.image,
       color: selectedVariant.color?.name || selectedColor?.name || null,
       size: selectedVariant.size || null,
     };
-
     navigate("/checkout", {
       state: {
         buyNow: true,
@@ -197,7 +209,6 @@ function ProductDetail() {
       },
     });
   };
-
   // Lấy bình luận
   const fetchComments = async () => {
     try {
@@ -252,12 +263,10 @@ function ProductDetail() {
       navigate("/login");
       return;
     }
-
     if (!commentContent.trim()) {
       displayPopup("Vui lòng nhập nội dung bình luận!", "error");
       return;
     }
-
     try {
       const formData = new FormData();
       formData.append("product_id", product.id);
@@ -287,7 +296,7 @@ function ProductDetail() {
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
 
-        fetchComments(); // Refresh
+        fetchComments();
         displayPopup("Đã gửi bình luận thành công!", "success");
       } else {
         displayPopup(res.data?.message || "Không thể gửi bình luận!", "error");
@@ -334,8 +343,6 @@ function ProductDetail() {
       displayPopup("Xóa bình luận thất bại!", "error");
     }
   };
-
-
   if (loading) {
     return (
       <div className="loading-container">
@@ -348,8 +355,6 @@ function ProductDetail() {
 
   return (
     <div className="ProductDetail">
-
-      {/* 👉 Popup/Toast Component - Đặt ở đầu để hiển thị trên cùng */}
       {showPopup && (
         <div
           className={`custom-toast-container bg-${popupType === 'success' ? 'success' : 'danger'} text-white shadow-lg p-3 rounded-3`}
@@ -374,8 +379,6 @@ function ProductDetail() {
           </div>
         </div>
       )}
-
-
       <Banner />
       <div className="container py-5">
         <div className="row g-5">
@@ -385,7 +388,6 @@ function ProductDetail() {
               <div className="main-image shadow-lg rounded-4 overflow-hidden mb-3" style={{ backgroundColor: '#f8f9fa' }}>
                 <img src={mainImg} alt="main product" className="w-100" style={{ height: '500px', objectFit: 'contain' }} />
               </div>
-
               {/* Thumbnails */}
               <div className="d-flex gap-2 justify-content-center">
                 {[
@@ -410,7 +412,6 @@ function ProductDetail() {
               </div>
             </div>
           </div>
-
           {/* Product Info Section */}
           <div className="col-md-6">
             <div className="product-info">
@@ -434,8 +435,7 @@ function ProductDetail() {
                 <span className="text-warning fs-5">⭐ ⭐ ⭐ ⭐ ⭐</span>
                 <span className="text-muted ms-2">(5 đánh giá)</span>
               </div>
-
-              {/* Stock & Sales Info */}
+              {/* Thông tin sản phẩm */}
               <div className="d-flex gap-4 mb-3">
                 <div className="d-flex align-items-center gap-2">
                   <i className="fas fa-box text-success"></i>
@@ -458,8 +458,7 @@ function ProductDetail() {
                   </div>
                 )}
               </div>
-
-              {/* Color Selection */}
+              {/* Phần chọn màu */}
               <div className="mb-4">
                 <h6 className="fw-semibold mb-3">Màu sắc</h6>
                 <div className="d-flex gap-2">
@@ -495,8 +494,7 @@ function ProductDetail() {
                   ))}
                 </div>
               </div>
-
-              {/* Size Selection */}
+              {/* Chọn size */}
               <div className="mb-4">
                 <h6 className="fw-semibold mb-3">Kích thước</h6>
                 <div className="d-flex gap-2 flex-wrap">
@@ -512,7 +510,6 @@ function ProductDetail() {
                   ))}
                 </div>
               </div>
-
               {/* Quantity & Actions */}
               <div className="d-flex gap-3 align-items-center mb-4">
                 <div className="input-group" style={{ maxWidth: '140px' }}>
@@ -820,7 +817,7 @@ function ProductDetail() {
                         {p.name}
                       </h5>
                     </a>
-                    
+
                     {/* Rating */}
                     <div className="mb-2 d-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
                       {(() => {
@@ -862,10 +859,10 @@ function ProductDetail() {
                           </span>
                         )}
                       </div>
-                      
-                      <a 
+
+                      <a
                         href={`/productdetail/${p.id}`}
-                        className="btn w-100 text-white" 
+                        className="btn w-100 text-white"
                         style={{ backgroundColor: '#b88e2f', transition: 'all 0.3s' }}
                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#9a7628'}
                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#b88e2f'}

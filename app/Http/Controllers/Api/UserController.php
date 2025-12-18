@@ -218,9 +218,17 @@ class UserController extends Controller
                 $q->where('user_id', $user->id);
             })->count();
 
-            $totalSpent = $user->orders()
-                ->whereIn('status', ['completed'])
+            // Tổng chi tiêu: Đơn completed + Momo đã thanh toán
+            $completedTotal = $user->orders()
+                ->where('status', 'completed')
                 ->sum('final_total');
+            
+            $momoTotal = $user->orders()
+                ->where('payment_method', 'momo')
+                ->where('payment_status', 'paid')
+                ->sum('final_total');
+            
+            $totalSpent = $completedTotal + $momoTotal;
 
             return response()->json([
                 'success' => true,
@@ -329,6 +337,10 @@ class UserController extends Controller
 
             // Format dữ liệu
             $users->getCollection()->transform(function ($user) {
+                // Tính tổng chi tiêu: Completed + Momo paid
+                $completedTotal = $user->orders()->where('status', 'completed')->sum('final_total');
+                $momoTotal = $user->orders()->where('payment_method', 'momo')->where('payment_status', 'paid')->sum('final_total');
+                
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -339,7 +351,7 @@ class UserController extends Controller
                     'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->format('d/m/Y H:i') : null,
                     'created_at' => $user->created_at->format('d/m/Y H:i'),
                     'total_orders' => $user->orders()->count(),
-                    'total_spent' => $user->orders()->where('status', 'completed')->sum('final_total'),
+                    'total_spent' => $completedTotal + $momoTotal,
                 ];
             });
 
@@ -369,7 +381,12 @@ class UserController extends Controller
             $totalOrders = $user->orders()->count();
             $completedOrders = $user->orders()->where('status', 'completed')->count();
             $cancelledOrders = $user->orders()->where('status', 'cancelled')->count();
-            $totalSpent = $user->orders()->where('status', 'completed')->sum('final_total');
+            
+            // Tổng chi tiêu: Completed + Momo paid
+            $completedTotal = $user->orders()->where('status', 'completed')->sum('final_total');
+            $momoTotal = $user->orders()->where('payment_method', 'momo')->where('payment_status', 'paid')->sum('final_total');
+            $totalSpent = $completedTotal + $momoTotal;
+            
             $totalComments = $user->comments()->count();
             $totalReviews = Review::whereHas('orderItem.order', function($q) use ($user) {
                 $q->where('user_id', $user->id);
@@ -385,6 +402,8 @@ class UserController extends Controller
                         'id' => $order->id,
                         'order_code' => $order->order_code,
                         'status' => $order->status,
+                        'payment_status' => $order->payment_status,
+                        'payment_method' => $order->payment_method,
                         'final_total' => $order->final_total,
                         'created_at' => $order->created_at->format('d/m/Y H:i'),
                     ];
@@ -531,12 +550,16 @@ class UserController extends Controller
 
             // Top 5 users có tổng chi tiêu cao nhất
             $topSpenders = User::withCount('orders')
-                ->withSum(['orders as total_spent' => function($query) {
-                    $query->where('status', 'completed');
-                }], 'final_total')
-                ->orderBy('total_spent', 'desc')
-                ->limit(5)
                 ->get()
+                ->map(function ($user) {
+                    // Tính tổng: Completed + Momo paid
+                    $completedTotal = $user->orders()->where('status', 'completed')->sum('final_total');
+                    $momoTotal = $user->orders()->where('payment_method', 'momo')->where('payment_status', 'paid')->sum('final_total');
+                    $user->total_spent = $completedTotal + $momoTotal;
+                    return $user;
+                })
+                ->sortByDesc('total_spent')
+                ->take(5)
                 ->map(function ($user) {
                     return [
                         'id' => $user->id,
@@ -544,7 +567,7 @@ class UserController extends Controller
                         'email' => $user->email,
                         'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
                         'total_orders' => $user->orders_count,
-                        'total_spent' => $user->total_spent ?? 0,
+                        'total_spent' => $user->total_spent,
                     ];
                 });
 

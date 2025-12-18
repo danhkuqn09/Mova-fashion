@@ -393,20 +393,16 @@ class ProductController extends Controller
                 'tag' => 'nullable|string|in:new,hot,sale',
                 'description' => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
+                'colors' => 'nullable|array',
+                'colors.*.name' => 'required|string|max:255',
+                'colors.*.color_code' => 'required|string|max:7',
+                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'variants' => 'nullable|array',
-                'variants.*.id' => 'required|exists:product_variants,id',
-                'variants.*.quantity' => 'nullable|integer|min:0',
+                'variants.*.id' => 'nullable|integer',
+                'variants.*.size' => 'required|string|max:50',
+                'variants.*.quantity' => 'required|integer|min:0',
                 'variants.*.price' => 'nullable|numeric|min:0',
-                'variants.*.sale_price' => 'nullable|numeric|min:0',
-            ], [
-                'variants.*.id.required' => 'Variant ID là bắt buộc',
-                'variants.*.id.exists' => 'Variant không tồn tại',
-                'variants.*.quantity.integer' => 'Số lượng phải là số nguyên',
-                'variants.*.quantity.min' => 'Số lượng không được âm',
-                'variants.*.price.numeric' => 'Giá phải là số',
-                'variants.*.price.min' => 'Giá không được âm',
-                'variants.*.sale_price.numeric' => 'Giá sale phải là số',
-                'variants.*.sale_price.min' => 'Giá sale không được âm',
+                'variants.*.color_index' => 'required|integer|min:0',
             ]);
 
             if ($validator->fails()) {
@@ -438,65 +434,72 @@ class ProductController extends Controller
                 $product->category_id = $request->category_id;
                 $product->save();
 
-                // Cập nhật variants nếu có
+                // ========== CẬP NHẬT COLORS ==========
+                $newColors = [];
+                if ($request->has('colors') && is_array($request->colors)) {
+                    // Xóa tất cả màu cũ và variants liên quan
+                    $oldColors = ProductColor::where('product_id', $product->id)->get();
+                    foreach ($oldColors as $oldColor) {
+                        // Xóa variants của màu này
+                        ProductVariant::where('color_id', $oldColor->id)->delete();
+                        // Xóa ảnh màu cũ nếu có
+                        if ($oldColor->image) {
+                            Storage::disk('public')->delete($oldColor->image);
+                        }
+                        $oldColor->delete();
+                    }
+
+                    // Thêm màu mới
+                    foreach ($request->colors as $index => $colorData) {
+                        $colorImage = null;
+                        if (isset($colorData['image']) && $colorData['image'] instanceof \Illuminate\Http\UploadedFile) {
+                            $colorImage = $colorData['image']->store('colors', 'public');
+                        }
+
+                        $color = ProductColor::create([
+                            'product_id' => $product->id,
+                            'color_name' => $colorData['name'],
+                            'color_code' => $colorData['color_code'],
+                            'image' => $colorImage,
+                        ]);
+
+                        $newColors[$index] = $color;
+                    }
+                }
+
+                // ========== CẬP NHẬT VARIANTS ==========
                 if ($request->has('variants') && is_array($request->variants)) {
                     foreach ($request->variants as $variantData) {
-                        $variant = ProductVariant::whereHas('color', function($q) use ($product) {
-                                $q->where('product_id', $product->id);
-                            })
-                            ->where('id', $variantData['id'])
-                            ->first();
-
-                        if ($variant) {
-                            // Cập nhật quantity
-                            if (isset($variantData['quantity'])) {
-                                $variant->quantity = $variantData['quantity'];
-                            }
-
-                            // Cập nhật price (null = dùng giá product)
-                            if (array_key_exists('price', $variantData)) {
-                                $variant->price = $variantData['price'] === '' || $variantData['price'] === null 
-                                    ? null 
-                                    : $variantData['price'];
-                            }
-
-                            // Cập nhật sale_price (null = dùng sale_price product)
-                            if (array_key_exists('sale_price', $variantData)) {
-                                $variant->sale_price = $variantData['sale_price'] === '' || $variantData['sale_price'] === null 
-                                    ? null 
-                                    : $variantData['sale_price'];
-                            }
-
-                            $variant->save();
+                        $colorIndex = $variantData['color_index'] ?? 0;
+                        
+                        // Lấy color từ danh sách colors mới vừa tạo
+                        if (!isset($newColors[$colorIndex])) {
+                            continue; // Bỏ qua nếu color_index không hợp lệ
                         }
+                        
+                        $color = $newColors[$colorIndex];
+
+                        // Tạo variant mới (không cập nhật variant cũ nữa vì đã xóa hết)
+                        ProductVariant::create([
+                            'color_id' => $color->id,
+                            'size' => $variantData['size'],
+                            'quantity' => $variantData['quantity'],
+                            'price' => isset($variantData['price']) && $variantData['price'] !== '' 
+                                ? $variantData['price'] 
+                                : null,
+                        ]);
                     }
                 }
 
                 DB::commit();
 
-                // Load lại product với variants
-                $product->load(['variants.color', 'category']);
+                // Load lại product với colors, variants
+                $product->load(['colors', 'variants.color', 'category']);
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật sản phẩm thành công',
-                    'data' => [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'price' => $product->price,
-                        'sale_price' => $product->sale_price,
-                        'variants' => $product->variants->map(function($variant) {
-                            return [
-                                'id' => $variant->id,
-                                'color_name' => $variant->color->color_name,
-                                'color_hex' => $variant->color->color_code,
-                                'size' => $variant->size,
-                                'quantity' => $variant->quantity,
-                                'price' => $variant->price,
-                                'sale_price' => $variant->sale_price,
-                            ];
-                        }),
-                    ]
+                    'data' => $this->formatProduct($product)
                 ], 200);
 
             } catch (\Exception $e) {

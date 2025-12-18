@@ -361,14 +361,14 @@ class ReviewController extends Controller
                 return [
                     'id' => $review->id,
                     'user' => [
-                        'id' => $review->user->id,
-                        'name' => $review->user->name,
-                        'email' => $review->user->email,
+                        'id' => $review->orderItem->order->user->id,
+                        'name' => $review->orderItem->order->user->name,
+                        'email' => $review->orderItem->order->user->email,
                     ],
                     'product' => [
-                        'id' => $review->orderItem->productVariant->product->id,
-                        'name' => $review->orderItem->productVariant->product->name,
-                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
+                        'id' => $review->orderItem->productVariant->color->product->id,
+                        'name' => $review->orderItem->productVariant->color->product->name,
+                        'image' => $review->orderItem->productVariant->color->product->image ? Storage::url($review->orderItem->productVariant->color->product->image) : null,
                     ],
                     'order_id' => $review->orderItem->order_id,
                     'rating' => $review->rating,

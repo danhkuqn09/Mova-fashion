@@ -128,6 +128,7 @@ const location = useLocation();
       <Route path="news/:id" element={<NewDetail />} />
       <Route path="reviews" element={<Review />} />
       <Route path="reviews/:id" element={<ReviewDetail />} />
+      <Route path="products/view/:id" element={<ProductView />} />
     </Route>
 
     <Route path="/order/:id" element={<OrderDetail />} />

@@ -19,21 +19,21 @@ const EditVoucher = () => {
     max_discount_amount: "",
   });
 
-  // Lấy chi tiết voucher
-  const fetchVoucher = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8000/api/admin/vouchers/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setVoucher(res.data.data);
-    } catch (err) {
-      alert("Không thể tải voucher");
-      navigate(-1);
-      console.log(err);
+  // // Lấy chi tiết voucher
+  // const fetchVoucher = async () => {
+  //   try {
+  //     const res = await axios.get(
+  //       `http://localhost:8000/api/admin/vouchers/${id}`,
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     setVoucher(res.data.data);
+  //   } catch (err) {
+  //     alert("Không thể tải voucher");
+  //     navigate(-1);
+  //     console.log(err);
       
-    }
-  };
+  //   }
+  // };
 
   // Update voucher
   const handleUpdate = async () => {
@@ -44,7 +44,7 @@ const EditVoucher = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Cập nhật voucher thành công!");
-      navigate("/admin/vouchers");
+      navigate("/admin/voucher");
     } catch (err) {
       alert("Cập nhật thất bại");
       console.error(err);
@@ -52,7 +52,7 @@ const EditVoucher = () => {
   };
 
   useEffect(() => {
-    fetchVoucher();
+    
   }, []);
 
   return (

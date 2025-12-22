@@ -162,8 +162,9 @@ const News = () => {
                                                             <td>{n.author?.name || 'N/A'}</td>
                                                             <td>
                                                                 <span className={`badge ${
-                                                                    n.status_text === 'Đã duyệt' ? 'bg-success' :
-                                                                    n.status_text === 'Chờ duyệt' ? 'bg-warning' : 'bg-danger'
+                                                                    n.status_text === 'Đã xuất bản' ? 'bg-success' :
+                                                                    n.status_text === 'Chờ duyệt' ? 'bg-warning' : 
+                                                                    n.status_text === 'Bị từ chối' ? 'bg-danger' : 'bg-secondary'
                                                                 }`}>
                                                                     {n.status_text}
                                                                 </span>

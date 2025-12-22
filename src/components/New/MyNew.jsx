@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 import "./MyNew.css";
 
 const MyNews = () => {
@@ -7,6 +9,8 @@ const MyNews = () => {
   const [myNews, setMyNews] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const editorRef = useRef(null);
+  const quillInstance = useRef(null);
 
   const [form, setForm] = useState({
     id: null,
@@ -15,6 +19,46 @@ const MyNews = () => {
     content: "",
     thumbnail: null,
   });
+
+  // Initialize Quill editor when form opens
+  useEffect(() => {
+    if (!isFormOpen || quillInstance.current) return;
+
+    const container = editorRef.current;
+    if (!container) return;
+
+    quillInstance.current = new Quill(container, {
+      theme: 'snow',
+      placeholder: 'Nhập nội dung bài viết...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'color': [] }, { 'background': [] }],
+          ['link', 'image'],
+          ['clean']
+        ],
+      },
+    });
+
+    // Listen for content changes
+    quillInstance.current.on('text-change', () => {
+      const html = quillInstance.current.root.innerHTML;
+      setForm((prev) => ({ ...prev, content: html }));
+    });
+
+    // Set initial content
+    if (form.content) {
+      quillInstance.current.root.innerHTML = form.content;
+    }
+
+    return () => {
+      if (quillInstance.current) {
+        quillInstance.current = null;
+      }
+    };
+  }, [isFormOpen]);
 
   const token = localStorage.getItem("token");
   const axiosConfig = {
@@ -57,6 +101,10 @@ const MyNews = () => {
       content: "",
       thumbnail: null,
     });
+    
+    if (quillInstance.current) {
+      quillInstance.current.root.innerHTML = '';
+    }
   };
 
   // Tạo bài viết
@@ -127,6 +175,13 @@ const MyNews = () => {
     });
 
     setIsFormOpen(true);
+
+    // Update Quill content after rendering
+    setTimeout(() => {
+      if (quillInstance.current) {
+        quillInstance.current.root.innerHTML = item.content;
+      }
+    }, 100);
   };
 
   // Gửi bài viết để duyệt
@@ -184,12 +239,10 @@ const MyNews = () => {
             required
           />
 
-          <textarea
-            placeholder="Nội dung"
-            value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            required
-          />
+          <div className="editor-container">
+            <label className="editor-label">Nội dung bài viết</label>
+            <div ref={editorRef} className="custom-quill"></div>
+          </div>
 
           <input
             type="file"

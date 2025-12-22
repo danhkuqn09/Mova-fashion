@@ -1,159 +1,340 @@
+/* ===== CONTAINER ===== */
+.my-news-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* ===== CREATE BUTTON ===== */
 .create-btn {
-  right: 20px; /* cách phải của màn hình */
-  background-color: #b88e2f;
+  background: linear-gradient(135deg, #b88e2f 0%, #9a7628 100%);
   color: white;
-  padding: 12px 18px;
-  font-weight: bold;
+  padding: 14px 28px;
+  font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  z-index: 9999; /* phải cao hơn header */
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(184, 142, 47, 0.3);
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .create-btn:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(184, 142, 47, 0.4);
 }
 
+.create-btn:active {
+  transform: translateY(0);
+}
 
-/* Form */
+/* ===== FORM ===== */
 .my-news-form {
-  margin: 20px 0;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Input và textarea */
-.my-news-form input[type="text"],
-.my-news-form textarea,
-.my-news-form input[type="file"] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 100%;
-}
-
-/* Submit button */
-.my-news-form button[type="submit"] {
-  padding: 10px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.my-news-form button[type="submit"]:hover {
-  background-color: #218838;
-}
-
-/* Container tổng */
-.my-news-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #fdfdfd;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  font-family: Arial, sans-serif;
-}
-
-/* Form */
-.my-news-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 30px;
+  animation: slideDown 0.3s ease;
 }
 
-/* Input và textarea */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .my-news-form input[type="text"],
-.my-news-form textarea,
-.my-news-form input[type="file"] {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
+.my-news-form textarea {
   width: 100%;
-  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.my-news-form input[type="text"]:focus,
+.my-news-form textarea:focus {
+  outline: none;
+  border-color: #b88e2f;
+  box-shadow: 0 0 0 3px rgba(184, 142, 47, 0.1);
 }
 
 .my-news-form textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 120px;
 }
 
-/* Button */
-.my-news-form button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
+.my-news-form input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 }
 
-.my-news-form button:hover {
-  background-color: #0056b3;
+.my-news-form input[type="file"]:hover {
+  border-color: #b88e2f;
+  background-color: #fefdfb;
 }
 
-.my-news-form button[type="button"] {
-  background-color: #6c757d;
+.my-news-form button[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #28a745 0%, #20833a 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
-.my-news-form button[type="button"]:hover {
-  background-color: #5a6268;
+.my-news-form button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 
-/* Danh sách bài viết */
+/* ===== NEWS LIST ===== */
+.my-news-list {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
 .my-news-list h2 {
-  margin-bottom: 12px;
-  font-size: 20px;
+  margin-bottom: 24px;
+  font-size: 24px;
   color: #333;
+  font-weight: 700;
+  border-bottom: 3px solid #b88e2f;
+  padding-bottom: 12px;
+  display: inline-block;
 }
 
+/* ===== NEWS ITEM ===== */
 .mynew-item {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  background-color: #fff;
+  display: flex;
+  gap: 20px;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background-color: #fefefe;
+  transition: all 0.3s ease;
+}
+
+.mynew-item:hover {
+  border-color: #b88e2f;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateX(4px);
 }
 
 .mynew-item img {
-  margin-bottom: 10px;
-  border-radius: 4px;
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .mynew-item h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #222;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .mynew-item p {
-  margin: 4px 0;
+  margin: 8px 0;
   font-size: 14px;
-  color: #555;
+  color: #666;
+  line-height: 1.6;
 }
 
+.mynew-item p b {
+  color: #333;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* ===== BUTTONS IN ITEM ===== */
 .mynew-item button {
+  padding: 8px 16px;
   margin-right: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.mynew-item button:hover {
-  opacity: 0.85;
+.mynew-item button:first-of-type {
+  background-color: #007bff;
+  color: white;
 }
+
+.mynew-item button:first-of-type:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
 .submit-review-btn {
-  background: #b88e2f;
+  background: linear-gradient(135deg, #b88e2f 0%, #9a7628 100%) !important;
+  color: white !important;
+}
+
+.submit-review-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(184, 142, 47, 0.4) !important;
+}
+
+/* ===== STATUS BADGES ===== */
+.mynew-item p:has(b:contains("Trạng thái")) {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .my-news-container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .mynew-item {
+    flex-direction: column;
+  }
+
+  .mynew-item img {
+    width: 100%;
+    height: 200px;
+  }
+
+  .my-news-form {
+    padding: 20px;
+  }
+}
+
+/* ===== REACT QUILL EDITOR ===== */
+.editor-container {
+  margin-bottom: 16px;
+}
+
+.editor-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.custom-quill {
+  background: white;
+  border-radius: 8px;
+}
+
+.custom-quill .ql-container {
+  min-height: 300px;
+  font-size: 15px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.custom-quill .ql-toolbar {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.custom-quill .ql-container {
+  border: 2px solid #e0e0e0;
+  border-top: none;
+}
+
+.custom-quill:focus-within .ql-toolbar,
+.custom-quill:focus-within .ql-container {
+  border-color: #b88e2f;
+}
+
+.custom-quill .ql-editor {
+  padding: 16px;
+  line-height: 1.8;
+}
+
+.custom-quill .ql-editor.ql-blank::before {
+  color: #999;
+  font-style: normal;
+}
+
+/* Styling for Quill content */
+.custom-quill .ql-editor h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 16px 0;
+}
+
+.custom-quill .ql-editor h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 14px 0;
+}
+
+.custom-quill .ql-editor h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 12px 0;
+}
+
+.custom-quill .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.custom-quill .ql-editor a {
+  color: #b88e2f;
+  text-decoration: underline;
+}
+
+.custom-quill .ql-editor ul,
+.custom-quill .ql-editor ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+.custom-quill .ql-editor li {
+  margin: 8px 0;
 }
 /* Popup */
 /* --- Popup overlay làm mờ toàn bộ trang --- */

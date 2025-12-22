@@ -1,5 +1,6 @@
 // import React, { useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import "./axiosConfig"; // Import axios config để setup interceptor
 
 // Components
 import Header from "./components/Header";

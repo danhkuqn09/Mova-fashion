@@ -56,19 +56,21 @@ function ProductSection() {
         </div>
 
         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
-          {products.slice(0, visibleCount).map((p) => (
-            <div className="col" key={p.id}>
+          {products.slice(0, visibleCount).map((p, idx) => (
+            <div className="col" key={typeof p.id === 'object' || p.id === undefined ? idx : p.id}>
               <div className="card h-100 border-0 shadow-sm product-card position-relative" style={{ transition: 'all 0.3s' }}>
                 <Link to={`/productdetail/${p.id}`} className="text-decoration-none">
                   <div className="position-relative overflow-hidden">
-                    <img
-                      src={`http://localhost:8000${p.image}`}
-                      alt={p.name}
-                      className="card-img-top"
-                      style={{ height: '280px', objectFit: 'cover', transition: 'transform 0.3s' }}
-                      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    />
+                    {p.image ? (
+                      <img
+                        src={`http://localhost:8000${p.image}`}
+                        alt={p.name}
+                        className="card-img-top"
+                        style={{ height: '280px', objectFit: 'cover', transition: 'transform 0.3s' }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                    ) : null}
                     {/* Badge SALE */}
                     {p.discount_percent > 0 && (
                       <span className="position-absolute top-0 end-0 badge bg-danger m-2 px-3 py-2" style={{ fontSize: '0.85rem' }}>

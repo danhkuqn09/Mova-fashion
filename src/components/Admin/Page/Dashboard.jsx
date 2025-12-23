@@ -23,6 +23,24 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+const statusTexts = {
+  pending: "Chờ xác nhận",
+  processing: "Đang xử lý",
+  shipping: "Đang giao hàng",
+  completed: "Hoàn thành",
+  cancelled: "Đã hủy",
+};
+const statusFlow = ["pending", "processing", "shipping", "completed"];
+const canSelectStatus = (currentStatus, optionStatus) => {
+  // Nếu đã hoàn hoặc hủy thì ko dc đổi
+  if (currentStatus === "completed" || currentStatus === "cancelled") {
+    return currentStatus === optionStatus;
+  }
+  const currentIndex = statusFlow.indexOf(currentStatus || "pending");
+  const optionIndex = statusFlow.indexOf(optionStatus);
+  // Chỉ cho đi từng bước
+  return optionIndex === currentIndex || optionIndex === currentIndex + 1;
+};
 
 const Dashboard = () => {
   const [overview, setOverview] = useState(null);
@@ -39,30 +57,26 @@ const Dashboard = () => {
     });
     setOverview(res.data.data);
   };
-
   const loadRevenueByDay = async () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/revenue-by-day`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setRevenueDay(res.data.data.revenues);
   };
-
   const loadPendingOrders = async () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/pending-orders`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setPendingOrders(res.data.data.data);
   };
-
   const loadRevenueComparison = async () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/revenue-comparison`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setComparison(res.data.data);
   };
-
   const handleUpdateStatus = async (orderId, newStatus) => {
-    if (!window.confirm(`Bạn có chắc muốn chuyển sang trạng thái "${newStatus}"?`)) {
+    if (!window.confirm(`Bạn có chắc muốn chuyển sang trạng thái "${statusTexts[newStatus]}"?`)) {
       return;
     }
 
@@ -241,14 +255,34 @@ const Dashboard = () => {
                             <select
                               className="form-select form-select-sm"
                               style={{ minWidth: '150px' }}
-                              value={order.status || 'pending'}
+                              value={order.status || "pending"}
+                              disabled={order.status === "completed" || order.status === "cancelled"}
                               onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                             >
-                              <option value="pending">Chờ xác nhận</option>
-                              <option value="processing">Đang xử lý</option>
-                              <option value="shipping">Đang giao</option>
-                              <option value="completed">Hoàn thành</option>
-                              <option value="cancelled">Đã hủy</option>
+                              {statusFlow.map((st) => (
+                                <option
+                                  key={st}
+                                  value={st}
+                                  disabled={!canSelectStatus(order.status, st)}
+                                >
+                                  {{
+                                    pending: "Chờ xác nhận",
+                                    processing: "Đang xử lý",
+                                    shipping: "Đang giao",
+                                    completed: "Hoàn thành",
+                                  }[st]}
+                                </option>
+                              ))}
+
+                              {/* Cancelled: chỉ cho nếu chưa completed */}
+                              {order.status !== "completed" && (
+                                <option
+                                  value="cancelled"
+                                  disabled={order.status === "cancelled"}
+                                >
+                                  Đã hủy
+                                </option>
+                              )}
                             </select>
                           </td>
                         </tr>

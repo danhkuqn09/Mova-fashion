@@ -268,7 +268,7 @@
     box-shadow: 0 4px 12px rgba(184, 142, 47, 0.3);
 }
 
-.btn-delete {
+.orderdetail-btn-delete {
     padding: 10px 24px;
     border-radius: 8px;
     border: none;
@@ -283,7 +283,7 @@
     gap: 8px;
 }
 
-.btn-delete:hover {
+.orderdetail-btn-delete:hover {
     background: #c82333;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);

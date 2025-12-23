@@ -97,7 +97,7 @@ const OrderDetail = () => {
     } catch (err) {
       console.error("Lỗi cập nhật", err);
       console.error("Response data:", err.response?.data);
-      
+
       const errorMsg = err.response?.data?.message || "Lỗi cập nhật trạng thái";
       alert(errorMsg);
     }
@@ -305,7 +305,7 @@ const OrderDetail = () => {
                         {statusTexts[st]}
                       </option>
                     ))}
-  
+
                     {/* Cancelled: chỉ cho phép nếu chưa completed */}
                     {order.status !== "completed" && (
                       <option
@@ -316,15 +316,12 @@ const OrderDetail = () => {
                       </option>
                     )}
                   </select>
-
-
-
                   <button className="btn-update" onClick={updateStatus}>
                     <i className="fas fa-check"></i> Cập nhật
                   </button>
                 </div>
                 {order.status === "cancelled" && (
-                  <button className="btn-delete" onClick={deleteOrder}>
+                  <button className="orderdetail-btn-delete" onClick={deleteOrder}>
                     <i className="fas fa-trash"></i> Xóa đơn hàng
                   </button>
                 )}

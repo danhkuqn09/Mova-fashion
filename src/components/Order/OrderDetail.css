@@ -209,3 +209,9 @@
   font-size: 18px;
   margin: 5px 0;
 }
+button.disabled,
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

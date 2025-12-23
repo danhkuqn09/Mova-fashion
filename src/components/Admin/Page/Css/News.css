@@ -38,13 +38,13 @@
     cursor: pointer;
 }
 
-.btn-delete {
+/* .btn-delete {
     background: #e74c3c;
     color: white;
     padding: 6px 10px;
     border: none;
     cursor: pointer;
-}
+} */
 
 .pagination {
     margin-top: 20px;

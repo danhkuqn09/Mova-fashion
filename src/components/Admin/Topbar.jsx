@@ -12,7 +12,7 @@ const Topbar = () => {
         },
       })
       .then((res) => {
-        console.log("📌 Profile Response:", res.data); 
+        console.log("📌 Profile Response:", res.data);
 
         const user = res.data.data;
         console.log("📌 Avatar:", user.avatar); // LOG  AVATAR

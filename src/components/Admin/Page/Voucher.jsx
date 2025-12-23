@@ -299,6 +299,16 @@ const Voucher = () => {
                                                         </td>
                                                         <td>
                                                             <div className="d-flex gap-2">
+                                                                {/* Nút chỉnh sửa */}
+                                                                <button
+                                                                    className="btn btn-sm btn-warning"
+                                                                    title="Chỉnh sửa"
+                                                                    onClick={() => navigate(`/admin/voucher/edit/${v.id}`)}
+                                                                >
+                                                                    <i className="fas fa-edit"></i>
+                                                                </button>
+
+                                                                {/* Bật / Tắt */}
                                                                 <button
                                                                     className={`btn btn-sm ${v.is_active ? 'btn-secondary' : 'btn-success'}`}
                                                                     onClick={() => handleToggle(v.id)}
@@ -306,6 +316,8 @@ const Voucher = () => {
                                                                 >
                                                                     <i className={`fas ${v.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}`}></i>
                                                                 </button>
+
+                                                                {/* Xóa */}
                                                                 <button
                                                                     className="btn btn-sm btn-danger"
                                                                     onClick={() => handleDelete(v.id)}

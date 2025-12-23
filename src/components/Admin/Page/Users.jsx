@@ -17,8 +17,8 @@ const Users = () => {
     const [roleFilter, setRoleFilter] = useState("");
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
-const formatVND = (value) =>
-    Number(value || 0).toLocaleString("vi-VN") + "₫";
+    const formatVND = (value) =>
+        Number(value || 0).toLocaleString("vi-VN") + "₫";
     const updateRole = async (userId, newRole) => {
         if (!window.confirm(`Bạn có chắc muốn đổi role thành "${newRole}"?`)) return;
 
@@ -106,9 +106,9 @@ const formatVND = (value) =>
                                     </div>
                                 </div>
                                 <div className="col-md-2">
-                                    <select 
-                                        className="form-select" 
-                                        value={roleFilter} 
+                                    <select
+                                        className="form-select"
+                                        value={roleFilter}
                                         onChange={(e) => setRoleFilter(e.target.value)}
                                     >
                                         <option value="">Tất cả</option>
@@ -117,9 +117,9 @@ const formatVND = (value) =>
                                     </select>
                                 </div>
                                 <div className="col-md-3">
-                                    <select 
-                                        className="form-select" 
-                                        value={sortBy} 
+                                    <select
+                                        className="form-select"
+                                        value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value)}
                                     >
                                         <option value="created_at">Ngày tạo</option>
@@ -128,9 +128,9 @@ const formatVND = (value) =>
                                     </select>
                                 </div>
                                 <div className="col-md-3">
-                                    <select 
-                                        className="form-select" 
-                                        value={sortOrder} 
+                                    <select
+                                        className="form-select"
+                                        value={sortOrder}
                                         onChange={(e) => setSortOrder(e.target.value)}
                                     >
                                         <option value="asc">Tăng dần</option>
@@ -198,7 +198,7 @@ const formatVND = (value) =>
                                                                         onClick={() => window.open(`http://localhost:8000${u.avatars}`, '_blank')}
                                                                     />
                                                                 ) : (
-                                                                    <div 
+                                                                    <div
                                                                         className="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
                                                                         style={{ width: '50px', height: '50px' }}
                                                                     >

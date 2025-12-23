@@ -57,12 +57,21 @@ const Dashboard = () => {
     });
     setOverview(res.data.data);
   };
-  const loadRevenueByDay = async () => {
-    const res = await axios.get(`http://localhost:8000/api/admin/dashboard/revenue-by-day`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  const loadRevenueByDay = async () => { // thêm phần ngày bắt đầu và kết thúc
+    const res = await axios.get(
+      `http://localhost:8000/api/admin/dashboard/revenue-by-day`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          start_date: startDate,
+          end_date: endDate,
+        },
+      }
+    );
+
     setRevenueDay(res.data.data.revenues);
   };
+
   const loadPendingOrders = async () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/pending-orders`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -75,6 +84,17 @@ const Dashboard = () => {
     });
     setComparison(res.data.data);
   };
+  // chọn ngày
+  const [startDate, setStartDate] = useState(() =>
+    new Date(new Date().setDate(new Date().getDate() - 7))
+      .toISOString()
+      .split("T")[0]
+  );
+
+  const [endDate, setEndDate] = useState(() =>
+    new Date().toISOString().split("T")[0]
+  );
+
   const handleUpdateStatus = async (orderId, newStatus) => {
     if (!window.confirm(`Bạn có chắc muốn chuyển sang trạng thái "${statusTexts[newStatus]}"?`)) {
       return;
@@ -125,6 +145,7 @@ const Dashboard = () => {
   useEffect(() => {
     loadAll();
   }, []);
+
 
   if (loading) {
     return (
@@ -301,6 +322,34 @@ const Dashboard = () => {
               </h5>
             </div>
             <div className="card-body">
+              <div className="d-flex gap-3 mb-3 flex-wrap">
+                <div>
+                  <label className="form-label">Từ ngày</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Đến ngày</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+                <div className="align-self-end d-flex gap-2">
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={loadRevenueByDay}
+                  >
+                    <i className="fas fa-filter me-1"></i> Lọc
+                  </button>
+                </div>
+              </div>
               <Bar
                 data={{
                   labels: revenueDay.map((i) => i.date),

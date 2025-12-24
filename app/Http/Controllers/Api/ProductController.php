@@ -6,13 +6,132 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\ProductColor;
+use App\Models\Color;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    /**
+     * Quản lý Color (Admin)
+     */
+    public function adminColorsIndex()
+    {
+        $colors = \App\Models\Color::all();
+        return response()->json([
+            'success' => true,
+            'data' => $colors
+        ]);
+    }
+
+    public function adminColorsStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+            'color_code' => 'nullable|string|max:20',
+            'image' => 'nullable|string',
+        ]);
+        $color = \App\Models\Color::create($validated);
+        return response()->json([
+            'success' => true,
+            'data' => $color
+        ]);
+    }
+
+    public function adminColorsUpdate(Request $request, $id)
+    {
+        $color = \App\Models\Color::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+            'color_code' => 'nullable|string|max:20',
+            'image' => 'nullable|string',
+        ]);
+        $color->update($validated);
+        return response()->json([
+            'success' => true,
+            'data' => $color
+        ]);
+    }
+
+    public function adminColorsDestroy($id)
+    {
+        $color = \App\Models\Color::findOrFail($id);
+        $color->delete();
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    /**
+     * Quản lý Size (Admin)
+     */
+    public function adminSizesIndex()
+    {
+        $sizes = \App\Models\Size::all();
+        return response()->json([
+            'success' => true,
+            'data' => $sizes
+        ]);
+    }
+
+    public function adminSizesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+        ]);
+        $size = \App\Models\Size::create($validated);
+        return response()->json([
+            'success' => true,
+            'data' => $size
+        ]);
+    }
+
+    public function adminSizesUpdate(Request $request, $id)
+    {
+        $size = \App\Models\Size::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+        ]);
+        $size->update($validated);
+        return response()->json([
+            'success' => true,
+            'data' => $size
+        ]);
+    }
+
+    public function adminSizesDestroy($id)
+    {
+        $size = \App\Models\Size::findOrFail($id);
+        $size->delete();
+        return response()->json([
+            'success' => true
+        ]);
+    }
+    /**
+     * Lấy danh sách màu (Public)
+     */
+    public function publicColorsIndex()
+    {
+        $colors = \App\Models\Color::all();
+        return response()->json([
+            'success' => true,
+            'data' => $colors
+        ]);
+    }
+
+    /**
+     * Lấy danh sách size (Public)
+     */
+    public function publicSizesIndex()
+    {
+        $sizes = \App\Models\Size::all();
+        return response()->json([
+            'success' => true,
+            'data' => $sizes
+        ]);
+    }
+
     /**
      * Lấy danh sách sản phẩm (Public)
      */
@@ -88,7 +207,6 @@ class ProductController extends Controller
                     ]
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -104,7 +222,7 @@ class ProductController extends Controller
     public function show($id)
     {
         try {
-            $product = Product::with(['category', 'colors', 'variants.color', 'comments.user'])->find($id);
+            $product = Product::with(['category', 'colors', 'variants.color', 'variants.size', 'comments.user'])->find($id);
 
             if (!$product) {
                 return response()->json([
@@ -116,9 +234,12 @@ class ProductController extends Controller
             // Tăng view count
             $product->increment('view_count');
 
-            // Get reviews
-            $reviews = $product->reviews()
-                ->with(['orderItem.order.user', 'orderItem.productVariant.color'])
+
+            // Lấy reviews đúng cách, tránh lỗi 500
+            $reviews = \App\Models\Review::with(['orderItem.order.user', 'orderItem.productVariant.color', 'orderItem.productVariant.size'])
+                ->whereHas('orderItem.productVariant', function ($q) use ($product) {
+                    $q->where('product_id', $product->id);
+                })
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -132,8 +253,11 @@ class ProductController extends Controller
                         'name' => $review->user->name,
                     ],
                     'variant' => [
-                        'color' => $review->orderItem->productVariant->color->color_name ?? null,
-                        'size' => $review->orderItem->productVariant->size,
+                        'color' => $review->orderItem->productVariant->color->name ?? null,
+                        'size' => [
+                            'id' => $review->orderItem->productVariant->size_id ?? null,
+                            'name' => $review->orderItem->productVariant->size->name ?? null,
+                        ],
                     ],
                     'created_at' => $review->created_at->format('d/m/Y H:i'),
                 ];
@@ -143,14 +267,33 @@ class ProductController extends Controller
             $avgRating = $reviews->avg('rating');
             $reviewCount = $reviews->count();
 
-            // Tính tổng đã bán (từ order_items qua product_colors)
+            // Tính tổng đã bán (từ order_items qua product_variants)
             $totalSold = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
                 ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
-                ->join('product_colors', 'product_variants.color_id', '=', 'product_colors.id')
-                ->where('product_colors.product_id', $product->id)
+                ->where('product_variants.product_id', $product->id)
                 ->whereIn('orders.status', ['processing', 'shipping', 'completed'])
                 ->sum('order_items.quantity');
+
+
+            // Lọc unique colors theo id
+            $uniqueColors = $product->colors->unique('id')->values()->map(function ($color) {
+                return [
+                    'id' => $color->id,
+                    'name' => $color->name,
+                    'hex_code' => $color->color_code,
+                    'image' => $color->image ? Storage::url($color->image) : null,
+                ];
+            });
+
+            // Lọc unique size từ variants
+            $uniqueSizes = $product->variants->pluck('size')->unique('id')->values()->map(function ($size) {
+                if (!$size) return null;
+                return [
+                    'id' => $size->id,
+                    'name' => $size->name,
+                ];
+            })->filter();
 
             return response()->json([
                 'success' => true,
@@ -161,8 +304,8 @@ class ProductController extends Controller
                     'image' => $product->image ? Storage::url($product->image) : null,
                     'price' => $product->price,
                     'sale_price' => $product->sale_price,
-                    'discount_percent' => $product->sale_price 
-                        ? round((($product->price - $product->sale_price) / $product->price) * 100) 
+                    'discount_percent' => $product->sale_price
+                        ? round((($product->price - $product->sale_price) / $product->price) * 100)
                         : 0,
                     'tag' => $product->tag,
                     'description' => $product->description,
@@ -171,51 +314,44 @@ class ProductController extends Controller
                         'id' => $product->category->id,
                         'name' => $product->category->name,
                     ],
-                    'colors' => $product->colors->map(function ($color) {
-                        return [
-                            'id' => $color->id,
-                            'name' => $color->color_name,
-                            'hex_code' => $color->color_code,
-                            'image' => $color->image ? Storage::url($color->image) : null,
-                        ];
-                    }),
+                    'colors' => $uniqueColors,
+                    'sizes' => $uniqueSizes,
                     'variants' => $product->variants->map(function ($variant) use ($product) {
-                        // Tính giá hiển thị cho variant
-                        $displayPrice = $variant->sale_price 
-                            ?? $variant->price 
-                            ?? $product->sale_price 
+                        $displayPrice = $variant->sale_price
+                            ?? $variant->price
+                            ?? $product->sale_price
                             ?? $product->price;
-                        
-                        // Giá gốc để tính discount
                         $originalPrice = $variant->price ?? $product->price;
-                        
-                        // Tính % giảm giá
                         $discountPercent = 0;
                         $salePrice = $variant->sale_price ?? $product->sale_price;
                         if ($salePrice && $originalPrice > $salePrice) {
                             $discountPercent = round((($originalPrice - $salePrice) / $originalPrice) * 100);
                         }
-                        
-                        // Lấy thông tin màu sắc
                         $colorData = null;
                         if ($variant->color_id && $variant->color) {
                             $colorData = [
                                 'id' => $variant->color->id,
-                                'name' => $variant->color->color_name,
+                                'name' => $variant->color->name,
                                 'hex_code' => $variant->color->color_code,
                             ];
                         }
-                        
+                        $sizeData = null;
+                        if ($variant->size_id && $variant->size) {
+                            $sizeData = [
+                                'id' => $variant->size->id,
+                                'name' => $variant->size->name,
+                            ];
+                        }
                         return [
                             'id' => $variant->id,
                             'color_id' => $variant->color_id,
                             'color' => $colorData,
-                            'size' => $variant->size,
+                            'size_id' => $variant->size_id,
+                            'size' => $sizeData,
                             'quantity' => $variant->quantity,
                             'in_stock' => $variant->quantity > 0,
-                            'image' => $variant->color && $variant->color->image ? Storage::url($variant->color->image) : null,
-                            
-                            // Pricing
+                            // Không còn image cho variant
+                            // 'image' => $variant->image ? Storage::url($variant->image) : null,
                             'price' => $variant->price,
                             'sale_price' => $variant->sale_price,
                             'display_price' => $displayPrice,
@@ -244,7 +380,6 @@ class ProductController extends Controller
                     'created_at' => $product->created_at->format('d/m/Y H:i'),
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -268,13 +403,9 @@ class ProductController extends Controller
                 'tag' => 'nullable|string|in:new,hot,sale',
                 'description' => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
-                'colors' => 'required|array|min:1',
-                'colors.*.name' => 'required|string|max:255',
-                'colors.*.color_code' => 'required|string|max:7',
-                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
                 'variants' => 'required|array|min:1',
-                'variants.*.color_index' => 'required|integer',
-                'variants.*.size' => 'required|string',
+                'variants.*.color_id' => 'required|exists:colors,id',
+                'variants.*.size_id' => 'required|exists:sizes,id',
                 'variants.*.quantity' => 'required|integer|min:0',
                 'variants.*.price' => 'nullable|numeric|min:0',
                 'variants.*.sale_price' => 'nullable|numeric|min:0',
@@ -283,7 +414,6 @@ class ProductController extends Controller
                 'price.required' => 'Vui lòng nhập giá sản phẩm',
                 'sale_price.lt' => 'Giá khuyến mãi phải nhỏ hơn giá gốc',
                 'category_id.required' => 'Vui lòng chọn danh mục',
-                'colors.required' => 'Vui lòng thêm ít nhất 1 màu',
                 'variants.required' => 'Vui lòng thêm ít nhất 1 biến thể',
             ]);
 
@@ -314,31 +444,12 @@ class ProductController extends Controller
                     'category_id' => $request->category_id,
                 ]);
 
-                // Create colors
-                $colorIds = [];
-                foreach ($request->colors as $index => $colorData) {
-                    $colorImagePath = null;
-                    if (isset($colorData['image']) && $request->hasFile("colors.{$index}.image")) {
-                        $colorImagePath = $request->file("colors.{$index}.image")->store('products/colors', 'public');
-                    }
-
-                    $color = ProductColor::create([
-                        'product_id' => $product->id,
-                        'color_name' => $colorData['name'],
-                        'color_code' => $colorData['color_code'],
-                        'image' => $colorImagePath,
-                    ]);
-
-                    $colorIds[$index] = $color->id;
-                }
-
                 // Create variants
                 foreach ($request->variants as $variantData) {
-                    $colorId = $colorIds[$variantData['color_index']];
-
                     ProductVariant::create([
-                        'color_id' => $colorId,
-                        'size' => $variantData['size'],
+                        'product_id' => $product->id,
+                        'color_id' => $variantData['color_id'],
+                        'size_id' => $variantData['size_id'],
                         'quantity' => $variantData['quantity'],
                         'price' => $variantData['price'] ?? null,
                         'sale_price' => $variantData['sale_price'] ?? null,
@@ -355,12 +466,10 @@ class ProductController extends Controller
                         'name' => $product->name,
                     ]
                 ], 201);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -393,16 +502,12 @@ class ProductController extends Controller
                 'tag' => 'nullable|string|in:new,hot,sale',
                 'description' => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
-                'colors' => 'nullable|array',
-                'colors.*.name' => 'required|string|max:255',
-                'colors.*.color_code' => 'required|string|max:7',
-                'colors.*.image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'variants' => 'nullable|array',
-                'variants.*.id' => 'nullable|integer',
-                'variants.*.size' => 'required|string|max:50',
+                'variants.*.color_id' => 'required|exists:colors,id',
+                'variants.*.size_id' => 'required|exists:sizes,id',
                 'variants.*.quantity' => 'required|integer|min:0',
                 'variants.*.price' => 'nullable|numeric|min:0',
-                'variants.*.color_index' => 'required|integer|min:0',
+                'variants.*.sale_price' => 'nullable|numeric|min:0',
             ]);
 
             if ($validator->fails()) {
@@ -434,59 +539,18 @@ class ProductController extends Controller
                 $product->category_id = $request->category_id;
                 $product->save();
 
-                // ========== CẬP NHẬT COLORS ==========
-                $newColors = [];
-                if ($request->has('colors') && is_array($request->colors)) {
-                    // Xóa tất cả màu cũ và variants liên quan
-                    $oldColors = ProductColor::where('product_id', $product->id)->get();
-                    foreach ($oldColors as $oldColor) {
-                        // Xóa variants của màu này
-                        ProductVariant::where('color_id', $oldColor->id)->delete();
-                        // Xóa ảnh màu cũ nếu có
-                        if ($oldColor->image) {
-                            Storage::disk('public')->delete($oldColor->image);
-                        }
-                        $oldColor->delete();
-                    }
-
-                    // Thêm màu mới
-                    foreach ($request->colors as $index => $colorData) {
-                        $colorImage = null;
-                        if (isset($colorData['image']) && $colorData['image'] instanceof \Illuminate\Http\UploadedFile) {
-                            $colorImage = $colorData['image']->store('colors', 'public');
-                        }
-
-                        $color = ProductColor::create([
-                            'product_id' => $product->id,
-                            'color_name' => $colorData['name'],
-                            'color_code' => $colorData['color_code'],
-                            'image' => $colorImage,
-                        ]);
-
-                        $newColors[$index] = $color;
-                    }
-                }
-
                 // ========== CẬP NHẬT VARIANTS ==========
+                // Xóa hết variants cũ của sản phẩm
+                $product->variants()->delete();
                 if ($request->has('variants') && is_array($request->variants)) {
                     foreach ($request->variants as $variantData) {
-                        $colorIndex = $variantData['color_index'] ?? 0;
-                        
-                        // Lấy color từ danh sách colors mới vừa tạo
-                        if (!isset($newColors[$colorIndex])) {
-                            continue; // Bỏ qua nếu color_index không hợp lệ
-                        }
-                        
-                        $color = $newColors[$colorIndex];
-
-                        // Tạo variant mới (không cập nhật variant cũ nữa vì đã xóa hết)
                         ProductVariant::create([
-                            'color_id' => $color->id,
-                            'size' => $variantData['size'],
+                            'product_id' => $product->id,
+                            'color_id' => $variantData['color_id'],
+                            'size_id' => $variantData['size_id'],
                             'quantity' => $variantData['quantity'],
-                            'price' => isset($variantData['price']) && $variantData['price'] !== '' 
-                                ? $variantData['price'] 
-                                : null,
+                            'price' => $variantData['price'] ?? null,
+                            'sale_price' => $variantData['sale_price'] ?? null,
                         ]);
                     }
                 }
@@ -501,12 +565,10 @@ class ProductController extends Controller
                     'message' => 'Cập nhật sản phẩm thành công',
                     'data' => $this->formatProduct($product)
                 ], 200);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -557,12 +619,10 @@ class ProductController extends Controller
                     'success' => true,
                     'message' => 'Xóa sản phẩm thành công'
                 ], 200);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -611,7 +671,7 @@ class ProductController extends Controller
             if ($request->has('sale_price')) {
                 $variant->sale_price = $request->sale_price;
             }
-            
+
             $variant->save();
 
             return response()->json([
@@ -624,7 +684,6 @@ class ProductController extends Controller
                     'sale_price' => $variant->sale_price,
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -635,6 +694,26 @@ class ProductController extends Controller
     }
 
     /**
+     * Lấy danh sách sản phẩm cho admin
+     */
+    public function adminIndex(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $products = Product::orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products->items(), // Trả về mảng sản phẩm
+            'pagination' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
      * Helper: Format product
      */
     private function formatProduct($product)
@@ -642,31 +721,32 @@ class ProductController extends Controller
         // Tính khoảng giá từ variants
         $prices = [];
         foreach ($product->variants as $variant) {
-            $displayPrice = $variant->sale_price 
-                ?? $variant->price 
-                ?? $product->sale_price 
+            $displayPrice = $variant->sale_price
+                ?? $variant->price
+                ?? $product->sale_price
                 ?? $product->price;
             $prices[] = $displayPrice;
         }
-        
+
         $minPrice = !empty($prices) ? min($prices) : $product->price;
         $maxPrice = !empty($prices) ? max($prices) : $product->price;
-        
+
         return [
             'id' => $product->id,
             'name' => $product->name,
+            'description' => $product->description,
             'image' => $product->image ? Storage::url($product->image) : null,
             'price' => $product->price,
             'sale_price' => $product->sale_price,
             'price_range' => [
                 'min' => $minPrice,
                 'max' => $maxPrice,
-                'display' => $minPrice == $maxPrice 
+                'display' => $minPrice == $maxPrice
                     ? number_format($minPrice, 0, ',', '.') . 'đ'
                     : number_format($minPrice, 0, ',', '.') . 'đ - ' . number_format($maxPrice, 0, ',', '.') . 'đ'
             ],
-            'discount_percent' => $product->sale_price 
-                ? round((($product->price - $product->sale_price) / $product->price) * 100) 
+            'discount_percent' => $product->sale_price
+                ? round((($product->price - $product->sale_price) / $product->price) * 100)
                 : 0,
             'tag' => $product->tag,
             'category' => [

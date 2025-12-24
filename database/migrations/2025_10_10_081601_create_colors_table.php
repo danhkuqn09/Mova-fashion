@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_colors', function (Blueprint $table) {
+        Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('color_name'); // hoặc color_code
+            $table->string('name'); // Tên màu
             $table->string('color_code')->nullable(); // Mã màu HEX: #FF0000
             $table->string('image')->nullable();
             $table->timestamps();

@@ -39,19 +39,24 @@ class DashboardController extends Controller
 
             // Đơn hàng chờ xác nhận
             $pendingOrders = Order::where('status', 'pending')
-                ->with(['user:id,name,email', 'items.productVariant.color.product'])
+                ->with([
+                    'user:id,name,email',
+                    'items.productVariant.product:id,name,image',
+                    'items.productVariant.color:id,name,image',
+                    'items.productVariant.size:id,name'
+                ])
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get()
                 ->map(function ($order) {
                     return [
                         'id' => $order->id,
-                        'order_code' => $order->order_code,
+                        // 'order_code' => $order->order_code, // Trường này không tồn tại
                         'user_name' => $order->user->name,
                         'user_email' => $order->user->email,
                         'final_total' => $order->final_total,
                         'payment_method' => $order->payment_method,
-                        'shipping_address' => $order->shipping_address,
+                        'shipping_address' => $order->shipping_address ?? $order->address ?? null,
                         'items_count' => $order->items->count(),
                         'created_at' => $order->created_at->format('d/m/Y H:i'),
                     ];
@@ -202,134 +207,7 @@ class DashboardController extends Controller
         }
     }
 
-    /**
-     * Thống kê doanh thu theo tháng
-     */
-    public function revenueByMonth(Request $request)
-    {
-        try {
-            $year = $request->input('year', Carbon::now()->year);
 
-            // Đơn hàng completed
-            $completedOrders = Order::where('status', 'completed')
-                ->whereYear('created_at', $year)
-                ->select(
-                    DB::raw('MONTH(created_at) as month'),
-                    DB::raw('SUM(final_total) as revenue'),
-                    DB::raw('COUNT(*) as order_count')
-                )
-                ->groupBy('month');
-
-            // Đơn hàng Momo đã thanh toán
-            $momoOrders = Order::where('payment_method', 'momo')
-                ->where('payment_status', 'paid')
-                ->whereYear('created_at', $year)
-                ->select(
-                    DB::raw('MONTH(created_at) as month'),
-                    DB::raw('SUM(final_total) as revenue'),
-                    DB::raw('COUNT(*) as order_count')
-                )
-                ->groupBy('month');
-
-            // Union và group lại theo tháng
-            $allOrders = $completedOrders->union($momoOrders)->get();
-            
-            $revenues = $allOrders->groupBy('month')->map(function ($items, $month) use ($year) {
-                return [
-                    'month' => $month,
-                    'month_name' => 'Tháng ' . $month . '/' . $year,
-                    'revenue' => $items->sum('revenue'),
-                    'order_count' => $items->sum('order_count'),
-                ];
-            })->sortBy('month')->values();
-
-            $totalRevenue = $revenues->sum('revenue');
-            $totalOrders = $revenues->sum('order_count');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy thống kê doanh thu theo tháng thành công',
-                'data' => [
-                    'year' => $year,
-                    'total_revenue' => $totalRevenue,
-                    'total_orders' => $totalOrders,
-                    'revenues' => $revenues,
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy thống kê doanh thu theo tháng',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Thống kê doanh thu theo năm
-     */
-    public function revenueByYear(Request $request)
-    {
-        try {
-            $startYear = $request->input('start_year', Carbon::now()->subYears(4)->year);
-            $endYear = $request->input('end_year', Carbon::now()->year);
-
-            // Đơn hàng completed
-            $completedOrders = Order::where('status', 'completed')
-                ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])
-                ->select(
-                    DB::raw('YEAR(created_at) as year'),
-                    DB::raw('SUM(final_total) as revenue'),
-                    DB::raw('COUNT(*) as order_count')
-                )
-                ->groupBy('year');
-
-            // Đơn hàng Momo đã thanh toán
-            $momoOrders = Order::where('payment_method', 'momo')
-                ->where('payment_status', 'paid')
-                ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])
-                ->select(
-                    DB::raw('YEAR(created_at) as year'),
-                    DB::raw('SUM(final_total) as revenue'),
-                    DB::raw('COUNT(*) as order_count')
-                )
-                ->groupBy('year');
-
-            // Union và group lại theo năm
-            $allOrders = $completedOrders->union($momoOrders)->get();
-            
-            $revenues = $allOrders->groupBy('year')->map(function ($items, $year) {
-                return [
-                    'year' => $year,
-                    'revenue' => $items->sum('revenue'),
-                    'order_count' => $items->sum('order_count'),
-                ];
-            })->sortBy('year')->values();
-
-            $totalRevenue = $revenues->sum('revenue');
-            $totalOrders = $revenues->sum('order_count');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy thống kê doanh thu theo năm thành công',
-                'data' => [
-                    'start_year' => $startYear,
-                    'end_year' => $endYear,
-                    'total_revenue' => $totalRevenue,
-                    'total_orders' => $totalOrders,
-                    'revenues' => $revenues,
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy thống kê doanh thu theo năm',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Lấy danh sách đơn hàng chờ xác nhận
@@ -340,7 +218,12 @@ class DashboardController extends Controller
             $perPage = $request->input('per_page', 15);
 
             $orders = Order::where('status', 'pending')
-                ->with(['user:id,name,email,phone', 'items.productVariant.color.product:id,name,image'])
+                ->with([
+                    'user:id,name,email,phone',
+                    'items.productVariant.product:id,name,image',
+                    'items.productVariant.color:id,name,image',
+                    'items.productVariant.size:id,name'
+                ])
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 
@@ -356,13 +239,13 @@ class DashboardController extends Controller
                     ],
                     'items' => $order->items->map(function ($item) {
                         return [
-                            'product_name' => $item->productVariant->color->product->name,
-                            'color' => $item->productVariant->color->color_name,
-                            'size' => $item->productVariant->size,
+                            'product_name' => $item->productVariant->product->name,
+                            'color' => $item->productVariant->color->name,
+                            'size' => $item->productVariant->size ? $item->productVariant->size->name : null,
                             'quantity' => $item->quantity,
                             'price' => $item->price,
-                            'image' => $item->productVariant->color->image 
-                                ? asset('storage/' . $item->productVariant->color->image) 
+                            'image' => $item->productVariant->product->image 
+                                ? asset('storage/' . $item->productVariant->product->image) 
                                 : null,
                         ];
                     }),
@@ -392,62 +275,7 @@ class DashboardController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Lấy danh sách sản phẩm sắp hết hàng
-     */
-    public function lowStockProducts(Request $request)
-    {
-        try {
-            $threshold = $request->input('threshold', 10); // Ngưỡng cảnh báo, mặc định < 10
-
-            $products = Product::whereHas('variants', function($query) use ($threshold) {
-                    $query->where('quantity', '<', $threshold);
-                })
-                ->with(['variants' => function($query) use ($threshold) {
-                    $query->where('quantity', '<', $threshold)
-                        ->with('color:id,product_id,color_name,color_code');
-                }])
-                ->get()
-                ->map(function ($product) {
-                    return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'image' => $product->image ? asset('storage/' . $product->image) : null,
-                        'variants' => $product->variants->map(function ($variant) {
-                            return [
-                                'id' => $variant->id,
-                                'color_name' => $variant->color->color_name,
-                                'color_code' => $variant->color->color_code,
-                                'size' => $variant->size,
-                                'quantity' => $variant->quantity,
-                                'status' => $variant->quantity == 0 ? 'Hết hàng' : 'Sắp hết',
-                            ];
-                        }),
-                        'total_low_stock_variants' => $product->variants->count(),
-                        'lowest_quantity' => $product->variants->min('quantity'),
-                    ];
-                });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lấy danh sách sản phẩm sắp hết hàng thành công',
-                'data' => [
-                    'threshold' => $threshold,
-                    'total_products' => $products->count(),
-                    'products' => $products,
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy danh sách sản phẩm sắp hết hàng',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
+    
     /**
      * So sánh doanh thu tháng này với tháng trước
      */

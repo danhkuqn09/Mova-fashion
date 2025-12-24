@@ -26,7 +26,7 @@ class OrderController extends Controller
             $user = Auth::user();
             $status = $request->input('status'); // filter theo trạng thái
 
-            $query = Order::with(['items.productVariant.product', 'items.productVariant.color', 'voucher'])
+            $query = Order::with(['items.productVariant.product', 'items.productVariant.color', 'items.productVariant.size', 'voucher'])
                 ->where('user_id', $user->id);
 
             // Lọc theo trạng thái nếu có
@@ -185,6 +185,7 @@ class OrderController extends Controller
                 }
 
                 $finalTotal = $originalTotal - $discountAmount;
+                $finalTotal += 30000; // Phí vận chuyển
 
                 // Tạo đơn hàng
                 $order = Order::create([
@@ -383,6 +384,7 @@ class OrderController extends Controller
                 }
 
                 $finalTotal = $originalTotal - $discountAmount;
+                $finalTotal += 30000; // Phí vận chuyển
 
                 // Tạo đơn hàng
                 $order = Order::create([
@@ -505,11 +507,25 @@ class OrderController extends Controller
                     'product' => [
                         'id' => $item->productVariant->product->id,
                         'name' => $item->productVariant->product->name,
-                        'image' => $item->productVariant->product->image ? Storage::url($item->productVariant->product->image) : null,
+                        'image' => $item->productVariant->image ? Storage::url($item->productVariant->image) : null,
                     ],
-                    'variant' => [
-                        'color' => $item->productVariant->color->color_name ?? null,
-                        'size' => $item->productVariant->size ?? null,
+                    'product_variant' => [
+                        'id' => $item->productVariant->id,
+                        'product_id' => $item->productVariant->product_id,
+                        'color_id' => $item->productVariant->color_id,
+                        'size_id' => $item->productVariant->size_id,
+                        'color' => $item->productVariant->color ? [
+                            'id' => $item->productVariant->color->id,
+                            'name' => $item->productVariant->color->name ?? $item->productVariant->color->color_name ?? null,
+                            'hex_code' => $item->productVariant->color->color_code ?? null,
+                        ] : null,
+                        'size' => $item->productVariant->size ? [
+                            'id' => $item->productVariant->size->id,
+                            'name' => $item->productVariant->size->name ?? null,
+                        ] : null,
+                        'price' => $item->productVariant->price,
+                        'sale_price' => $item->productVariant->sale_price,
+                        'quantity' => $item->productVariant->quantity,
                     ],
                     'quantity' => $item->quantity,
                     'price' => $item->price,
@@ -529,7 +545,7 @@ class OrderController extends Controller
 
             $orderData = [
                 'id' => $order->id,
-                'order_code' => $order->order_code,
+                // 'order_code' => $order->order_code, // Đã loại bỏ vì không tồn tại
                 'status' => $order->status,
                 'status_text' => $this->getStatusText($order->status),
                 'payment_method' => $order->payment_method,
@@ -696,6 +712,7 @@ class OrderController extends Controller
             $order = Order::with([
                 'items.productVariant.product.category',
                 'items.productVariant.color',
+                'items.productVariant.size', // ← Thêm dòng này để lấy kích thước
                 'voucher',
                 'user' // ← Admin cần thấy thông tin user
             ])->find($id);
@@ -776,14 +793,18 @@ class OrderController extends Controller
                     // Hoàn lại tồn kho
                     foreach ($order->items as $item) {
                         $variant = ProductVariant::find($item->product_variant_id);
-                        $variant->quantity += $item->quantity;
-                        $variant->save();
+                        if ($variant) {
+                            $variant->quantity += $item->quantity;
+                            $variant->save();
+                        }
                     }
 
                     // Hoàn lại voucher
                     if ($order->voucher_id) {
                         $voucher = Voucher::find($order->voucher_id);
-                        $voucher->decrement('used_count');
+                        if ($voucher && $voucher->used_count > 0) {
+                            $voucher->decrement('used_count');
+                        }
                     }
 
                     // Cập nhật trạng thái hủy và hoàn tiền

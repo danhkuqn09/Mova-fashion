@@ -23,28 +23,43 @@ class ReviewController extends Controller
             $productId = $request->input('product_id');
             $perPage = $request->input('per_page', 10);
 
-            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.color.product'])
-                ->whereHas('orderItem.productVariant.color.product', function ($q) use ($productId) {
+
+            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.color', 'orderItem.productVariant.size', 'orderItem.productVariant.product'])
+                ->whereHas('orderItem.productVariant', function ($q) use ($productId) {
                     if ($productId) {
-                        $q->where('id', $productId);
+                        $q->where('product_id', $productId);
                     }
                 })
                 ->orderBy('created_at', 'desc');
 
             $reviews = $query->paginate($perPage);
 
-            // Format data
+            // Format data an toàn với null
             $formattedReviews = $reviews->map(function ($review) {
+                $user = $review->user ?? null;
+                $orderItem = $review->orderItem ?? null;
+                $variant = $orderItem && $orderItem->productVariant ? $orderItem->productVariant : null;
+                $product = $variant && $variant->product ? $variant->product : null;
+                $color = $variant && $variant->color ? $variant->color : null;
+                $size = $variant && $variant->size ? $variant->size : null;
                 return [
                     'id' => $review->id,
                     'user' => [
-                        'id' => $review->user->id,
-                        'name' => $review->user->name,
-                        'avatar' => $review->user->avatar ?? null,
+                        'id' => $user->id ?? null,
+                        'name' => $user->name ?? null,
+                        'avatar' => $user->avatar ?? null,
                     ],
                     'product' => [
-                        'id' => $review->orderItem->productVariant->product->id,
-                        'name' => $review->orderItem->productVariant->product->name,
+                        'id' => $product->id ?? null,
+                        'name' => $product->name ?? null,
+                    ],
+                    'variant' => [
+                        'color' => $color->name ?? $color->color_name ?? null,
+                        'size' => [
+                            'id' => $size->id ?? null,
+                            'name' => $size->name ?? null,
+                        ],
+                        // Không còn image cho variant
                     ],
                     'rating' => $review->rating,
                     'content' => $review->content,
@@ -86,7 +101,7 @@ class ReviewController extends Controller
             $user = Auth::user();
             $perPage = $request->input('per_page', 15);
 
-            $reviews = Review::with(['orderItem.order', 'orderItem.productVariant.color.product'])
+            $reviews = Review::with(['orderItem.order', 'orderItem.productVariant.product', 'orderItem.productVariant.color'])
                 ->whereHas('orderItem.order', function($q) use ($user) {
                     $q->where('user_id', $user->id);
                 })
@@ -99,10 +114,15 @@ class ReviewController extends Controller
                     'product' => [
                         'id' => $review->orderItem->productVariant->product->id,
                         'name' => $review->orderItem->productVariant->product->name,
-                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
+                        'image' => $review->orderItem->productVariant->image ? Storage::url($review->orderItem->productVariant->image) : null,
                     ],
                     'variant' => [
                         'color' => $review->orderItem->productVariant->color->color_name ?? null,
+                        'size' => [
+                            'id' => $review->orderItem->productVariant->size_id ?? null,
+                            'name' => $review->orderItem->productVariant->size->name ?? null,
+                        ],
+                        'image' => $review->orderItem->productVariant->image ? Storage::url($review->orderItem->productVariant->image) : null,
                     ],
                     'rating' => $review->rating,
                     'content' => $review->content,
@@ -213,7 +233,7 @@ class ReviewController extends Controller
             ]);
 
             // Load relationships
-            $review->load(['orderItem.order.user', 'orderItem.productVariant.color.product']);
+            $review->load(['orderItem.order.user', 'orderItem.productVariant.product', 'orderItem.productVariant.color']);
 
             return response()->json([
                 'success' => true,
@@ -244,7 +264,7 @@ class ReviewController extends Controller
         try {
             $user = Auth::user();
 
-            $review = Review::with(['orderItem.order', 'orderItem.productVariant.color.product'])
+            $review = Review::with(['orderItem.order', 'orderItem.productVariant.product', 'orderItem.productVariant.color'])
                 ->whereHas('orderItem.order', function($q) use ($user) {
                     $q->where('user_id', $user->id);
                 })
@@ -336,7 +356,7 @@ class ReviewController extends Controller
             $rating = $request->input('rating');
             $perPage = $request->input('per_page', 15);
 
-            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.color.product'])
+            $query = Review::with(['orderItem.order.user', 'orderItem.productVariant.product', 'orderItem.productVariant.color'])
                 ->orderBy('created_at', 'desc');
 
             // Search by product name or user name
@@ -344,7 +364,7 @@ class ReviewController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('orderItem.order.user', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
-                    })->orWhereHas('orderItem.productVariant.color.product', function ($q2) use ($search) {
+                    })->orWhereHas('orderItem.productVariant.product', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
                     });
                 });
@@ -366,9 +386,9 @@ class ReviewController extends Controller
                         'email' => $review->orderItem->order->user->email,
                     ],
                     'product' => [
-                        'id' => $review->orderItem->productVariant->color->product->id,
-                        'name' => $review->orderItem->productVariant->color->product->name,
-                        'image' => $review->orderItem->productVariant->color->product->image ? Storage::url($review->orderItem->productVariant->color->product->image) : null,
+                        'id' => $review->orderItem->productVariant->product->id,
+                        'name' => $review->orderItem->productVariant->product->name,
+                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
                     ],
                     'order_id' => $review->orderItem->order_id,
                     'rating' => $review->rating,
@@ -409,7 +429,7 @@ class ReviewController extends Controller
         try {
             $review = Review::with([
                 'orderItem.order.user',
-                'orderItem.productVariant.color.product',
+                'orderItem.productVariant.product',
                 'orderItem.productVariant.color'
             ])->find($id);
 
@@ -436,10 +456,10 @@ class ReviewController extends Controller
                         'avatar' => $review->user->avatar,
                     ],
                     'product' => [
-                        'id' => $review->product->id,
-                        'name' => $review->product->name,
-                        'image' => $review->product->image ? Storage::url($review->product->image) : null,
-                        'price' => $review->product->price,
+                        'id' => $review->orderItem->productVariant->product->id,
+                        'name' => $review->orderItem->productVariant->product->name,
+                        'image' => $review->orderItem->productVariant->product->image ? Storage::url($review->orderItem->productVariant->product->image) : null,
+                        'price' => $review->orderItem->productVariant->product->price,
                     ],
                     'variant' => [
                         'color' => $review->orderItem->productVariant->color->color_name ?? null,

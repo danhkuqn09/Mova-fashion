@@ -58,9 +58,8 @@ class CartController extends Controller
                     'variant' => [
                         'id' => $variant->id,
                         'size' => $variant->size,
-                        'color' => $variant->color->color_name ?? null,
+                        'color' => $variant->color->name ?? null,
                         'color_code' => $variant->color->color_code ?? null,
-                        'color_hex' => $variant->color->color_code ?? null,
                         'image' => $variant->color && $variant->color->image ? Storage::url($variant->color->image) : null,
                         'quantity' => $variant->quantity,
                         'price' => $variant->price,

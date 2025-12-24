@@ -18,10 +18,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,            // 1. Tạo users trước
             CategorySeeder::class,         // 2. Tạo categories
             VoucherSeeder::class,          // 3. Tạo vouchers
+            SizeSeeder::class,             // Thêm seed size
             
             // BƯỚC 2: Tạo sản phẩm
             ProductSeeder::class,          // 4. Tạo products (cần categories)
-            ProductColorSeeder::class,     // 5. Tạo colors (cần products)
+            ColorSeeder::class,     // 5. Tạo colors (cần dùng cho variants)
             ProductVariantSeeder::class,   // 6. Tạo variants (cần products + colors)
             
             // BƯỚC 3: Tạo đơn hàng và tương tác

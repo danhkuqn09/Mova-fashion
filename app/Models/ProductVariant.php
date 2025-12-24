@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,8 +11,9 @@ class ProductVariant extends Model
     use HasFactory;
 
     protected $fillable = [
+        'product_id',
         'color_id',
-        'size',
+        'size_id',
         'price',
         'sale_price',
         'quantity',
@@ -27,37 +27,7 @@ class ProductVariant extends Model
 
     public function color(): BelongsTo
     {
-        return $this->belongsTo(ProductColor::class, 'color_id');
-    }
-    
-    // Relationship product qua color
-    public function product()
-    {
-        return $this->hasOneThrough(
-            Product::class,
-            ProductColor::class,
-            'id',           // Foreign key on product_colors table
-            'id',           // Foreign key on products table
-            'color_id',     // Local key on product_variants table
-            'product_id'    // Local key on product_colors table
-        );
-    }
-
-    // Accessor để lấy product
-    public function getProductAttribute()
-    {
-        // Nếu đã load relationship 'color.product'
-        if ($this->relationLoaded('color') && $this->color->relationLoaded('product')) {
-            return $this->color->product;
-        }
-        
-        // Nếu đã load relationship 'product' (hasOneThrough)
-        if ($this->relationLoaded('product')) {
-            return $this->getRelation('product');
-        }
-        
-        // Fallback: load trực tiếp
-        return $this->color->product;
+        return $this->belongsTo(Color::class, 'color_id');
     }
 
     public function carts(): HasMany
@@ -70,5 +40,13 @@ class ProductVariant extends Model
         return $this->hasMany(OrderItem::class, 'product_variant_id');
     }
 
-    
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(Size::class, 'size_id');
+        
+    }
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }

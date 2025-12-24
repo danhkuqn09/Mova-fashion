@@ -19,6 +19,7 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Google OAuth routes
@@ -56,6 +57,10 @@ Route::get('/momo/callback', [OrderController::class, 'momoCallback']); // Retur
 
 // Voucher routes (Public - Xem danh sách)
 Route::get('/vouchers', [VoucherController::class, 'index']);
+
+// Public Color & Size routes
+Route::get('/colors', [App\Http\Controllers\Api\ProductController::class, 'publicColorsIndex']);
+Route::get('/sizes', [App\Http\Controllers\Api\ProductController::class, 'publicSizesIndex']);
 
 // Các route cần đăng nhập bằng Sanctum
 Route::middleware('auth:sanctum')->group(function () {
@@ -146,10 +151,23 @@ Route::middleware('auth:sanctum')->group(function () {
 		Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy']);
 
 		// Quản lí Product (Admin)
+		Route::get('/admin/products', [ProductController::class, 'adminIndex']);
 		Route::post('/admin/products', [ProductController::class, 'store']);
 		Route::post('/admin/products/{id}', [ProductController::class, 'update']);
 		Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
 		Route::put('/admin/products/variants/{variantId}/stock', [ProductController::class, 'updateVariantStock']);
+
+		// Quản lí Color (Admin)
+		Route::get('/admin/colors', [ProductController::class, 'adminColorsIndex']);
+		Route::post('/admin/colors', [ProductController::class, 'adminColorsStore']);
+		Route::put('/admin/colors/{id}', [ProductController::class, 'adminColorsUpdate']);
+		Route::delete('/admin/colors/{id}', [ProductController::class, 'adminColorsDestroy']);
+
+		// Quản lí Size (Admin)
+		Route::get('/admin/sizes', [ProductController::class, 'adminSizesIndex']);
+		Route::post('/admin/sizes', [ProductController::class, 'adminSizesStore']);
+		Route::put('/admin/sizes/{id}', [ProductController::class, 'adminSizesUpdate']);
+		Route::delete('/admin/sizes/{id}', [ProductController::class, 'adminSizesDestroy']);
 
 		// Quản lí Comment (Admin)
 		Route::get('/admin/comments', [CommentController::class, 'adminIndex']);

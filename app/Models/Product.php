@@ -33,21 +33,23 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function colors(): HasMany
+
+    // Lấy tất cả màu sắc của sản phẩm thông qua các biến thể (ProductVariant)
+    public function colors()
     {
-        return $this->hasMany(ProductColor::class);
+        return $this->hasManyThrough(
+            Color::class,
+            ProductVariant::class,
+            'product_id', // Foreign key on product_variants
+            'id',         // Foreign key on colors
+            'id',         // Local key on products
+            'color_id'    // Local key on product_variants
+        )->distinct();
     }
 
     public function variants()
     {
-        return $this->hasManyThrough(
-            ProductVariant::class,
-            ProductColor::class,
-            'product_id',  // Foreign key on product_colors
-            'color_id',    // Foreign key on product_variants
-            'id',          // Local key on products
-            'id'           // Local key on product_colors
-        );
+        return $this->hasMany(ProductVariant::class, 'product_id');
     }
 
     public function comments(): HasMany

@@ -137,7 +137,6 @@ const OrderPage = () => {
             </thead>
             <tbody>
               {order.items?.map((item) => {
-                console.log("ITEM TRONG ORDER:", item);
                 return (
                   <tr key={item.id}>
                     <td>
@@ -147,7 +146,6 @@ const OrderPage = () => {
                           alt={item.product_variant?.product?.name}
                           className="product-thumb"
                         />
-
                       ) : (
                         <span>Chưa có ảnh</span>
                       )}
@@ -156,9 +154,19 @@ const OrderPage = () => {
                     <td>
                       {item.product_variant?.product?.name}
                       <br />
-                      <small>Màu: {item.product_variant?.color?.color_name || "Không có màu"}</small>
+                      <small>Màu: {(() => {
+                        const c = item.product_variant?.color;
+                        if (!c) return "Không có màu";
+                        if (typeof c === 'object' && c !== null) return c.name || c.hex_code || "Không có màu";
+                        return c;
+                      })()}</small>
                       <br />
-                      <small>Size: {item.product_variant.size || "Không có size"}</small>
+                      <small>Size: {(() => {
+                        const s = item.product_variant?.size;
+                        if (!s) return "Không có size";
+                        if (typeof s === 'object' && s !== null) return s.name || "Không có size";
+                        return s;
+                      })()}</small>
                     </td>
                     <td>{formatMoney(item.price)}</td>
                     <td>{item.quantity}</td>
@@ -170,6 +178,9 @@ const OrderPage = () => {
           </table>
 
           <div className="order-footer">
+            <div>
+              <span>Phí vận chuyển: {formatMoney(30000)}</span>
+            </div>
             {order.voucher && (
               <div>
                 <span>
@@ -187,13 +198,6 @@ const OrderPage = () => {
                   Hủy mua
                 </button>
               )}
-              {/* {order.status === "cancelled" || order.status === "completed" ? (
-                <button onClick={() => handleDeleteOrder(order.id)} className="delete-btn">
-                  Xóa đơn
-                </button>
-              ) : null} */}
-
-
               <Link to={`/order/${order.id}`}>
                 <button className="orderdetail-btn">Xem chi tiết</button>
               </Link>

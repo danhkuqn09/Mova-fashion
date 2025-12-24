@@ -172,6 +172,7 @@ const Orders = () => {
                                 </small>
                               </td>
                               <td className="fw-bold text-success">{formatVND(o.final_total)}</td>
+                              <td>{formatVND(30000)}</td>
                               <td className="text-danger">{formatVND(o.discount_amount) || formatVND(0)}</td>
                               <td>
                                 <span className={`badge ${

@@ -190,7 +190,6 @@ const OrderDetail = () => {
         </div>
         <div className="info-col">
           <h3>Thông tin đơn hàng</h3>
-          <p><strong>Mã đơn:</strong> {order.order_code}</p>
           <p><strong>Ngày đặt:</strong> {order.created_at}</p>
           <p>
             <strong>Phương thức thanh toán:</strong> {order.payment_method_text || getPaymentMethodText(order.payment_method)}
@@ -228,8 +227,8 @@ const OrderDetail = () => {
                 </td>
                 <td>
                   {item.product.name}<br />
-                  Màu: {item.variant?.color || "Không có"}<br />
-                  Size: {item.variant?.size || "Không có"}
+                  Màu: {item.product_variant?.color?.name || item.product_variant?.color?.hex_code || "Không có"}<br />
+                  Size: {item.product_variant?.size?.name || "Không có"}
                 </td>
                 <td>{Number(item.price).toLocaleString("vi-VN")} ₫</td>
                 <td>{item.quantity}</td>
@@ -241,6 +240,10 @@ const OrderDetail = () => {
       </div>
 
       <div className="order-summary">
+        <div className="summary-row">
+          <span>Phí vận chuyển:</span>
+          <span>{Number(30000).toLocaleString("vi-VN")} ₫</span>
+        </div>
         {order.pricing?.discount_amount > 0 && (
           <div className="summary-row discount">
             <span>Giảm giá:</span>

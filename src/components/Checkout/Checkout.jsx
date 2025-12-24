@@ -22,6 +22,29 @@ const CheckoutPage = () => {
     address: "",
     payment_method: "",
   });
+  // Lưu thông tin profile user
+  const [userProfile, setUserProfile] = useState(null);
+    // Tự động fill thông tin user khi vào checkout
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      axios.get("http://localhost:8000/api/profile", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => {
+          if (res.data && res.data.data) {
+            setUserProfile(res.data.data);
+            setForm(f => ({
+              ...f,
+              name: res.data.data.name || "",
+              phone: res.data.data.phone || "",
+              email: res.data.data.email || "",
+              address: res.data.data.address || ""
+            }));
+          }
+        })
+        .catch(() => {});
+    }, []);
   const [loading, setLoading] = useState(false);
 
   // Load available vouchers
@@ -509,8 +532,8 @@ const CheckoutPage = () => {
                         <div className="flex-grow-1 ms-3">
                           <h6 className="mb-1">{item.name}</h6>
                           <small className="text-muted">
-                            {item.color && <span className="me-2"><i className="fas fa-circle" style={{ fontSize: '8px' }}></i> {item.color}</span>}
-                            {item.size && <span><i className="fas fa-ruler" style={{ fontSize: '8px' }}></i> {item.size}</span>}
+                            {item.color && <span className="me-2"><i className="fas fa-circle" style={{ fontSize: '8px' }}></i> {typeof item.color === 'object' && item.color !== null ? (item.color.name || item.color.hex_code || 'Không rõ') : item.color}</span>}
+                            {item.size && <span><i className="fas fa-ruler" style={{ fontSize: '8px' }}></i> {typeof item.size === 'object' && item.size !== null ? (item.size.name || 'Không rõ') : item.size}</span>}
                           </small>
                           <div className="d-flex justify-content-between align-items-center mt-2">
                             <span className="text-muted">SL: {item.quantity}</span>
@@ -540,12 +563,12 @@ const CheckoutPage = () => {
                               <small className="text-muted d-block">
                                 {item.variant?.color && (
                                   <span className="me-2">
-                                    <i className="fas fa-circle" style={{ fontSize: '8px', color: item.variant.color_hex || '#b88e2f' }}></i> Màu: {item.variant.color}
+                                    <i className="fas fa-circle" style={{ fontSize: '8px', color: item.variant.color_code || '#b88e2f' }}></i> Màu: {typeof item.variant.color === 'object' && item.variant.color !== null ? (item.variant.color.name || item.variant.color.hex_code || 'Không rõ') : item.variant.color}
                                   </span>
                                 )}
                                 {item.variant?.size && (
                                   <span>
-                                    <i className="fas fa-ruler" style={{ fontSize: '8px', color: '#b88e2f' }}></i> Size: {item.variant.size}
+                                    <i className="fas fa-ruler" style={{ fontSize: '8px', color: '#b88e2f' }}></i> Size: {typeof item.variant.size === 'object' && item.variant.size !== null ? (item.variant.size.name || 'Không rõ') : item.variant.size}
                                   </span>
                                 )}
                                 {/* Fallback nếu không có variant */}
@@ -585,7 +608,7 @@ const CheckoutPage = () => {
 
                   <div className="d-flex justify-content-between mb-2">
                     <span className="text-muted">Phí vận chuyển:</span>
-                    <span className="text-success fw-bold">Miễn phí</span>
+                    <span className="text-success fw-bold">{formatCurrency(30000)}</span>
                   </div>
 
                   <hr />
@@ -593,7 +616,7 @@ const CheckoutPage = () => {
                   <div className="d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">Tổng cộng:</h5>
                     <h4 className="mb-0 fw-bold" style={{ color: '#b88e2f' }}>
-                      {formatCurrency(subtotal - discountAmount)}
+                      {formatCurrency(subtotal - discountAmount + 30000)}
                     </h4>
                   </div>
                 </div>

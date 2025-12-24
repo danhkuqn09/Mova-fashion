@@ -19,6 +19,7 @@ function AdminLayout() {
       '/admin/voucher/add': 'Thêm voucher - Admin MOVA',
       '/admin/news': 'Quản lý tin tức - Admin MOVA',
       '/admin/reviews': 'Quản lý đánh giá - Admin MOVA',
+      '/admin/variants': 'Quản lý biến thể (Color & Size) - Admin MOVA',
     };
     
     // Xử lý dynamic routes (có :id)

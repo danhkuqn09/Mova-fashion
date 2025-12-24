@@ -213,26 +213,52 @@ function CartPage() {
               <span className="checkmark"></span>
             </label>
 
-            <img
-              src={`http://localhost:8000/storage/${item.product.image}`}
-              alt={item.product.name}
-              className="item-image"
-            />
-            
+            {item.product && (
+              <img
+                src={`http://localhost:8000/storage/${item.product.image}`}
+                alt={item.product.name}
+                className="item-image"
+              />
+            )}
             <div className="item-details">
-              <h3 className="item-name">{item.product.name}</h3>
+              <h3 className="item-name">{item.product ? item.product.name : 'Không rõ sản phẩm'}</h3>
               <div className="item-variants">
                 <span className="variant-badge">
-                  <i className="fas fa-ruler-combined"></i> Size: {item.variant.size}
+                  <i className="fas fa-ruler-combined"></i> Size: {(() => {
+                    if (item.variant && typeof item.variant === 'object' && 'size' in item.variant && item.variant.size) {
+                      const sizeVal = item.variant.size;
+                      if (typeof sizeVal === 'object' && sizeVal !== null && !Array.isArray(sizeVal)) {
+                        if (typeof sizeVal.name === 'string' && sizeVal.name) return sizeVal.name;
+                        return 'Không rõ';
+                      } else if (typeof sizeVal === 'string' || typeof sizeVal === 'number') {
+                        return String(sizeVal);
+                      }
+                      return 'Không rõ';
+                    }
+                    return 'Không rõ';
+                  })()}
                 </span>
                 <span className="variant-badge">
                   <span
                     className="color-dot"
                     style={{
-                      backgroundColor: item.variant.color_code,
+                      backgroundColor: item.variant && typeof item.variant === 'object' && 'color_code' in item.variant && item.variant.color_code ? item.variant.color_code : '#ccc',
                     }}
                   ></span>
-                  {item.variant.color}
+                  {(() => {
+                    if (item.variant && typeof item.variant === 'object' && 'color' in item.variant && item.variant.color) {
+                      const colorVal = item.variant.color;
+                      if (typeof colorVal === 'object' && colorVal !== null && !Array.isArray(colorVal)) {
+                        if (typeof colorVal.name === 'string' && colorVal.name) return colorVal.name;
+                        if (typeof colorVal.hex_code === 'string' && colorVal.hex_code) return colorVal.hex_code;
+                        return 'Không rõ';
+                      } else if (typeof colorVal === 'string' || typeof colorVal === 'number') {
+                        return String(colorVal);
+                      }
+                      return 'Không rõ';
+                    }
+                    return 'Không rõ';
+                  })()}
                 </span>
               </div>
 

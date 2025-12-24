@@ -337,7 +337,15 @@ const UserProfile = () => {
                     <div className="col-md-6">
                       <div className="p-3 bg-light rounded">
                         <small className="text-muted">Ngày tạo</small>
-                        <p className="mb-0 fw-bold">{new Date(profile.created_at).toLocaleDateString('vi-VN')}</p>
+                        <p className="mb-0 fw-bold">{profile.created_at ? (() => {
+                          // Parse dd/mm/yyyy hh:mm
+                          const [date, time] = profile.created_at.split(' ');
+                          const [day, month, year] = date.split('/');
+                          const [hour = '00', minute = '00'] = (time || '').split(':');
+                          const jsDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+                          return jsDate.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' }) +
+                            ' ' + jsDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                        })() : ''}</p>
                       </div>
                     </div>
                   </div>

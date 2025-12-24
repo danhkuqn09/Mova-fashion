@@ -393,24 +393,15 @@ function ProductDetail() {
               </div>
               {/* Thumbnails */}
               <div className="d-flex gap-2 justify-content-center">
-                {[
-                  product.image,
-                  ...product.colors.map(c => c.image).filter(Boolean),
-                  ...product.variants.map(v => v.image).filter(Boolean)
-                ]
-                  .filter((img, index, self) => img && self.indexOf(img) === index) // Loại bỏ trùng lặp
-                  .map((img, i) => {
-                    const fullImgUrl = img.startsWith('http') ? img : `http://localhost:8000${img}`;
-                    return (
-                      <img
-                        key={i}
-                        src={fullImgUrl}
-                        alt={product.name}
-                        onClick={() => setMainImg(fullImgUrl)}
-                        className={`thumbnail-img rounded-3 ${mainImg === fullImgUrl ? 'active' : ''}`}
-                      />
-                    );
-                  })}
+                {product.image && (
+                  <img
+                    key={normalizeImage(product.image)}
+                    src={normalizeImage(product.image)}
+                    alt={product.name}
+                    onClick={() => setMainImg(normalizeImage(product.image))}
+                    className={`thumbnail-img rounded-3 ${mainImg === normalizeImage(product.image) ? 'active' : ''}`}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -422,7 +413,16 @@ function ProductDetail() {
             <div className="mb-3">
               <label className="form-label fw-bold">Màu sắc:</label>
               <div className="d-flex gap-2 flex-wrap">
-                {product.colors.map((color) => (
+                {((product.colors && product.colors.length > 0)
+                  ? product.colors
+                  : Array.from(
+                      new Map(
+                        (product.variants || [])
+                          .filter(v => v.color && v.color.id)
+                          .map(v => [v.color.id, v.color])
+                      ).values()
+                    )
+                ).map((color) => (
                   <button
                     key={color.id}
                     type="button"
@@ -435,7 +435,7 @@ function ProductDetail() {
                     {color.image && (
                       <img src={normalizeImage(color.image)} alt={color.name} style={{ width: 24, height: 24, objectFit: 'cover', borderRadius: '50%' }} />
                     )}
-                    <span>{color.name}</span>
+                    <span>{color.name || color.hex_code || 'Không rõ'}</span>
                   </button>
                 ))}
               </div>
@@ -445,22 +445,66 @@ function ProductDetail() {
               <label className="form-label fw-bold">Kích thước:</label>
               <div className="d-flex gap-2 flex-wrap">
                 {uniqueSizes.length === 0 && <span className="text-muted">Chọn màu trước</span>}
-                {uniqueSizes.map((size) => (
+                {uniqueSizes.map((size, idx) => (
                   <button
-                    key={size}
+                    key={typeof size === 'object' ? JSON.stringify(size) + '-' + idx : String(size)}
                     type="button"
-                    className={`btn btn-outline-primary px-3 py-2 ${selectedSize === size ? 'active' : ''}`}
+                    className={`btn btn-outline-primary size-btn px-3 py-2 ${selectedSize === size ? 'active' : ''}`}
                     onClick={() => setSelectedSize(size)}
                   >
-                    {size}
+                    {typeof size === 'object' ? (size.name || JSON.stringify(size)) : size}
                   </button>
                 ))}
               </div>
             </div>
-
-          {/* ...existing code... */}
-        </div>
-      </div>
+            {/* Số lượng & nút hành động */}
+            <div className="mb-3 d-flex align-items-center gap-3">
+              <div className="input-group" style={{ maxWidth: '140px' }}>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <i className="fas fa-minus"></i>
+                </button>
+                <input
+                  type="text"
+                  className="form-control text-center"
+                  value={quantity}
+                  readOnly
+                  style={{ fontWeight: '600' }}
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setQuantity(q => q + 1)}
+                  disabled={!selectedVariant || quantity >= (selectedVariant?.quantity || 0)}
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+              <span className="text-muted small">{selectedVariant ? `Còn ${selectedVariant.quantity} sản phẩm` : ''}</span>
+            </div>
+            <div className="mb-3 d-flex gap-3">
+              <button
+                className="btn btn-outline-dark cart-btn flex-grow-1"
+                onClick={handleAddToCart}
+                disabled={!selectedVariant || selectedVariant.quantity === 0}
+              >
+                <i className="fas fa-shopping-cart me-2"></i>
+                {!selectedVariant ? 'Chọn màu & size' : selectedVariant.quantity === 0 ? 'Hết hàng' : 'Thêm vào giỏ'}
+              </button>
+              <button
+                className="btn buy-btn flex-grow-1"
+                onClick={handleBuyNow}
+                disabled={!selectedVariant || selectedVariant.quantity === 0}
+              >
+                <i className="fas fa-bolt me-2"></i>
+                {!selectedVariant ? 'Chọn màu & size' : selectedVariant.quantity === 0 ? 'Hết hàng' : 'Mua ngay'}
+              </button>
+            </div>
+          </div> {/* Đóng col-md-6 */}
+        </div> {/* Đóng row g-5 */}
+      </div> {/* Đóng container py-5 */}
       {/* Tabs Section: Description, Comments, Reviews */}
       <div className="container py-5">
         <div className="row">
@@ -515,11 +559,11 @@ function ProductDetail() {
                           </tr>
                           <tr>
                             <td className="fw-semibold">Màu sắc</td>
-                            <td>{product.colors.map(c => c.name).join(', ')}</td>
+                            <td>{[...new Map((product.colors || []).filter(c => c && c.name).map(c => [c.id, c.name])).values()].join(', ')}</td>
                           </tr>
                           <tr>
                             <td className="fw-semibold">Kích thước</td>
-                            <td>{[...new Set(product.variants.map(v => v.size))].join(', ')}</td>
+                            <td>{[...new Map((product.variants || []).map(v => [v.size?.id, v.size?.name])).values()].join(', ')}</td>
                           </tr>
                           <tr>
                             <td className="fw-semibold">Tổng số lượng</td>

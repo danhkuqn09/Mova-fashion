@@ -34,4 +34,16 @@ axios.interceptors.response.use(
     }
 );
 
+axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        // Tự động gắn token cho các request admin
+        if (token && config.url && config.url.includes('/api/admin/')) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 export default axios;

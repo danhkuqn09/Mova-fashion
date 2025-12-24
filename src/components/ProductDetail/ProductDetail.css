@@ -1,3 +1,41 @@
+/* Style nút Thêm vào giỏ và Mua ngay đồng bộ thương hiệu */
+.btn-outline-dark.cart-btn {
+  border-color: #b88e2f;
+  color: #b88e2f;
+  background: #fff;
+  transition: all 0.2s;
+}
+.btn-outline-dark.cart-btn:hover,
+.btn-outline-dark.cart-btn.active {
+  background: #b88e2f;
+  color: #fff;
+  border-color: #b88e2f;
+}
+.btn.buy-btn {
+  background: #b88e2f;
+  color: #fff;
+  border-color: #b88e2f;
+  transition: all 0.2s;
+}
+.btn.buy-btn:hover,
+.btn.buy-btn.active {
+  background: #9a7628;
+  color: #fff;
+  border-color: #9a7628;
+}
+/* Style nút size đồng bộ thương hiệu */
+.btn-outline-primary.size-btn {
+  border-color: #b88e2f;
+  color: #b88e2f;
+  background: #fff;
+  transition: all 0.2s;
+}
+.btn-outline-primary.size-btn:hover,
+.btn-outline-primary.size-btn.active {
+  background: #b88e2f;
+  color: #fff;
+  border-color: #b88e2f;
+}
 /* ProductDetail Wrapper */
 .ProductDetail {
     font-family: "Segoe UI", "Roboto", sans-serif;

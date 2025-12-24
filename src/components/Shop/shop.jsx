@@ -44,12 +44,13 @@ function Shop() {
   const keyword = new URLSearchParams(location.search).get("keyword") || "";
 
   useEffect(() => {
-    if (keyword) {
-      handleSearch(keyword);
-    } else {
-      fetchAllData();
-    }
-  }, [keyword]);
+  if (keyword) {
+    handleFilterSubmit(); // dùng chung filter
+  } else {
+    fetchAllData();
+  }
+}, [keyword]);
+
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -87,33 +88,33 @@ function Shop() {
     }
   };
 
-  const handleSearch = async (term) => {
-    setLoading(true);
-    setSelectedCategory(null);
-    setIsFiltering(true); // Đang tìm kiếm là đang lọc
-    try {
-      const res = await axios.get(
-        `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(
-          term
-        )}`
-      );
+  // const handleSearch = async (term) => {
+  //   setLoading(true);
+  //   setSelectedCategory(null);
+  //   setIsFiltering(true); // Đang tìm kiếm là đang lọc
+  //   try {
+  //     const res = await axios.get(
+  //       `http://localhost:8000/api/products/search?keyword=${encodeURIComponent(
+  //         term
+  //       )}`
+  //     );
 
-      const getData = (res) => {
-        if (Array.isArray(res.data)) return res.data;
-        if (Array.isArray(res.data.data)) return res.data.data;
-        if (Array.isArray(res.data.data?.products?.data))
-          return res.data.data.products.data;
-        return [];
-      };
+  //     const getData = (res) => {
+  //       if (Array.isArray(res.data)) return res.data;
+  //       if (Array.isArray(res.data.data)) return res.data.data;
+  //       if (Array.isArray(res.data.data?.products?.data))
+  //         return res.data.data.products.data;
+  //       return [];
+  //     };
 
-      const productsData = getData(res);
-      setProducts(productsData);
-    } catch (error) {
-      console.error("Lỗi khi tìm kiếm sản phẩm:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const productsData = getData(res);
+  //     setProducts(productsData);
+  //   } catch (error) {
+  //     console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleCategoryClick = async (categoryId) => {
     setSelectedCategory(categoryId);
@@ -180,22 +181,22 @@ function Shop() {
   };
 
   // Render stars
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+  // const renderStars = (rating) => {
+  //   const stars = [];
+  //   const fullStars = Math.floor(rating);
+  //   const hasHalfStar = rating % 1 >= 0.5;
 
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(<i key={i} className="fas fa-star text-warning"></i>);
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(<i key={i} className="fas fa-star-half-alt text-warning"></i>);
-      } else {
-        stars.push(<i key={i} className="far fa-star text-warning"></i>);
-      }
-    }
-    return stars;
-  };
+  //   for (let i = 0; i < 5; i++) {
+  //     if (i < fullStars) {
+  //       stars.push(<i key={i} className="fas fa-star text-warning"></i>);
+  //     } else if (i === fullStars && hasHalfStar) {
+  //       stars.push(<i key={i} className="fas fa-star-half-alt text-warning"></i>);
+  //     } else {
+  //       stars.push(<i key={i} className="far fa-star text-warning"></i>);
+  //     }
+  //   }
+  //   return stars;
+  // };
 
   // Render functions
   const renderProducts = (list) =>

@@ -227,7 +227,7 @@
 }
 
 .news-detail-image {
-  width: 100%;
+  width: 50%;
   max-height: 500px;
   object-fit: cover;
   border-radius: 12px;

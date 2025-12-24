@@ -173,14 +173,12 @@ const OrderDetail = () => {
   return (
     <div className="order-detail-container">
       <Link to="/order" className="back-link">← Quay lại danh sách</Link>
-
       <div className="order-header">
         <h2>Chi tiết đơn hàng #{order.id}</h2>
         <span className={`status-badge ${order.status}`}>
           {order.status_text || order.status}
         </span>
       </div>
-
       <div className="order-info-grid">
         <div className="info-col">
           <h3>Thông tin người nhận</h3>

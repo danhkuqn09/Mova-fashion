@@ -188,6 +188,7 @@ const OrderDetail = () => {
         </div>
         <div className="info-col">
           <h3>Thông tin đơn hàng</h3>
+          <p><strong>Mã đơn:</strong> {order.order_code}</p>
           <p><strong>Ngày đặt:</strong> {order.created_at}</p>
           <p>
             <strong>Phương thức thanh toán:</strong> {order.payment_method_text || getPaymentMethodText(order.payment_method)}
@@ -225,8 +226,8 @@ const OrderDetail = () => {
                 </td>
                 <td>
                   {item.product.name}<br />
-                  Màu: {item.product_variant?.color?.name || item.product_variant?.color?.hex_code || "Không có"}<br />
-                  Size: {item.product_variant?.size?.name || "Không có"}
+                  Màu: {item.variant?.color || "Không có"}<br />
+                  Size: {item.variant?.size || "Không có"}
                 </td>
                 <td>{Number(item.price).toLocaleString("vi-VN")} ₫</td>
                 <td>{item.quantity}</td>
@@ -238,10 +239,6 @@ const OrderDetail = () => {
       </div>
 
       <div className="order-summary">
-        <div className="summary-row">
-          <span>Phí vận chuyển:</span>
-          <span>{Number(30000).toLocaleString("vi-VN")} ₫</span>
-        </div>
         {order.pricing?.discount_amount > 0 && (
           <div className="summary-row discount">
             <span>Giảm giá:</span>
@@ -274,9 +271,9 @@ const OrderDetail = () => {
                 minLength={10}
                 maxLength={1000}
               />
-              <small className="text-muted">
+              {/* <small className="text-muted">
                 {reviewContent.length}/1000 ký tự {reviewContent.length < 10 && `(cần thêm ${10 - reviewContent.length} ký tự)`}
-              </small>
+              </small> */}
               <input type="file" accept="image/jpeg,image/png,image/jpg,image/webp" onChange={e => setReviewImage(e.target.files[0])} />
               <button onClick={handleSubmitReview}>Gửi đánh giá</button>
             </div>

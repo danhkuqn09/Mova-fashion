@@ -190,6 +190,9 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
 }
 
 .mynew-item button:first-of-type {

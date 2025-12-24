@@ -13,14 +13,13 @@ const AddProduct = () => {
         tag: "",
         category_id: "",
         image: null,
-        colors: [],
         variants: [],
     });
-
     const [categories, setCategories] = useState([]);
+    const [colorOptions, setColorOptions] = useState([]);
+    const [sizeOptions, setSizeOptions] = useState([]);
     const token = localStorage.getItem("token");
 
-    // Fetch danh sách danh mục
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -32,6 +31,8 @@ const AddProduct = () => {
             }
         };
         fetchCategories();
+        axios.get("http://localhost:8000/api/admin/colors").then(res => setColorOptions(res.data.data || []));
+        axios.get("http://localhost:8000/api/admin/sizes").then(res => setSizeOptions(res.data.data || []));
     }, []);
 
     // Format giá tiền VND
@@ -48,47 +49,49 @@ const AddProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Kiểm tra biến thể
+        for (let i = 0; i < formData.variants.length; i++) {
+            const v = formData.variants[i];
+            // Ép kiểu về số
+            v.size_id = parseInt(v.size_id);
+            v.color_id = parseInt(v.color_id);
+            v.quantity = parseInt(v.quantity);
+            if (v.price) v.price = parseInt(v.price);
+            if (!v.size_id || !v.color_id || !v.quantity) {
+                alert(`Biến thể thứ ${i + 1} thiếu size, màu hoặc số lượng!`);
+                return;
+            }
+        }
         try {
             const form = new FormData();
-
             form.append("name", formData.name);
             form.append("description", formData.description);
             form.append("price", formData.price);
-
             if (formData.sale_price) form.append("sale_price", formData.sale_price);
             if (formData.tag) form.append("tag", formData.tag);
-
             form.append("category_id", formData.category_id);
             if (formData.image) form.append("image", formData.image);
-
-            // COLORS
-            formData.colors.forEach((c, i) => {
-                form.append(`colors[${i}][name]`, c.name);
-                form.append(`colors[${i}][color_code]`, c.color_code);
-                if (c.image instanceof File) form.append(`colors[${i}][image]`, c.image);
-            });
-
             // VARIANTS
             formData.variants.forEach((v, i) => {
-                form.append(`variants[${i}][size]`, v.size);
+                form.append(`variants[${i}][size_id]`, v.size_id);
                 form.append(`variants[${i}][quantity]`, v.quantity);
                 if (v.price) form.append(`variants[${i}][price]`, v.price);
-                form.append(`variants[${i}][color_index]`, v.color_index);
+                form.append(`variants[${i}][color_id]`, v.color_id);
             });
-
-            await axios.post("http://localhost:8000/api/admin/products", form, {
+            const res = await axios.post("http://localhost:8000/api/admin/products", form, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
                 },
             });
-
             alert("Thêm sản phẩm thành công!");
             window.location.href = "/admin/products";
-            
         } catch (error) {
-            console.log(error.response.data);
-            alert("Có lỗi xảy ra");
+            if (error.response && error.response.data) {
+                alert(error.response.data.message || "Có lỗi xảy ra");
+            } else {
+                alert("Có lỗi xảy ra");
+            }
         }
     };
 
@@ -223,91 +226,7 @@ const AddProduct = () => {
                         </div>
 
                         {/* Màu sắc */}
-                        <div className="card border-0 shadow-sm mb-4">
-                            <div className="card-header bg-white py-3">
-                                <h5 className="mb-0">
-                                    <i className="fas fa-palette me-2" style={{ color: '#e67e22' }}></i>
-                                    Danh sách màu sắc
-                                </h5>
-                            </div>
-                            <div className="card-body">
-                                {formData.colors.map((c, index) => (
-                                    <div key={index} className="border rounded p-3 mb-3" style={{ backgroundColor: '#f8f9fa' }}>
-                                        <div className="row g-3 align-items-center">
-                                            <div className="col-md-4">
-                                                <label className="form-label small mb-1">Tên màu</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Vd: Đỏ, Xanh..."
-                                                    value={c.name}
-                                                    onChange={(e) => {
-                                                        const arr = [...formData.colors];
-                                                        arr[index].name = e.target.value;
-                                                        setFormData({ ...formData, colors: arr });
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div className="col-md-3">
-                                                <label className="form-label small mb-1">Mã màu</label>
-                                                <input
-                                                    type="color"
-                                                    className="form-control form-control-color w-100"
-                                                    value={c.color_code}
-                                                    onChange={(e) => {
-                                                        const arr = [...formData.colors];
-                                                        arr[index].color_code = e.target.value;
-                                                        setFormData({ ...formData, colors: arr });
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div className="col-md-4">
-                                                <label className="form-label small mb-1">Ảnh màu</label>
-                                                <input
-                                                    type="file"
-                                                    className="form-control"
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        const arr = [...formData.colors];
-                                                        arr[index].image = e.target.files[0];
-                                                        setFormData({ ...formData, colors: arr });
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div className="col-md-1">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-danger btn-sm w-100 mt-4"
-                                                    onClick={() => {
-                                                        setFormData({
-                                                            ...formData,
-                                                            colors: formData.colors.filter((_, i) => i !== index),
-                                                        });
-                                                    }}
-                                                >
-                                                    <i className="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-primary"
-                                    onClick={() =>
-                                        setFormData({
-                                            ...formData,
-                                            colors: [...formData.colors, { name: "", color_code: "#000000", image: null }],
-                                        })
-                                    }
-                                >
-                                    <i className="fas fa-plus me-2"></i>Thêm màu
-                                </button>
-                            </div>
-                        </div>
+                        {/* Không nhập màu thủ công, dùng dropdown màu từ bảng chung */}
 
                         {/* Biến thể */}
                         <div className="card border-0 shadow-sm mb-4">
@@ -329,17 +248,20 @@ const AddProduct = () => {
                                         <div className="row g-3 align-items-center">
                                             <div className="col-md-2">
                                                 <label className="form-label small mb-1">Size</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="S, M, L..."
-                                                    value={v.size}
-                                                    onChange={(e) => {
+                                                <select
+                                                    className="form-select"
+                                                    value={v.size_id || ""}
+                                                    onChange={e => {
                                                         const arr = [...formData.variants];
-                                                        arr[index].size = e.target.value;
+                                                        arr[index].size_id = e.target.value;
                                                         setFormData({ ...formData, variants: arr });
                                                     }}
-                                                />
+                                                >
+                                                    <option value="">--Chọn size--</option>
+                                                    {sizeOptions.map(s => (
+                                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             <div className="col-md-2">
@@ -376,17 +298,16 @@ const AddProduct = () => {
                                                 <label className="form-label small mb-1">Màu sắc</label>
                                                 <select
                                                     className="form-select"
-                                                    value={v.color_index}
-                                                    onChange={(e) => {
+                                                    value={v.color_id || ""}
+                                                    onChange={e => {
                                                         const arr = [...formData.variants];
-                                                        arr[index].color_index = e.target.value;
+                                                        arr[index].color_id = e.target.value;
                                                         setFormData({ ...formData, variants: arr });
                                                     }}
                                                 >
-                                                    {formData.colors.map((c, i) => (
-                                                        <option key={i} value={i}>
-                                                            {c.name || `Màu ${i + 1}`}
-                                                        </option>
+                                                    <option value="">--Chọn màu--</option>
+                                                    {colorOptions.map(c => (
+                                                        <option key={c.id} value={c.id}>{c.name}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -414,7 +335,7 @@ const AddProduct = () => {
                                     onClick={() =>
                                         setFormData({
                                             ...formData,
-                                            variants: [...formData.variants, { size: "", quantity: 0, price: "", color_index: 0 }],
+                                            variants: [...formData.variants, { size_id: "", color_id: "", quantity: 0, price: "" }],
                                         })
                                     }
                                 >

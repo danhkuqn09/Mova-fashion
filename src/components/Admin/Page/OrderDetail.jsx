@@ -121,7 +121,69 @@ const OrderDetail = () => {
     fetchOrder();
   }, []);
 
-  if (loading) return <p>Đang tải...</p>;
+  if (loading) {
+    return (
+      <div className="admin-container">
+        <Sidebar />
+        <div className="admin-main">
+          <Topbar />
+          <div className="admin-page">
+            <button className="back-btn" style={{ opacity: 0.5 }} disabled>⬅ Quay lại</button>
+            <h1 style={{ opacity: 0.5, minHeight: 32, background: '#f2f2f2', borderRadius: 4, width: 300, margin: '16px 0' }} />
+            <div className="order-detail-container">
+              {/* Skeleton cho các section */}
+              <div className="order-info-section">
+                <div className="section-header"><h3 style={{ background: '#f2f2f2', minHeight: 24, borderRadius: 4, width: 180 }} /></div>
+                <div className="info-grid">
+                  {[...Array(5)].map((_, i) => (
+                    <div className="info-item" key={i}>
+                      <span className="label" style={{ background: '#f2f2f2', minWidth: 80, minHeight: 16, display: 'inline-block', borderRadius: 4 }} />
+                      <span className="value" style={{ background: '#f2f2f2', minWidth: 120, minHeight: 16, display: 'inline-block', borderRadius: 4, marginLeft: 8 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="order-info-section">
+                <div className="section-header"><h3 style={{ background: '#f2f2f2', minHeight: 24, borderRadius: 4, width: 180 }} /></div>
+                <div className="products-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        {['Hình ảnh','Sản phẩm','Màu sắc','Kích thước','Đơn giá','Số lượng','Thành tiền'].map((h, i) => (
+                          <th key={i}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...Array(3)].map((_, i) => (
+                        <tr key={i}>
+                          <td><div style={{ width: 48, height: 48, background: '#f2f2f2', borderRadius: 8 }} /></td>
+                          {[...Array(6)].map((_, j) => (
+                            <td key={j}><div style={{ background: '#f2f2f2', minHeight: 16, borderRadius: 4, width: 80 }} /></td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="order-info-section">
+                <div className="section-header"><h3 style={{ background: '#f2f2f2', minHeight: 24, borderRadius: 4, width: 120 }} /></div>
+                <div className="payment-summary">
+                  {[...Array(3)].map((_, i) => (
+                    <div className="summary-row" key={i}>
+                      <span className="label" style={{ background: '#f2f2f2', minWidth: 80, minHeight: 16, display: 'inline-block', borderRadius: 4 }} />
+                      <span className="value" style={{ background: '#f2f2f2', minWidth: 120, minHeight: 16, display: 'inline-block', borderRadius: 4, marginLeft: 8 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-container">
@@ -209,79 +271,97 @@ const OrderDetail = () => {
               </div>
             </div>
 
-            {/* Danh sách sản phẩm */}
-            <div className="order-info-section">
-              <div className="section-header">
-                <h3>📦 Danh sách sản phẩm</h3>
-              </div>
-              <div className="products-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Hình ảnh</th>
-                      <th>Sản phẩm</th>
-                      <th>Màu sắc</th>
-                      <th>Kích thước</th>
-                      <th>Đơn giá</th>
-                      <th>Số lượng</th>
-                      <th>Thành tiền</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {order.items.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <img
-                            src={item.product_variant?.color?.image
-                              ? `http://localhost:8000/storage/${item.product_variant.color.image}`
-                              : (item.product_variant?.product?.image
-                                ? `http://localhost:8000/storage/${item.product_variant.product.image}`
-                                : '/placeholder.png')
-                            }
-                            alt={item.product_variant?.product?.name || 'Product'}
-                            className="product-thumb"
-                            onError={(e) => { e.target.src = '/placeholder.png'; }}
-                          />
-                        </td>
-                        <td className="product-name">{item.product_variant?.product?.name || 'N/A'}</td>
-                        <td>{item.product_variant?.color?.color_name || 'N/A'}</td>
-                        <td>{item.product_variant?.size || 'N/A'}</td>
-                        <td>{formatVND(item.price)}</td>
-                        <td className="quantity">{item.quantity}</td>
-                        <td className="total-price">{formatVND(item.price * item.quantity)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Tổng tiền */}
-            <div className="order-info-section">
-              <div className="section-header">
-                <h3>💰 Thanh toán</h3>
-              </div>
-              <div className="payment-summary">
-                <div className="summary-row">
-                  <span className="label">Tổng tiền hàng:</span>
-                  <span className="value">{formatVND(order.original_total)}</span>
-                </div>
-                <div className="summary-row">
-                  <span className="label">Phí vận chuyển:</span>
-                  <span className="value">{formatVND(order.shipping_fee || 0)}</span>
-                </div>
-                {order.discount_amount > 0 && (
-                  <div className="summary-row discount">
-                    <span className="label">Giảm giá:</span>
-                    <span className="value">-{formatVND(order.discount_amount)}</span>
+            {/* Danh sách sản phẩm và thanh toán chỉ render khi có order.items */}
+            {Array.isArray(order.items) && order.items.length > 0 && (
+              <>
+                <div className="order-info-section">
+                  <div className="section-header">
+                    <h3>📦 Danh sách sản phẩm</h3>
                   </div>
-                )}
-                <div className="summary-row total">
-                  <span className="label">Tổng thanh toán:</span>
-                  <span className="value">{formatVND(order.final_total)}</span>
+                  <div className="products-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Hình ảnh</th>
+                          <th>Sản phẩm</th>
+                          <th>Màu sắc</th>
+                          <th>Kích thước</th>
+                          <th>Đơn giá</th>
+                          <th>Số lượng</th>
+                          <th>Thành tiền</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {order.items.map((item) => (
+                          <tr key={item.id}>
+                            <td>
+                              <div style={{ width: 60, height: 60, position: 'relative', background: '#f2f2f2', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img
+                                  src={item.product_variant?.color?.image
+                                    ? `http://localhost:8000/storage/${item.product_variant.color.image}`
+                                    : (item.product_variant?.product?.image
+                                      ? `http://localhost:8000/storage/${item.product_variant.product.image}`
+                                      : '/placeholder.png')
+                                  }
+                                  alt={item.product_variant?.product?.name || 'Product'}
+                                  className="product-thumb"
+                                  style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 6, background: '#e0e0e0', display: 'block' }}
+                                  onError={(e) => { e.target.src = '/placeholder.png'; }}
+                                  onLoad={e => { e.target.style.background = 'none'; }}
+                                />
+                              </div>
+                            </td>
+                            <td className="product-name">{item.product_variant?.product?.name || 'N/A'}</td>
+                            <td>{item.product_variant?.color?.name || item.product_variant?.color?.color_name || item.product_variant?.color?.hex_code || 'N/A'}</td>
+                            <td>{
+                              (() => {
+                                const size = item.product_variant?.size;
+                                if (!size) return 'N/A';
+                                if (typeof size === 'object') {
+                                  return size.name || size.size_name || size.value || JSON.stringify(size) || 'N/A';
+                                }
+                                if (typeof size === 'string' || typeof size === 'number') {
+                                  return size;
+                                }
+                                return 'N/A';
+                              })()
+                            }</td>
+                            <td>{formatVND(item.price)}</td>
+                            <td className="quantity">{item.quantity}</td>
+                            <td className="total-price">{formatVND(item.price * item.quantity)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            </div>
+                <div className="order-info-section">
+                  <div className="section-header">
+                    <h3>💰 Thanh toán</h3>
+                  </div>
+                  <div className="payment-summary">
+                    <div className="summary-row">
+                      <span className="label">Tổng tiền hàng:</span>
+                      <span className="value">{formatVND(order.original_total)}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span className="label">Phí vận chuyển:</span>
+                      <span className="value">{formatVND(30000)}</span>
+                    </div>
+                    {order.discount_amount > 0 && (
+                      <div className="summary-row discount">
+                        <span className="label">Giảm giá:</span>
+                        <span className="value">-{formatVND(order.discount_amount)}</span>
+                      </div>
+                    )}
+                    <div className="summary-row total">
+                      <span className="label">Tổng thanh toán:</span>
+                      <span className="value">{formatVND(order.final_total)}</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Cập nhật trạng thái */}
             <div className="order-info-section">

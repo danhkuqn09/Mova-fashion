@@ -37,62 +37,119 @@ const NewPage = () => {
   }, []);
 
   return (
-    <div className="news-container">
-      {/* Danh sách bài viết khác */}
-      {selectedNews && (
-        <div className="news-list">
-          <h2 className="related-title">Bài viết khác</h2>
-          {allNews
-            .filter((n) => n.id !== selectedNews.id) // loại bỏ bài đang xem
-            .map((n) => (
-              <div
-                key={n.id}
-                className="news-item"
-                onClick={() => fetchNewsDetail(n.id)}
-              >
-                {n.thumbnail && <img src={`http://localhost:8000${n.thumbnail}`} alt="" />}
-                <div className="news-info">
-                  <h3>{n.title}</h3>
-                  <p>{n.summary}</p>
-                  <p><b>Trạng thái:</b> {n.status_text || "published"}</p>
-                </div>
-
-              </div>
-            ))}
-        </div>
-      )}
-
-      {/* Chi tiết bài viết */}
-      {selectedNews && (
-        <div className="news-detail">
-          <h2>{selectedNews.title}</h2>
-          {selectedNews.thumbnail && <img src={`http://localhost:8000${selectedNews.thumbnail}`} alt="" />}
-          <h3><p>{selectedNews.content}</p></h3>
-          <p><b>Tác giả:</b> {selectedNews.author.name}</p>
-          <p><b>Ngày tạo:</b> {selectedNews.created_at}</p>
-          <button onClick={() => setSelectedNews(null)}>Đóng</button>
-        </div>
-      )}
-
-      {/* Nếu chưa chọn bài viết, hiện tất cả bài viết */}
-      {!selectedNews && (
-        <div className="news-list">
-          <h2>Tất cả bài viết</h2>
-          {allNews.map((n) => (
-            <div key={n.id} className="news-item" onClick={() => fetchNewsDetail(n.id)}>
-              {n.thumbnail && <img src={`http://localhost:8000${n.thumbnail}`} alt="" />}
-              <div className="news-info">
-                <h3>{n.title}</h3>
-                <p>{n.summary}</p>
-                <p><b>Trạng thái:</b> {n.status_text || "published"}</p>
-              </div>
+    <div className="news-page">
+      {selectedNews ? (
+        <div className="news-detail-container">
+          {/* Chi tiết bài viết */}
+          <div className="news-detail-main">
+            <button className="back-btn" onClick={() => setSelectedNews(null)}>
+              <i className="fas fa-arrow-left"></i> Quay lại
+            </button>
+            
+            <h1 className="news-detail-title">{selectedNews.title}</h1>
+            
+            <div className="news-meta">
+              <span className="meta-item">
+                <i className="far fa-user"></i> {selectedNews.author?.name || 'Admin'}
+              </span>
+              <span className="meta-item">
+                <i className="far fa-calendar"></i> {selectedNews.created_at}
+              </span>
+              <span className="meta-item">
+                <i className="far fa-eye"></i> {selectedNews.view_count || 0} lượt xem
+              </span>
             </div>
-          ))}
+
+            {selectedNews.thumbnail && (
+              <img 
+                src={`http://localhost:8000${selectedNews.thumbnail}`} 
+                alt={selectedNews.title}
+                className="news-detail-image"
+              />
+            )}
+
+            <div className="news-detail-content">
+              <p className="summary">{selectedNews.summary}</p>
+              <div className="content" dangerouslySetInnerHTML={{ __html: selectedNews.content }}></div>
+            </div>
+          </div>
+
+          {/* Sidebar - Bài viết khác */}
+          <aside className="news-sidebar">
+            <h3 className="sidebar-title">Bài viết khác</h3>
+            <div className="related-news-list">
+              {allNews
+                .filter((n) => n.id !== selectedNews.id)
+                .slice(0, 5)
+                .map((n) => (
+                  <div
+                    key={n.id}
+                    className="related-news-item"
+                    onClick={() => fetchNewsDetail(n.id)}
+                  >
+                    {n.thumbnail && (
+                      <img src={`http://localhost:8000${n.thumbnail}`} alt={n.title} />
+                    )}
+                    <div className="related-info">
+                      <h4>{n.title}</h4>
+                      <p className="related-date">
+                        <i className="far fa-calendar"></i> {n.created_at}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </aside>
+        </div>
+      ) : (
+        /* Danh sách tất cả bài viết */
+        <div className="news-list-container">
+          <div className="news-header">
+            <h1 className="page-title">
+              <i className="fas fa-newspaper"></i> Tất cả bài viết
+            </h1>
+            <p className="page-subtitle">Khám phá những tin tức và xu hướng mới nhất</p>
+          </div>
+
+          <div className="news-grid">
+            {allNews.length === 0 ? (
+              <div className="no-news">
+                <i className="fas fa-inbox fa-3x"></i>
+                <p>Chưa có bài viết nào</p>
+              </div>
+            ) : (
+              allNews.map((n) => (
+                <div key={n.id} className="news-card" onClick={() => fetchNewsDetail(n.id)}>
+                  <div className="news-card-image">
+                    {n.thumbnail ? (
+                      <img src={`http://localhost:8000${n.thumbnail}`} alt={n.title} />
+                    ) : (
+                      <div className="no-image">
+                        <i className="far fa-image"></i>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="news-card-content">
+                    <h3 className="news-card-title">{n.title}</h3>
+                    <p className="news-card-summary">{n.summary}</p>
+                    
+                    <div className="news-card-footer">
+                      <span className="author">
+                        <i className="far fa-user"></i> {n.author?.name || 'Admin'}
+                      </span>
+                      <span className="date">
+                        <i className="far fa-calendar"></i> {n.created_at}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
-
-
   );
 };
 

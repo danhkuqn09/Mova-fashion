@@ -17,6 +17,24 @@ const RegisterForm = () => {
   const [step, setStep] = useState(1); // 1: đăng ký, 2: nhập OTP
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+
+  const handleResendOtp = async () => {
+    setResending(true);
+    setResendMessage("");
+    
+    try {
+      const res = await axios.post("http://localhost:8000/api/resend-otp", {
+        email,
+      });
+      setResendMessage(res.data.message || "Đã gửi lại mã OTP!");
+    } catch (error) {
+      setResendMessage(error.response?.data?.message || "Lỗi khi gửi lại OTP!");
+    } finally {
+      setResending(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -131,6 +149,13 @@ const RegisterForm = () => {
                 <p className="auth-subtitle">
                   Nhập mã OTP đã được gửi đến <strong>{email}</strong>
                 </p>
+                
+                {resendMessage && (
+                  <div className={`auth-message ${resendMessage.includes("Lỗi") ? "error" : "success"}`}>
+                    {resendMessage}
+                  </div>
+                )}
+                
                 <form onSubmit={handleVerifyOtp}>
                   <input
                     type="text"
@@ -140,6 +165,18 @@ const RegisterForm = () => {
                     maxLength="6"
                     required
                   />
+                  
+                  <div className="resend-otp-section">
+                    <button 
+                      type="button" 
+                      onClick={handleResendOtp} 
+                      disabled={resending}
+                      className="resend-otp-btn"
+                    >
+                      {resending ? "Đang gửi..." : "Gửi lại mã OTP"}
+                    </button>
+                  </div>
+                  
                   <button type="submit" className="auth-submit-btn">Xác Nhận</button>
                 </form>
                 <div className="auth-link-section">

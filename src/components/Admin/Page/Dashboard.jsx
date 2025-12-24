@@ -260,7 +260,7 @@ const Dashboard = () => {
                     ) : (
                       pendingOrders.map(order => (
                         <tr key={order.id}>
-                          <td><span className="badge bg-primary">#{order.order_code || `ID-${order.id}`}</span></td>
+                          <td><span className="badge bg-primary">ID-{order.id}</span></td>
                           <td>{order.user?.name || 'N/A'}</td>
                           <td className="fw-semibold">
                             {order.final_total ? Number(order.final_total).toLocaleString('vi-VN') : '0'}₫

@@ -94,24 +94,15 @@
     opacity: 0.9;
 }
 
-/* ===========================
-   DELETE BUTTON
-   =========================== */
-.btn-delete {
+/* .btn-delete {
     background: #ff4747 !important;
     color: #ddd;
-}
+} */
 
-/* ===========================
-   TABLE STYLING (optional đẹp hơn)
-   =========================== */
 .admin-table td {
     vertical-align: middle;
 }
 
-/* ===========================
-   SCROLLBAR đẹp cho modal
-   =========================== */
 .modal-comment .modal-content::-webkit-scrollbar {
     width: 7px;
 }

@@ -89,8 +89,7 @@
 /* ===============================
    🎛️ NÚT HÀNH ĐỘNG
 ================================= */
-.btn-edit,
-.btn-delete {
+.btn-edit{
   padding: 6px 12px;
   border: none;
   border-radius: 6px;
@@ -119,9 +118,7 @@
   background-color: #b02a37;
 }
 
-/* ===============================
-   💬 MODAL (THÊM / SỬA)
-================================= */
+/* Thêm sửa */
 .modal-overlay {
   position: fixed;
   inset: 0;

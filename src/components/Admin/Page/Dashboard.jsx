@@ -23,6 +23,24 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+const statusTexts = {
+  pending: "Chờ xác nhận",
+  processing: "Đang xử lý",
+  shipping: "Đang giao hàng",
+  completed: "Hoàn thành",
+  cancelled: "Đã hủy",
+};
+const statusFlow = ["pending", "processing", "shipping", "completed"];
+const canSelectStatus = (currentStatus, optionStatus) => {
+  // Nếu đã hoàn hoặc hủy thì ko dc đổi
+  if (currentStatus === "completed" || currentStatus === "cancelled") {
+    return currentStatus === optionStatus;
+  }
+  const currentIndex = statusFlow.indexOf(currentStatus || "pending");
+  const optionIndex = statusFlow.indexOf(optionStatus);
+  // Chỉ cho đi từng bước
+  return optionIndex === currentIndex || optionIndex === currentIndex + 1;
+};
 
 const Dashboard = () => {
   const [overview, setOverview] = useState(null);
@@ -39,11 +57,18 @@ const Dashboard = () => {
     });
     setOverview(res.data.data);
   };
+  const loadRevenueByDay = async () => { // thêm phần ngày bắt đầu và kết thúc
+    const res = await axios.get(
+      `http://localhost:8000/api/admin/dashboard/revenue-by-day`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          start_date: startDate,
+          end_date: endDate,
+        },
+      }
+    );
 
-  const loadRevenueByDay = async () => {
-    const res = await axios.get(`http://localhost:8000/api/admin/dashboard/revenue-by-day`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
     setRevenueDay(res.data.data.revenues);
   };
 
@@ -53,16 +78,25 @@ const Dashboard = () => {
     });
     setPendingOrders(res.data.data.data);
   };
-
   const loadRevenueComparison = async () => {
     const res = await axios.get(`http://localhost:8000/api/admin/dashboard/revenue-comparison`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setComparison(res.data.data);
   };
+  // chọn ngày
+  const [startDate, setStartDate] = useState(() =>
+    new Date(new Date().setDate(new Date().getDate() - 7))
+      .toISOString()
+      .split("T")[0]
+  );
+
+  const [endDate, setEndDate] = useState(() =>
+    new Date().toISOString().split("T")[0]
+  );
 
   const handleUpdateStatus = async (orderId, newStatus) => {
-    if (!window.confirm(`Bạn có chắc muốn chuyển sang trạng thái "${newStatus}"?`)) {
+    if (!window.confirm(`Bạn có chắc muốn chuyển sang trạng thái "${statusTexts[newStatus]}"?`)) {
       return;
     }
 
@@ -111,6 +145,7 @@ const Dashboard = () => {
   useEffect(() => {
     loadAll();
   }, []);
+
 
   if (loading) {
     return (
@@ -241,14 +276,34 @@ const Dashboard = () => {
                             <select
                               className="form-select form-select-sm"
                               style={{ minWidth: '150px' }}
-                              value={order.status || 'pending'}
+                              value={order.status || "pending"}
+                              disabled={order.status === "completed" || order.status === "cancelled"}
                               onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                             >
-                              <option value="pending">Chờ xác nhận</option>
-                              <option value="processing">Đang xử lý</option>
-                              <option value="shipping">Đang giao</option>
-                              <option value="completed">Hoàn thành</option>
-                              <option value="cancelled">Đã hủy</option>
+                              {statusFlow.map((st) => (
+                                <option
+                                  key={st}
+                                  value={st}
+                                  disabled={!canSelectStatus(order.status, st)}
+                                >
+                                  {{
+                                    pending: "Chờ xác nhận",
+                                    processing: "Đang xử lý",
+                                    shipping: "Đang giao",
+                                    completed: "Hoàn thành",
+                                  }[st]}
+                                </option>
+                              ))}
+
+                              {/* Cancelled: chỉ cho nếu chưa completed */}
+                              {order.status !== "completed" && (
+                                <option
+                                  value="cancelled"
+                                  disabled={order.status === "cancelled"}
+                                >
+                                  Đã hủy
+                                </option>
+                              )}
                             </select>
                           </td>
                         </tr>
@@ -267,6 +322,34 @@ const Dashboard = () => {
               </h5>
             </div>
             <div className="card-body">
+              <div className="d-flex gap-3 mb-3 flex-wrap">
+                <div>
+                  <label className="form-label">Từ ngày</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Đến ngày</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+                <div className="align-self-end d-flex gap-2">
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={loadRevenueByDay}
+                  >
+                    <i className="fas fa-filter me-1"></i> Lọc
+                  </button>
+                </div>
+              </div>
               <Bar
                 data={{
                   labels: revenueDay.map((i) => i.date),

@@ -10,10 +10,20 @@ This is a backend system for an e-commerce application built using Laravel.
 - Order management
 - Payment integration (Momo)
 
+## API Highlights
+- Authentication API (login, register)
+- Product API (CRUD, search, filter)
+- Order API (create order, update status)
+
 ## Tech Stack
 - PHP (Laravel)
 - MySQL
 - RESTful API
+
+## Project Structure
+- Controller: Handle request/response
+- Service: Business logic
+- Model: Database interaction
 
 ## My Role
 - Backend Developer (Laravel)
@@ -22,7 +32,6 @@ This is a backend system for an e-commerce application built using Laravel.
 - Designed database schema and optimized queries
 - Applied clean code principles and handled debugging
 
-
 ## Team
 - Backend: Nguyen Thanh Danh (me)
 - Frontend: Teammate (React/Vue)
@@ -30,5 +39,6 @@ This is a backend system for an e-commerce application built using Laravel.
 ## How to run
 - Clone repository
 - Run `composer install`
-- Setup `.env`
+- Copy `.env.example` to `.env`
+- Configure database
 - Run `php artisan serve`

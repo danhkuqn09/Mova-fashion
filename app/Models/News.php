@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class News extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'title',
+        'thumbnail',
+        'summary',
+        'content',
+        'status',
+        'view_count',
+    ];
+
+    protected $casts = [
+        'status' => 'string',
+        'view_count' => 'integer',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}

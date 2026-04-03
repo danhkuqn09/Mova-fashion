@@ -16,11 +16,16 @@ This is a backend system for an e-commerce application built using Laravel.
 - RESTful API
 
 ## My Role
-- Backend Developer
-- Responsible for API development, database design, and business logic
+- Backend Developer (Laravel)
+- Developed RESTful APIs for frontend integration
+- Built core e-commerce features: authentication, order processing, payment integration
+- Designed database schema and optimized queries
+- Applied clean code principles and handled debugging
 
-## Frontend
-Frontend is handled separately by another team member.
+
+## Team
+- Backend: Nguyen Thanh Danh (me)
+- Frontend: Teammate (React/Vue)
 
 ## How to run
 - Clone repository

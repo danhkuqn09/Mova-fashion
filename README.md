@@ -10,6 +10,13 @@ This is a backend system for an e-commerce application built using Laravel.
 - Order management
 - Payment integration (Momo)
 
+## Database Design
+The ERD below shows the core entities and relationships in the system:
+
+![ERD](./docs/erd.png)
+
+See details: [Database Documentation](./docs/database.md)
+
 ## API Highlights
 - Authentication API (login, register)
 - Product API (CRUD, search, filter)
